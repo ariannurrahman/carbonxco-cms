@@ -9,7 +9,7 @@ export const Login = () => {
 
   const onFinish = (payload: LoginPayload) => {
     login(payload);
-    navigate('/dashboard/home');
+    navigate('/dashboard/item');
   };
 
   // eslint-disable-next-line
