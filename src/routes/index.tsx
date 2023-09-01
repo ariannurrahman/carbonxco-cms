@@ -9,6 +9,7 @@ const AppRoutes = () => {
       <Route path='/auth/*' element={<AuthRoutes />} />
       <Route path='/dashboard/*' element={<DashboardRoutes />} />
       <Route path='' element={<Navigate to='/auth/login' />} />
+      <Route path='*' element={<Navigate to='/auth/login' />} />
     </Routes>
   );
 };
