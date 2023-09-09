@@ -1,4 +1,4 @@
 export const SIDEBAR_NAV = [
-  { href: 'item', label: 'Item Registration' },
-  { href: 'customer', label: 'Customer' },
+  { href: 'item', label: 'Item' },
+  { href: 'pre-order', label: 'Pre-Order' },
 ];

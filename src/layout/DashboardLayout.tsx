@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { Layout } from 'antd';
 
 import { Sidebar as VIPSidebar } from 'layout/sidebar';
 import { Header as VIPHeader } from './header';
+import { useDetectScreen } from 'hooks/useDetectScreen';
 
 const { Header, Content } = Layout;
 
 export function DashboardLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+  const { isMobile } = useDetectScreen();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
   const onClickSidebar = () => setIsSidebarOpen((prevState) => !prevState);
+  useEffect(() => {
+    const detectDevice = () => {
+      if (isMobile) {
+        setIsSidebarOpen(false);
+      }
+      if (!isMobile) {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    detectDevice();
+  }, [isMobile]);
 
   const accessToken = localStorage.getItem('accessToken');
 

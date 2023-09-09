@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { SIDEBAR_NAV } from './constants';
 import classNames from 'classnames';
-import { Button } from 'antd';
 import { useAuth } from 'hooks/useAuth';
+import { VIPButton } from 'components/button';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -37,16 +37,16 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
             key={label}
             className={classNames({
               'flex items-center pl-3 rounded-md h-[40px]': true,
-              'text-[#1677ff]': isActiveLocation(href),
+              'text-[#1677ff] bg-sky-200': isActiveLocation(href),
               'hover:bg-sky-100 hover:text-sky-800 focus:outline-none': true,
             })}
           >
             {label}
           </Link>
         ))}
-        <Button onClick={onClickSignOut} type='primary' className='align-bottom bg-[#1677ff] w-full'>
+        <VIPButton size='middle' onClick={onClickSignOut} type='primary' className='align-bottom w-full'>
           Sign Out
-        </Button>
+        </VIPButton>
       </div>
     </aside>
   );

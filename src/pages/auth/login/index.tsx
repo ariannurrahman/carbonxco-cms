@@ -1,4 +1,5 @@
-import { Button, Card, Form, Input, Row, Typography } from 'antd';
+import { Button, Card, Form, Input, Row, Typography, message } from 'antd';
+import { VIPButton } from 'components/button';
 import { useAuth } from 'hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPayload } from 'types/Auth';
@@ -9,7 +10,11 @@ export const Login = () => {
 
   const onFinish = (payload: LoginPayload) => {
     login(payload);
-    navigate('/dashboard/item');
+    if (payload.password === 'inventory') {
+      navigate('/dashboard/item');
+    } else {
+      return message.error('Wrong password');
+    }
   };
 
   // eslint-disable-next-line
@@ -24,7 +29,7 @@ export const Login = () => {
       </Typography.Title>
       <Row>
         <Form
-          name='basic'
+          name='login-form'
           layout='vertical'
           className='w-[300px] mt-3'
           initialValues={{ remember: true }}
@@ -33,26 +38,26 @@ export const Login = () => {
           autoComplete='off'
           requiredMark={false}
         >
-          <Form.Item<LoginPayload>
+          {/* <Form.Item<LoginPayload>
             label='Username'
             name='username'
             rules={[{ required: true, message: 'Please input your username!' }]}
           >
             <Input size='large' placeholder='Insert username' />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item<LoginPayload>
             label='Password'
             name='password'
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: 'Please input the password!' }]}
           >
             <Input.Password size='large' placeholder='Insert password' autoComplete='on' />
           </Form.Item>
 
           <Form.Item>
-            <Button className='w-full bg-[#1677ff]' size='large' type='primary' htmlType='submit'>
+            <VIPButton className='w-full' size='large' type='primary' htmlType='submit'>
               Submit
-            </Button>
+            </VIPButton>
           </Form.Item>
         </Form>
       </Row>

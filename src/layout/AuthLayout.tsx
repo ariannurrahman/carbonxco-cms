@@ -8,7 +8,7 @@ export function AuthLayout() {
   console.log('accessToken auth', accessToken);
 
   if (accessToken) {
-    return <Navigate to='/dashboard/home' />;
+    return <Navigate to='/dashboard/item' />;
   }
 
   return (
