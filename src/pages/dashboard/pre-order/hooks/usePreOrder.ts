@@ -35,16 +35,18 @@ export const usePreOrder = () => {
     //   },
     // });
   }, []);
-
   const { isLoading: isLoadingItemList, data } = useQuery({
     queryFn: fetchItems,
     queryKey: ['itemList'],
     refetchOnWindowFocus: false,
     retry: false,
   });
+  // eslint-disable-next-line
+  console.log(isLoadingItemList, tableParams, setTableParams);
 
   const dataSource = useMemo(() => {
-    return data?.data ?? [];
+    // eslint-disable-next-line
+    return data ?? [];
   }, [data]);
 
   const columns: ColumnsType<TableDataProps> = [

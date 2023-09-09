@@ -37,6 +37,9 @@ export const useItem = () => {
     query: { query_item_supplier_name: '', query_item_name: '' },
   });
 
+  // eslint-disable-next-line
+  console.log(setTableParams);
+
   const fetchItems = useCallback(async () => {
     return await getAllItem({
       pagination: { page: tableParams.pagination.page, limit: tableParams.pagination.limit },

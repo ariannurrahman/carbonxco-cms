@@ -16,23 +16,7 @@ export const Item = () => {
     onRowClick,
     onSubmitItemForm,
     onTableChange,
-    tableParams,
   } = useItem();
-
-  const DUMMY = [
-    {
-      item_name: 'first',
-      serial_number: 'serial 1',
-      supplier_name: ' supplier 1',
-      id: '1',
-    },
-    {
-      item_name: 'second',
-      serial_number: 'serial 2',
-      supplier_name: ' supplier 3',
-      id: '2',
-    },
-  ];
 
   return (
     <div className='h-[3000px]'>

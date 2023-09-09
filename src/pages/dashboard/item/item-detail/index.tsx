@@ -11,7 +11,6 @@ export const ItemDetail = () => {
 
   const params = useParams();
   const { id = '' } = params;
-  console.log('params', params);
 
   const { isLoading, data } = useQuery({
     queryFn: () => getItem(id),
@@ -19,6 +18,8 @@ export const ItemDetail = () => {
     refetchOnWindowFocus: false,
     retry: false,
   });
+  // eslint-disable-next-line
+  console.log(isLoading, data);
 
   const onClickEditItem = () => setIsFormDisable(false);
 
