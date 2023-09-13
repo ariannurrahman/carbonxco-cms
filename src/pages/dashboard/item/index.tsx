@@ -4,6 +4,7 @@ import { VIPButton } from 'components/button';
 import { PageTitle } from 'components/page-title';
 import { ItemModal } from './components/ItemModal';
 import { useItem } from './hooks/useItem';
+import { ItemFilter } from './components/ItemFilter';
 
 export const Item = () => {
   const {
@@ -11,10 +12,12 @@ export const Item = () => {
     isLoadingItemList,
     itemColumns: columns,
     itemDataSource: dataSource,
+    metadata,
     onCloseItemModal,
     onOpenItemModal,
     onRowClick,
     onSubmitItemForm,
+    onSubmitSearch,
     onTableChange,
   } = useItem();
 
@@ -29,7 +32,9 @@ export const Item = () => {
         }
       />
       <ItemModal isOpen={isItemModalOpen} onSubmit={onSubmitItemForm} onCancel={onCloseItemModal} />
+      <ItemFilter onSubmit={onSubmitSearch} />
       <Table
+        scroll={{ x: 300 }}
         onChange={onTableChange}
         onRow={(record) => ({
           onClick: () => onRowClick(record),
@@ -39,6 +44,11 @@ export const Item = () => {
         dataSource={dataSource}
         columns={columns}
         loading={isLoadingItemList}
+        pagination={{
+          defaultPageSize: 5,
+          pageSize: 5,
+          total: metadata?.total_items,
+        }}
       />
     </div>
   );

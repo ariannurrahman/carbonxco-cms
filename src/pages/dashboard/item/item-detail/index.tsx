@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Col, Input, Row, Form, Divider } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { Col, Input, Row, Form, Divider, message } from 'antd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getItem } from 'api/items';
+import { Item, getItem, updateItem } from 'api/items';
 import { VIPButton } from 'components/button';
 
 export const ItemDetail = () => {
+  const queryClient = useQueryClient();
+
   const [isFormDisable, setIsFormDisable] = useState(true);
+  const [form] = Form.useForm();
 
   const params = useParams();
   const { id = '' } = params;
@@ -18,12 +21,42 @@ export const ItemDetail = () => {
     refetchOnWindowFocus: false,
     retry: false,
   });
-  // eslint-disable-next-line
-  console.log(isLoading, data);
+
+  console.log('data', data);
+
+  const mutate = useMutation({
+    mutationKey: ['itemUpdate'],
+    mutationFn: (value: Item) => {
+      return updateItem(value);
+    },
+    onSuccess: () => {
+      message.success('Item updated!');
+      queryClient.invalidateQueries(['itemList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  useEffect(() => {
+    const initFormValue = () =>
+      form.setFieldsValue({
+        name: data?.data?.name,
+        supplier_name: data?.data?.supplier_name,
+        serial_number: data?.data?.serial_number,
+      });
+
+    initFormValue();
+  }, [data, form]);
 
   const onClickEditItem = () => setIsFormDisable(false);
 
-  const onSubmitForm = () => {
+  const onSubmitForm = (value: Item) => {
+    mutate.mutate({
+      ...value,
+      id,
+    });
     console.log('submit');
   };
 
@@ -43,12 +76,13 @@ export const ItemDetail = () => {
       <Row className='w-full'>
         <Col span={24}>
           <Form
+            form={form}
             layout='vertical'
             style={{ maxWidth: 600 }}
             name='edit-item-detail-form'
             requiredMark={false}
             onFinish={onSubmitForm}
-            disabled={isFormDisable}
+            disabled={isFormDisable || isLoading}
           >
             <Form.Item label='Item Name' name='name' rules={[{ required: true, message: 'Input item name!' }]}>
               <Input size='large' placeholder='Input item name' />

@@ -12,6 +12,7 @@ interface VIPButtonProps {
   danger?: boolean;
   disabled?: boolean;
   form?: string;
+  loading?: boolean;
 }
 
 export const VIPButton = (props: VIPButtonProps) => {
@@ -25,15 +26,17 @@ export const VIPButton = (props: VIPButtonProps) => {
     onClick,
     htmlType = 'button',
     icon,
+    loading,
   } = props;
   return (
     <Button
       {...props}
+      loading={loading}
       danger={danger}
       disabled={disabled}
       icon={icon}
       size={size}
-      className={`bg-[#1677ff] ${className}`}
+      className={`${type === 'primary' ? 'bg-[#1677ff]' : ''}  ${className}`}
       type={type}
       onClick={onClick}
       htmlType={htmlType}

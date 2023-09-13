@@ -1,74 +1,75 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 
-import { CreateItemPayload, createItem, getAllItem } from 'api/items';
-
-interface TableDataProps {
-  item_name: string;
-  serial_number: string;
-  supplier_name: string;
-  id: string;
-}
-
-interface TableParams {
-  pagination: {
-    page: number;
-    limit: number;
-  };
-  query: {
-    query_item_name: string;
-    query_item_supplier_name: string;
-  };
-}
+import { Item, createItem, getAllItem } from 'api/items';
+import { ItemTableParams, SearchQuery, TableDataProps } from '../types';
 
 export const useItem = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [tableParams, setTableParams] = useState<ItemTableParams>({
+    pagination: { page: 1, limit: 5 },
+    query: { item_name: '', item_supplier_name: '' },
+  });
 
   const onRowClick = (record: TableDataProps) => {
     navigate(`/dashboard/item/${record.id}`);
   };
 
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: { page: 1, limit: 15 },
-    query: { query_item_supplier_name: '', query_item_name: '' },
-  });
-
-  // eslint-disable-next-line
-  console.log(setTableParams);
+  const onSubmitSearch = (value: SearchQuery) => {
+    const searchPayload = tableParams;
+    searchPayload.query = value;
+    searchPayload.pagination = {
+      page: 1,
+      limit: 15,
+    };
+    setTableParams(searchPayload);
+    refetch();
+  };
 
   const fetchItems = useCallback(async () => {
     return await getAllItem({
       pagination: { page: tableParams.pagination.page, limit: tableParams.pagination.limit },
       query: {
-        query_item_supplier_name: tableParams.query?.query_item_supplier_name,
-        query_item_name: tableParams.query?.query_item_name,
+        item_name: tableParams.query?.item_name,
+        item_supplier_name: tableParams.query?.item_supplier_name,
       },
     });
   }, [tableParams]);
 
-  const { isLoading: isLoadingItemList, data } = useQuery({
+  const {
+    isLoading: isLoadingItemList,
+    data,
+    refetch,
+  } = useQuery({
     queryFn: fetchItems,
-    queryKey: ['itemList'],
+    queryKey: ['itemList', tableParams],
     refetchOnWindowFocus: false,
     retry: false,
   });
 
-  const dataSource = useMemo(() => {
+  const dataSource: Item[] = useMemo(() => {
     return data?.data ?? [];
   }, [data]);
 
-  const columns: ColumnsType<TableDataProps> = [
-    { title: 'Item Name', dataIndex: 'item_name', key: 'item_name' },
-    { title: 'Supplier Name', dataIndex: 'serial_number', key: 'serial_number' },
-    { title: 'Serial Number', dataIndex: 'supplier_name', key: 'supplier_name' },
+  const columns = [
+    { title: 'Item Name', dataIndex: 'name', key: 'name' },
+    { title: 'Supplier Name', dataIndex: 'supplier_name', key: 'supplier_name' },
+    { title: 'Serial Number', dataIndex: 'serial_number', key: 'serial_number' },
   ];
 
   const onTableChange = (event: any) => {
-    console.log('event', event);
+    const paginationPayload = tableParams;
+    paginationPayload.pagination = {
+      page: event.current,
+      limit: 5,
+    };
+    setTableParams(paginationPayload);
+    refetch();
   };
 
   const onOpenItemModal = () => {
@@ -81,13 +82,13 @@ export const useItem = () => {
 
   const mutation = useMutation({
     mutationKey: ['itemList'],
-    mutationFn: (value: CreateItemPayload) => {
+    mutationFn: (value: Item) => {
       return createItem(value);
     },
     onSuccess: () => {
       message.success('Item added!');
       onCloseItemModal();
-      fetchItems();
+      queryClient.invalidateQueries(['itemList']);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
@@ -95,7 +96,7 @@ export const useItem = () => {
     },
   });
 
-  const onSubmitItemForm = (value: CreateItemPayload) => {
+  const onSubmitItemForm = (value: Item) => {
     mutation.mutate(value);
   };
 
@@ -104,10 +105,12 @@ export const useItem = () => {
     isLoadingItemList,
     itemColumns: columns,
     itemDataSource: dataSource,
+    metadata: data?.metadata,
     onCloseItemModal,
     onOpenItemModal,
     onRowClick,
     onSubmitItemForm,
+    onSubmitSearch,
     onTableChange,
     tableParams,
   };

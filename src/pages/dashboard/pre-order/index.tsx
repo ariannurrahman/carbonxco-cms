@@ -1,24 +1,70 @@
 import { Table } from 'antd';
+
 import { VIPButton } from 'components/button';
 import { PageTitle } from 'components/page-title';
-import { useNavigate } from 'react-router-dom';
+import { usePreorder } from './hooks/usePreorder';
+import { ChangeModalStatus } from './components/ChangeModalStatus';
 
 export const PreOrder = () => {
-  const navigate = useNavigate();
-
-  const onClickCreatePo = () => navigate('/dashboard/pre-order/create');
+  const {
+    isLoadingSubmit,
+    isPoListLoading,
+    onGoToCreatePO,
+    onTableChange,
+    poColumns: columns,
+    poDataSource: dataSource,
+    poList,
+    isModalOpen,
+    onSubmitChangeStatusModal,
+    onCancelModal,
+  } = usePreorder();
 
   return (
     <div>
       <PageTitle
         title='Pre-Order'
         rightNode={
-          <VIPButton size='large' onClick={onClickCreatePo}>
+          <VIPButton size='large' onClick={onGoToCreatePO}>
             Create PO
           </VIPButton>
         }
       />
-      <Table rowKey='id' className='mt-3' />
+
+      <Table
+        scroll={{ x: 800 }}
+        loading={isPoListLoading}
+        rowKey='id'
+        className='mt-3'
+        columns={columns}
+        dataSource={dataSource}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 5,
+          pageSize: 5,
+          total: poList?.metadata?.total_items,
+        }}
+      />
+      <ChangeModalStatus
+        onSubmit={onSubmitChangeStatusModal}
+        onCancelModal={onCancelModal}
+        type='confirm'
+        isOpen={isModalOpen.confirm}
+        isLoadingSubmit={isLoadingSubmit}
+      />
+      <ChangeModalStatus
+        onSubmit={onSubmitChangeStatusModal}
+        onCancelModal={onCancelModal}
+        type='cancel'
+        isOpen={isModalOpen.cancel}
+        isLoadingSubmit={isLoadingSubmit}
+      />
+      <ChangeModalStatus
+        onSubmit={onSubmitChangeStatusModal}
+        onCancelModal={onCancelModal}
+        type='complete'
+        isOpen={isModalOpen.complete}
+        isLoadingSubmit={isLoadingSubmit}
+      />
     </div>
   );
 };

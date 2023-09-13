@@ -1,10 +1,10 @@
 import { Form, Input, Modal } from 'antd';
-import { CreateItemPayload } from 'api/items';
+import { Item } from 'api/items';
 import { VIPButton } from 'components/button';
 
 interface ItemModalProps {
   isOpen: boolean;
-  onSubmit: (value: CreateItemPayload) => void;
+  onSubmit: (value: Item) => void;
   onCancel: () => void;
 }
 

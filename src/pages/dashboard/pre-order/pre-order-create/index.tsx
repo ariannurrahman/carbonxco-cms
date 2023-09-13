@@ -1,14 +1,20 @@
-import { useState } from 'react';
-import { Col, Input, Form, Select, Row, Divider } from 'antd';
+import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
 
 import { VIPButton } from 'components/button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { usePreorder } from '../hooks/usePreorder';
 
 export const CreatePO = () => {
-  const [selectedSupplier, setSelectedSupplier] = useState('');
-
-  const onChangeSupplier = (supplierValue: string) => setSelectedSupplier(supplierValue);
-  const onSubmitForm = (e: any) => console.log('e', e);
+  const {
+    isItemLoading,
+    isSupplierLoading,
+    itemsList: modifiedItems,
+    onChangeSupplier,
+    onSubmitCreatePO,
+    selectedSupplier,
+    suppliersList: modifiedSupplier,
+    isLoadingSubmitPO,
+  } = usePreorder();
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -17,7 +23,13 @@ export const CreatePO = () => {
           <p className='text-left font-bold text-lg'>Create PO</p>
         </Col>
         <Col>
-          <VIPButton disabled={!selectedSupplier} form='create-po-form' type='primary' htmlType='submit'>
+          <VIPButton
+            disabled={!selectedSupplier || isLoadingSubmitPO}
+            loading={isLoadingSubmitPO}
+            form='create-po-form'
+            type='primary'
+            htmlType='submit'
+          >
             Submit
           </VIPButton>
         </Col>
@@ -31,7 +43,7 @@ export const CreatePO = () => {
             requiredMark={false}
             name='create-po-form'
             id='create-po-form'
-            onFinish={onSubmitForm}
+            onFinish={onSubmitCreatePO}
             autoComplete='off'
           >
             <Form.Item
@@ -41,16 +53,12 @@ export const CreatePO = () => {
               rules={[{ required: true, message: 'Input item name!' }]}
             >
               <Select
+                loading={isSupplierLoading}
                 size='large'
                 placeholder='Choose supplier'
                 style={{ width: 200 }}
                 onChange={onChangeSupplier}
-                options={[
-                  { value: 'supplier 1', label: 'Supplier 1' },
-                  { value: 'supplier 2', label: 'Supplier 2' },
-                  { value: 'supplier 3', label: 'Supplier 3' },
-                  { value: 'supplier 4', label: 'Supplier 4' },
-                ]}
+                options={modifiedSupplier}
               />
             </Form.Item>
             <Form.List name='po_items'>
@@ -58,38 +66,34 @@ export const CreatePO = () => {
                 <>
                   {fields.map(({ key, name, ...restField }) => (
                     <Row gutter={[12, 12]} key={key} className='p-3 mt-3 rounded border-b-2 shadow-sm'>
-                      <Col xs={24} lg={5}>
+                      <Col xs={24} lg={4}>
                         <Form.Item
                           {...restField}
                           label='Item Name'
-                          name={[name, 'item_name']}
+                          name={[name, 'item_id']}
                           rules={[{ required: true, message: 'Input item name!' }]}
                         >
                           <Select
+                            loading={isItemLoading}
                             placeholder='Choose Item'
                             size='large'
                             style={{ width: '100%' }}
                             onChange={onChangeSupplier}
-                            options={[
-                              { value: 'Item 1', label: 'Item 1' },
-                              { value: 'Item 2', label: 'Item 2' },
-                              { value: 'Item 3', label: 'Item 3' },
-                              { value: 'Item 4', label: 'Item 4' },
-                            ]}
+                            options={modifiedItems}
                           />
                         </Form.Item>
                       </Col>
-                      <Col xs={24} lg={5}>
+                      <Col xs={24} lg={4}>
                         <Form.Item
                           {...restField}
                           label='Quantity'
                           name={[name, 'quantity']}
                           rules={[{ required: true, message: 'Input quantity!' }]}
                         >
-                          <Input size='large' placeholder='Input quantity' />
+                          <InputNumber className='w-full' size='large' placeholder='Input quantity' />
                         </Form.Item>
                       </Col>
-                      <Col xs={24} lg={5}>
+                      <Col xs={24} lg={4}>
                         <Form.Item
                           {...restField}
                           label='Quantity Type'
@@ -99,13 +103,22 @@ export const CreatePO = () => {
                           <Input size='large' placeholder='Input quantity type' />
                         </Form.Item>
                       </Col>
-                      <Col xs={24} lg={5}>
+                      <Col xs={24} lg={4}>
                         <Form.Item
                           label='Lot Number'
                           name={[name, 'lot_number']}
                           rules={[{ required: true, message: 'Input lot number!' }]}
                         >
                           <Input size='large' placeholder='Input lot number' />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} lg={4}>
+                        <Form.Item
+                          label='Buy Price'
+                          name={[name, 'buy_price']}
+                          rules={[{ required: true, message: 'Input buy price!' }]}
+                        >
+                          <InputNumber className='w-full' size='large' type='tel' placeholder='Input buy price' />
                         </Form.Item>
                       </Col>
                       <Col xs={24} lg={4} className='flex justify-center items-center w-full'>

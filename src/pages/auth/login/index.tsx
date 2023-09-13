@@ -17,11 +17,6 @@ export const Login = () => {
     }
   };
 
-  // eslint-disable-next-line
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
-
   return (
     <Card className='p-3 w-[320px]'>
       <Typography.Title className='text-center mb-3' level={3}>
@@ -34,18 +29,9 @@ export const Login = () => {
           className='w-[300px] mt-3'
           initialValues={{ remember: true }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete='off'
           requiredMark={false}
         >
-          {/* <Form.Item<LoginPayload>
-            label='Username'
-            name='username'
-            rules={[{ required: true, message: 'Please input your username!' }]}
-          >
-            <Input size='large' placeholder='Insert username' />
-          </Form.Item> */}
-
           <Form.Item<LoginPayload>
             label='Password'
             name='password'
