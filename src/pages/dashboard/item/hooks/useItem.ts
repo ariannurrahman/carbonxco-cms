@@ -2,16 +2,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-
-import { Item, createItem, getAllItem } from 'api/items';
-import { ItemTableParams, SearchQuery, TableDataProps } from '../types';
+import { QueryParams, SearchQuery } from 'types/types';
+import { Item, TableDataProps } from 'types/Item';
+import { createItem, getAllItem } from 'api/items';
 
 export const useItem = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [tableParams, setTableParams] = useState<ItemTableParams>({
+  const [tableParams, setTableParams] = useState<QueryParams>({
     pagination: { page: 1, limit: 5 },
     query: { item_name: '', item_supplier_name: '' },
   });

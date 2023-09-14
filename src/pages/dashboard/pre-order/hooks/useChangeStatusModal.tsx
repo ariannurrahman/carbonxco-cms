@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ConfirmFormProps, ModalType } from '../types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
-import { ChangeStatusPoPayload, changeStatusPO } from 'api/pre-order';
+import { changeStatusPO } from 'api/pre-order';
+import { ChangeStatusPoPayload, ConfirmFormProps, ModalType } from 'types/Po';
 
 export const useChangeStatusModal = () => {
   const queryClient = useQueryClient();

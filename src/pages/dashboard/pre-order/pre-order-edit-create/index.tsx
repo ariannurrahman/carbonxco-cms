@@ -3,8 +3,15 @@ import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
 import { VIPButton } from 'components/button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePreorder } from '../hooks/usePreorder';
+import { useLocation, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { PoState } from 'types/Po';
 
 export const CreatePO = () => {
+  const location = useLocation();
+  const { id } = useParams();
+
+  const [form] = Form.useForm();
   const {
     isItemLoading,
     isSupplierLoading,
@@ -14,7 +21,27 @@ export const CreatePO = () => {
     selectedSupplier,
     suppliersList: modifiedSupplier,
     isLoadingSubmitPO,
+    isDetailPreOrderLoading,
+    detailPreOrder,
   } = usePreorder();
+
+  console.log('detailPreOrder', detailPreOrder);
+  console.log('isDetailPreOrderLoading', isDetailPreOrderLoading);
+
+  const status: PoState = location.state;
+
+  useEffect(() => {
+    if (status !== 'edit') return;
+    const initEdit = () => {
+      form.setFieldsValue({
+        supplier_name: 'test',
+      });
+    };
+    initEdit();
+  }, [form, status]);
+
+  console.log('selectedSupplier', selectedSupplier);
+  console.log('id', id);
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -30,7 +57,7 @@ export const CreatePO = () => {
             type='primary'
             htmlType='submit'
           >
-            Submit
+            {status === 'create' ? 'Submit' : 'Save'}
           </VIPButton>
         </Col>
       </Row>
@@ -39,6 +66,7 @@ export const CreatePO = () => {
       <Row className='w-full'>
         <Col span={24}>
           <Form
+            form={form}
             layout='vertical'
             requiredMark={false}
             name='create-po-form'
@@ -53,6 +81,7 @@ export const CreatePO = () => {
               rules={[{ required: true, message: 'Input item name!' }]}
             >
               <Select
+                disabled={status === 'edit'}
                 loading={isSupplierLoading}
                 size='large'
                 placeholder='Choose supplier'

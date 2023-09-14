@@ -1,23 +1,8 @@
 import VIPApi from 'api';
-import { ItemTableParams } from 'pages/dashboard/item/types';
+import { Item, ItemDetail, ResponseItem } from 'types/Item';
+import { QueryParams } from 'types/types';
 
-export interface ResponseItem {
-  data: Item[];
-  metadata?: { total_items: number };
-}
-
-export interface ItemDetail {
-  data: Item;
-}
-
-export interface Item {
-  name: string;
-  supplier_name: string;
-  serial_number: string;
-  id?: string;
-}
-
-export const getAllItem = async ({ pagination, query }: ItemTableParams) => {
+export const getAllItem = async ({ pagination, query }: QueryParams) => {
   const { page = 1, limit = 15 } = pagination;
   const { item_name = '', item_supplier_name = '' } = query;
   const response = await VIPApi.get<ResponseItem>(

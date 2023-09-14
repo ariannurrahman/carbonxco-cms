@@ -4,17 +4,26 @@ import { Button, Col, Row, message, Tooltip } from 'antd';
 
 import { getSuppliers } from 'api/supplier';
 import { getAllItem } from 'api/items';
-import { PoPayload, createPO, getPreOrder } from 'api/pre-order';
-import { POTableDataProps } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { createPO, getDetailPreOrder, getPreOrder } from 'api/pre-order';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
-
-type Status = 'draft' | 'canceled' | 'confirm' | 'completed';
+import { QueryParams, SearchQuery } from 'types/types';
+import { POTableDataProps, PoPayload, PoState, Status } from 'types/Po';
 
 export const usePreorder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const preOrderState: PoState = location.state;
+  const { id } = useParams();
+
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [tableParams, setTableParams] = useState<QueryParams>({
+    pagination: { page: 1, limit: 5 },
+    query: { item_supplier_name: '' },
+  });
+
   const queryClient = useQueryClient();
   const {
     isLoadingSubmit,
@@ -26,13 +35,10 @@ export const usePreorder = () => {
     onCancelModal,
   } = useChangeStatusModal();
 
-  const onGoToCreatePO = () => navigate('/dashboard/pre-order/create');
-
-  const [selectedSupplier, setSelectedSupplier] = useState('');
-  const [tableParams, setTableParams] = useState({
-    pagination: { page: 1, limit: 5 },
-    query: { item_name: '', item_supplier_name: '' },
-  });
+  const onGoToCreatePO = () => navigate('/dashboard/pre-order/create', { state: 'create' });
+  const onEditPo = (id: string) => {
+    navigate(`/dashboard/pre-order/edit/${id}`, { state: 'edit' });
+  };
 
   const fetchPO = async () => {
     return await getPreOrder(tableParams);
@@ -101,7 +107,7 @@ export const usePreorder = () => {
                     )}
                     <Col>
                       <Tooltip placement='topLeft' title='Edit PO'>
-                        <Button shape='circle' icon={<EditOutlined />} />
+                        <Button shape='circle' icon={<EditOutlined />} onClick={() => onEditPo(id)} />
                       </Tooltip>
                     </Col>
                     <Col>
@@ -119,6 +125,17 @@ export const usePreorder = () => {
     },
   ];
 
+  const onSubmitSearch = (value: SearchQuery) => {
+    const searchPayload = tableParams;
+    searchPayload.query = value;
+    searchPayload.pagination = {
+      page: 1,
+      limit: 5,
+    };
+    setTableParams(searchPayload);
+    refetch();
+  };
+
   const onTableChange = (event: any) => {
     const paginationPayload = tableParams;
     paginationPayload.pagination = {
@@ -129,10 +146,16 @@ export const usePreorder = () => {
     refetch();
   };
 
+  // Create PO Related
+  // ************************************************************************************************************************************ //
+
   const onChangeSupplier = (supplierValue: string) => setSelectedSupplier(supplierValue);
 
   const fetchSuppliers = async () => {
-    return await getSuppliers({ pagination: { page: 1, limit: 5 }, query: { item_name: '', item_supplier_name: '' } });
+    return await getSuppliers({
+      pagination: { page: 1, limit: 999 },
+      query: { item_name: '', item_supplier_name: '' },
+    });
   };
 
   const { isLoading: isSupplierLoading, data: supplier } = useQuery({
@@ -140,6 +163,7 @@ export const usePreorder = () => {
     queryKey: ['supplierList'],
     refetchOnWindowFocus: false,
     retry: false,
+    enabled: preOrderState === 'create',
   });
 
   const modifiedSupplier = useMemo(() => {
@@ -172,13 +196,13 @@ export const usePreorder = () => {
   }, [items]);
 
   const mutation = useMutation({
-    mutationKey: ['itemList'],
+    mutationKey: ['preOrderList'],
     mutationFn: (value: PoPayload) => {
       return createPO(value);
     },
     onSuccess: () => {
       message.success('PO created!');
-      queryClient.invalidateQueries(['itemList']);
+      queryClient.invalidateQueries(['preOrderList']);
       navigate('/dashboard/pre-order');
     },
     onError: (e: any) => {
@@ -191,29 +215,50 @@ export const usePreorder = () => {
     mutation.mutate(value);
   };
 
+  // Edit PO Related
+  // ************************************************************************************************************************************ //
+
+  const fetchDetailPreOrder = async () => {
+    if (!id) return;
+    return await getDetailPreOrder(id);
+  };
+
+  const { isLoading: isDetailPreOrderLoading, data: detailPreOrder } = useQuery({
+    queryFn: fetchDetailPreOrder,
+    queryKey: ['preOrderDetail'],
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: !!id,
+  });
+
+  console.log('id', id);
+
   return {
     isItemLoading,
+    isLoadingSubmitPO: mutation.isLoading,
     isPoListLoading: isPoListLoading,
     isSupplierLoading,
     itemsList: modifiedItems,
     onChangeSupplier,
     onGoToCreatePO,
-    onTableChange,
     onSubmitCreatePO,
+    onSubmitSearch,
+    onTableChange,
     poColumns,
     poDataSource,
     poList,
     selectedSupplier,
     suppliersList: modifiedSupplier,
     tableParams: tableParams,
-    isLoadingSubmitPO: mutation.isLoading,
+    isDetailPreOrderLoading,
+    detailPreOrder,
     // Modal Props
-    isModalOpen,
     isLoadingSubmit,
-    onOpenConfirmModal,
+    isModalOpen,
+    onCancelModal,
     onOpenCancelModal,
     onOpenCompleteModal,
+    onOpenConfirmModal,
     onSubmitChangeStatusModal,
-    onCancelModal,
   };
 };

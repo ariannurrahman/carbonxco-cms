@@ -1,7 +1,7 @@
 import { Col, Row, Modal, InputNumber } from 'antd';
 import { VIPButton } from 'components/button';
-import { ChangeModalStatusProps, ConfirmFormProps } from '../types';
 import { useState } from 'react';
+import { ChangeModalStatusProps, ConfirmFormProps } from 'types/Po';
 
 export const ChangeModalStatus = ({
   onSubmit,

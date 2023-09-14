@@ -4,19 +4,21 @@ import { VIPButton } from 'components/button';
 import { PageTitle } from 'components/page-title';
 import { usePreorder } from './hooks/usePreorder';
 import { ChangeModalStatus } from './components/ChangeModalStatus';
+import { PoFilter } from './components/PoFilter';
 
 export const PreOrder = () => {
   const {
     isLoadingSubmit,
+    isModalOpen,
     isPoListLoading,
+    onCancelModal,
     onGoToCreatePO,
+    onSubmitChangeStatusModal,
+    onSubmitSearch,
     onTableChange,
     poColumns: columns,
     poDataSource: dataSource,
     poList,
-    isModalOpen,
-    onSubmitChangeStatusModal,
-    onCancelModal,
   } = usePreorder();
 
   return (
@@ -29,6 +31,7 @@ export const PreOrder = () => {
           </VIPButton>
         }
       />
+      <PoFilter onSubmit={onSubmitSearch} />
 
       <Table
         scroll={{ x: 800 }}

@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd';
 import { VIPButton } from 'components/button';
-import { SearchQuery } from '../types';
+import { SearchQuery } from 'types/types';
 
 interface ItemFilterProps {
   onSubmit: (value: SearchQuery) => void;

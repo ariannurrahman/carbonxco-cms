@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Col, Input, Row, Form, Divider, message } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { Item, getItem, updateItem } from 'api/items';
+import { getItem, updateItem } from 'api/items';
 import { VIPButton } from 'components/button';
+import { Item } from 'types/Item';
 
 export const ItemDetail = () => {
   const queryClient = useQueryClient();

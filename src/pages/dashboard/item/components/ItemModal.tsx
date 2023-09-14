@@ -1,6 +1,6 @@
 import { Form, Input, Modal } from 'antd';
-import { Item } from 'api/items';
 import { VIPButton } from 'components/button';
+import { Item } from 'types/Item';
 
 interface ItemModalProps {
   isOpen: boolean;

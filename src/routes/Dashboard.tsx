@@ -5,7 +5,7 @@ import { DashboardLayout } from 'layout/DashboardLayout';
 import { Item } from 'pages/dashboard/item';
 import { PreOrder } from 'pages/dashboard/pre-order';
 import { ItemDetail } from 'pages/dashboard/item/item-detail';
-import { CreatePO } from 'pages/dashboard/pre-order/pre-order-create';
+import { CreatePO } from 'pages/dashboard/pre-order/pre-order-edit-create';
 
 export const DashboardRoutes = () => {
   return (
@@ -16,6 +16,7 @@ export const DashboardRoutes = () => {
           <Route path='item/:id' element={<ItemDetail />} />
           <Route path='pre-order' element={<PreOrder />} />
           <Route path='pre-order/create' element={<CreatePO />} />
+          <Route path='pre-order/edit/:id' element={<CreatePO />} />
 
           <Route path='' element={<Navigate to='/dashboard/item' />} />
           <Route path='*' element={<Navigate to='/dashboard/item' />} />
