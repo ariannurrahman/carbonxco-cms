@@ -1,16 +1,11 @@
+import { useEffect } from 'react';
 import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
 
 import { VIPButton } from 'components/button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePreorder } from '../hooks/usePreorder';
-import { useLocation, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import { PoState } from 'types/Po';
 
 export const CreatePO = () => {
-  const location = useLocation();
-  const { id } = useParams();
-
   const [form] = Form.useForm();
   const {
     isItemLoading,
@@ -18,30 +13,35 @@ export const CreatePO = () => {
     itemsList: modifiedItems,
     onChangeSupplier,
     onSubmitCreatePO,
+    onSubmitEditPO,
     selectedSupplier,
     suppliersList: modifiedSupplier,
     isLoadingSubmitPO,
-    isDetailPreOrderLoading,
+    // isDetailPreOrderLoading,
     detailPreOrder,
+    preOrderState,
   } = usePreorder();
 
-  console.log('detailPreOrder', detailPreOrder);
-  console.log('isDetailPreOrderLoading', isDetailPreOrderLoading);
-
-  const status: PoState = location.state;
-
   useEffect(() => {
-    if (status !== 'edit') return;
+    if (preOrderState !== 'edit') return;
     const initEdit = () => {
+      const poItems = detailPreOrder?.data.po_items.map(({ buy_price, item, lot_number, quantity, quantity_type }) => {
+        return {
+          buy_price,
+          item_id: item.name,
+          lot_number,
+          quantity,
+          quantity_type,
+        };
+      });
+
       form.setFieldsValue({
-        supplier_name: 'test',
+        supplier_name: detailPreOrder?.data?.po_order?.supplier_name,
+        po_items: poItems,
       });
     };
     initEdit();
-  }, [form, status]);
-
-  console.log('selectedSupplier', selectedSupplier);
-  console.log('id', id);
+  }, [form, preOrderState, detailPreOrder]);
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -57,7 +57,7 @@ export const CreatePO = () => {
             type='primary'
             htmlType='submit'
           >
-            {status === 'create' ? 'Submit' : 'Save'}
+            {preOrderState === 'create' ? 'Submit' : 'Save'}
           </VIPButton>
         </Col>
       </Row>
@@ -71,7 +71,7 @@ export const CreatePO = () => {
             requiredMark={false}
             name='create-po-form'
             id='create-po-form'
-            onFinish={onSubmitCreatePO}
+            onFinish={preOrderState === 'create' ? onSubmitCreatePO : onSubmitEditPO}
             autoComplete='off'
           >
             <Form.Item
@@ -81,8 +81,8 @@ export const CreatePO = () => {
               rules={[{ required: true, message: 'Input item name!' }]}
             >
               <Select
-                disabled={status === 'edit'}
-                loading={isSupplierLoading}
+                disabled={preOrderState === 'edit'}
+                loading={preOrderState === 'edit' ? false : isSupplierLoading}
                 size='large'
                 placeholder='Choose supplier'
                 style={{ width: 200 }}

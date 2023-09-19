@@ -1,5 +1,6 @@
-import { Col, Row, Modal, InputNumber } from 'antd';
+import { Col, Row, Modal, DatePicker } from 'antd';
 import { VIPButton } from 'components/button';
+import { getUnixTime } from 'date-fns';
 import { useState } from 'react';
 import { ChangeModalStatusProps, ConfirmFormProps } from 'types/Po';
 
@@ -13,7 +14,8 @@ export const ChangeModalStatus = ({
   const [confirmForm, setConfirmForm] = useState<ConfirmFormProps>({ eta: 0, etd: 0 });
 
   const onChangeForm = (value: any, name: string) => {
-    setConfirmForm((prevState) => ({ ...prevState, [name]: value }));
+    if (!value) return;
+    setConfirmForm((prevState) => ({ ...prevState, [name]: getUnixTime(new Date(value)) }));
   };
 
   const isDisabledSubmit = type === 'confirm' ? !confirmForm.eta || !confirmForm.etd : false;
@@ -22,17 +24,15 @@ export const ChangeModalStatus = ({
     <Modal width={300} title={`${type.toUpperCase()} this PO?`} footer={false} open={isOpen} onCancel={onCancelModal}>
       {type === 'confirm' && (
         <>
-          <InputNumber
+          <DatePicker
             className='w-full mb-3'
-            type='tel'
             onChange={(value) => onChangeForm(value, 'eta')}
             name='eta'
             placeholder='ETA'
             size='large'
           />
-          <InputNumber
+          <DatePicker
             className='w-full'
-            type='tel'
             onChange={(value) => onChangeForm(value, 'etd')}
             name='etd'
             placeholder='ETD'

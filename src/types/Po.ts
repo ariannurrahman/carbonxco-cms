@@ -2,13 +2,30 @@ import { SearchQuery } from './types';
 
 export interface PoPayload {
   supplier_name: string;
-  po_items: {
-    buy_price: number;
-    item_id: string;
-    lot_number: string;
-    quantity: number;
-    quantity_type: number | string;
-  }[];
+  po_items: PoItems[];
+}
+
+export interface PoDetail {
+  data: {
+    po_order: POTableDataProps;
+    po_items: {
+      buy_price: number;
+      id: string;
+      item: { id: string; name: string; serial_number: string; supplier_name: string };
+      lot_number: string;
+      quantity: number;
+      quantity_type: string;
+    }[];
+  };
+  trace_id: string;
+}
+
+export interface PoItems {
+  buy_price: number;
+  item_id: string;
+  lot_number: string;
+  quantity: number;
+  quantity_type: number | string;
 }
 
 export interface ChangeStatusPoPayload {

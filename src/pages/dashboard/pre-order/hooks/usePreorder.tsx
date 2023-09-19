@@ -1,16 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Col, Row, message, Tooltip } from 'antd';
+import { fromUnixTime, format } from 'date-fns';
 
 import { getSuppliers } from 'api/supplier';
 import { getAllItem } from 'api/items';
-import { createPO, getDetailPreOrder, getPreOrder } from 'api/pre-order';
+import { createPO, getDetailPreOrder, getPreOrder, updatePreOrder } from 'api/pre-order';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
-import { QueryParams, SearchQuery } from 'types/types';
-import { POTableDataProps, PoPayload, PoState, Status } from 'types/Po';
+import { SearchQuery } from 'types/types';
+import { POTableDataProps, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
 
 export const usePreorder = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export const usePreorder = () => {
   const { id } = useParams();
 
   const [selectedSupplier, setSelectedSupplier] = useState('');
-  const [tableParams, setTableParams] = useState<QueryParams>({
+  const [tableParams, setTableParams] = useState<PoTableParams>({
     pagination: { page: 1, limit: 5 },
     query: { item_supplier_name: '' },
   });
@@ -61,8 +62,26 @@ export const usePreorder = () => {
 
   const poColumns: ColumnsType<POTableDataProps> = [
     { title: 'Supplier Name', dataIndex: 'supplier_name', key: 'supplier_name', width: 100, fixed: 'left' },
-    { title: 'ETA', dataIndex: 'eta', key: 'eta', width: 100, render: (value: string) => value ?? '-' },
-    { title: 'ETD', dataIndex: 'etd', key: 'etd', width: 100, render: (value: string) => value ?? '-' },
+    {
+      title: 'ETA',
+      dataIndex: 'eta',
+      key: 'eta',
+      width: 100,
+      render: (value: number) => {
+        if (!value) return '-';
+        return format(fromUnixTime(value), 'PP');
+      },
+    },
+    {
+      title: 'ETD',
+      dataIndex: 'etd',
+      key: 'etd',
+      width: 100,
+      render: (value: number) => {
+        if (!value) return '-';
+        return format(fromUnixTime(value), 'PP');
+      },
+    },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -195,7 +214,7 @@ export const usePreorder = () => {
     });
   }, [items]);
 
-  const mutation = useMutation({
+  const mutationCreatePo = useMutation({
     mutationKey: ['preOrderList'],
     mutationFn: (value: PoPayload) => {
       return createPO(value);
@@ -212,7 +231,7 @@ export const usePreorder = () => {
   });
 
   const onSubmitCreatePO = (value: PoPayload) => {
-    mutation.mutate(value);
+    mutationCreatePo.mutate(value);
   };
 
   // Edit PO Related
@@ -220,7 +239,9 @@ export const usePreorder = () => {
 
   const fetchDetailPreOrder = async () => {
     if (!id) return;
-    return await getDetailPreOrder(id);
+    const response = await getDetailPreOrder(id);
+    setSelectedSupplier(response?.data?.po_order?.supplier_name);
+    return response;
   };
 
   const { isLoading: isDetailPreOrderLoading, data: detailPreOrder } = useQuery({
@@ -228,14 +249,32 @@ export const usePreorder = () => {
     queryKey: ['preOrderDetail'],
     refetchOnWindowFocus: false,
     retry: false,
-    enabled: !!id,
+    enabled: preOrderState === 'edit',
   });
 
-  console.log('id', id);
+  const mutationEdit = useMutation({
+    mutationKey: ['preOrderList', 'preOrderDetail'],
+    mutationFn: (value: PoPayload) => {
+      return updatePreOrder(id ?? '-', value);
+    },
+    onSuccess: () => {
+      message.success('PO created!');
+      queryClient.invalidateQueries(['preOrderList']);
+      navigate('/dashboard/pre-order');
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitEditPO = (values: PoPayload) => {
+    mutationEdit.mutate(values);
+  };
 
   return {
     isItemLoading,
-    isLoadingSubmitPO: mutation.isLoading,
+    isLoadingSubmitPO: mutationCreatePo.isLoading,
     isPoListLoading: isPoListLoading,
     isSupplierLoading,
     itemsList: modifiedItems,
@@ -252,6 +291,8 @@ export const usePreorder = () => {
     tableParams: tableParams,
     isDetailPreOrderLoading,
     detailPreOrder,
+    preOrderState,
+    onSubmitEditPO,
     // Modal Props
     isLoadingSubmit,
     isModalOpen,

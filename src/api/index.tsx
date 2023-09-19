@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://8ee4-110-137-195-30.ngrok-free.app';
+const BASE_URL = ' https://266b-2001-448a-300e-337e-112a-ab37-2000-4e11.ngrok-free.app';
 const VERSIONING = '/api/v1';
 const API_URL = BASE_URL + VERSIONING;
 const createAPI = (baseURL = API_URL, config = {}) => {

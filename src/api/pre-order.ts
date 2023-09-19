@@ -1,5 +1,5 @@
 import VIPApi from 'api';
-import { ChangeStatusPoPayload, PoPayload, PoResponse, PoTableParams } from 'types/Po';
+import { ChangeStatusPoPayload, PoDetail, PoPayload, PoResponse, PoTableParams } from 'types/Po';
 
 export const getPreOrder = async ({ pagination, query }: PoTableParams) => {
   const { page = 1, limit = 5 } = pagination;
@@ -21,6 +21,11 @@ export const changeStatusPO = async ({ eta, etd, id, type }: ChangeStatusPoPaylo
 };
 
 export const getDetailPreOrder = async (id: string) => {
-  const response = await VIPApi.get(`/po_orders/${id}`);
+  const response = await VIPApi.get<PoDetail>(`/po_orders/${id}`);
+  return response.data;
+};
+
+export const updatePreOrder = async (id: string, payload: any) => {
+  const response = await VIPApi.put(`/po_items/${id}`, payload);
   return response.data;
 };
