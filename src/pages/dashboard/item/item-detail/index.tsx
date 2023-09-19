@@ -185,7 +185,7 @@ export const ItemDetail = () => {
                 </Form.Item>
 
                 <Form.Item>
-                  <VIPButton size='large' className='w-full' htmlType='submit'>
+                  <VIPButton disabled={isFormDisable} size='large' className='w-full' htmlType='submit'>
                     Submit
                   </VIPButton>
                 </Form.Item>
