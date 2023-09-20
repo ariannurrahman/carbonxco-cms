@@ -5,13 +5,13 @@ import { fromUnixTime, format } from 'date-fns';
 
 import { getSuppliers } from 'api/supplier';
 import { getAllItem } from 'api/items';
-import { createPO, getDetailPreOrder, getPreOrder, updatePreOrder } from 'api/pre-order';
+import { createItemPo, createPO, deletePoItem, getDetailPreOrder, getPreOrder, updatePoItem } from 'api/pre-order';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
 import { SearchQuery } from 'types/types';
-import { POTableDataProps, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
+import { POTableDataProps, PoItems, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
 
 export const usePreorder = () => {
   const navigate = useNavigate();
@@ -168,7 +168,9 @@ export const usePreorder = () => {
   // Create PO Related
   // ************************************************************************************************************************************ //
 
-  const onChangeSupplier = (supplierValue: string) => setSelectedSupplier(supplierValue);
+  const onChangeSupplier = (supplierValue: string) => {
+    setSelectedSupplier(supplierValue);
+  };
 
   const fetchSuppliers = async () => {
     return await getSuppliers({
@@ -202,7 +204,7 @@ export const usePreorder = () => {
 
   const { isLoading: isItemLoading, data: items } = useQuery({
     queryFn: fetchItems,
-    queryKey: ['itemList'],
+    queryKey: ['itemList', selectedSupplier],
     refetchOnWindowFocus: false,
     retry: false,
     enabled: !!selectedSupplier,
@@ -210,7 +212,7 @@ export const usePreorder = () => {
 
   const modifiedItems = useMemo(() => {
     return items?.data.map((eachItem) => {
-      return { label: eachItem.name, value: eachItem.id };
+      return { label: eachItem.name, value: eachItem.id, id: eachItem.id };
     });
   }, [items]);
 
@@ -252,13 +254,14 @@ export const usePreorder = () => {
     enabled: preOrderState === 'edit',
   });
 
-  const mutationEdit = useMutation({
+  const mutationUpdateItem = useMutation({
     mutationKey: ['preOrderList', 'preOrderDetail'],
-    mutationFn: (value: PoPayload) => {
-      return updatePreOrder(id ?? '-', value);
+    mutationFn: (value: PoItems) => {
+      const poItemId = value.id;
+      return updatePoItem(poItemId, value);
     },
     onSuccess: () => {
-      message.success('PO created!');
+      message.success('PO item updated!');
       queryClient.invalidateQueries(['preOrderList']);
       navigate('/dashboard/pre-order');
     },
@@ -267,12 +270,55 @@ export const usePreorder = () => {
       message.error(`${errorBE}`);
     },
   });
+  const mutationCreateItemPo = useMutation({
+    mutationKey: ['preOrderList', 'preOrderDetail'],
+    mutationFn: (value: PoItems) => {
+      return createItemPo(id ?? '-', value);
+    },
+    onSuccess: () => {
+      message.success('PO item created!');
+      queryClient.invalidateQueries(['preOrderList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
 
-  const onSubmitEditPO = (values: PoPayload) => {
-    mutationEdit.mutate(values);
+  const onSubmitUpdateItemPO = (values: PoItems) => {
+    if (values.id) {
+      mutationUpdateItem.mutate(values);
+    } else {
+      mutationCreateItemPo.mutate(values);
+    }
+  };
+
+  // Delete PO Item
+  // ************************************************************************************************************************************ //
+
+  const mutationDeleteItem = useMutation({
+    mutationKey: ['preOrderList', 'preOrderDetail'],
+    mutationFn: (value: PoItems) => {
+      const poItemId = value.id;
+      return deletePoItem(poItemId);
+    },
+    onSuccess: () => {
+      message.success('PO item deleted!');
+      queryClient.invalidateQueries(['preOrderList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitDeletePoItem = (values: PoItems) => {
+    mutationDeleteItem.mutate(values);
   };
 
   return {
+    detailPreOrder,
+    isDetailPreOrderLoading,
     isItemLoading,
     isLoadingSubmitPO: mutationCreatePo.isLoading,
     isPoListLoading: isPoListLoading,
@@ -281,18 +327,17 @@ export const usePreorder = () => {
     onChangeSupplier,
     onGoToCreatePO,
     onSubmitCreatePO,
+    onSubmitDeletePoItem,
     onSubmitSearch,
+    onSubmitUpdateItemPO,
     onTableChange,
     poColumns,
     poDataSource,
     poList,
+    preOrderState,
     selectedSupplier,
     suppliersList: modifiedSupplier,
     tableParams: tableParams,
-    isDetailPreOrderLoading,
-    detailPreOrder,
-    preOrderState,
-    onSubmitEditPO,
     // Modal Props
     isLoadingSubmit,
     isModalOpen,

@@ -1,5 +1,5 @@
 import VIPApi from 'api';
-import { ChangeStatusPoPayload, PoDetail, PoPayload, PoResponse, PoTableParams } from 'types/Po';
+import { ChangeStatusPoPayload, PoDetail, PoItems, PoPayload, PoResponse, PoTableParams } from 'types/Po';
 
 export const getPreOrder = async ({ pagination, query }: PoTableParams) => {
   const { page = 1, limit = 5 } = pagination;
@@ -25,7 +25,17 @@ export const getDetailPreOrder = async (id: string) => {
   return response.data;
 };
 
-export const updatePreOrder = async (id: string, payload: any) => {
+export const updatePoItem = async (id: string, payload: PoItems) => {
   const response = await VIPApi.put(`/po_items/${id}`, payload);
+  return response.data;
+};
+
+export const createItemPo = async (preOrderId: string, payload: PoItems) => {
+  const response = await VIPApi.post(`po_orders/${preOrderId}/po_items`, payload);
+  return response.data;
+};
+
+export const deletePoItem = async (id: string) => {
+  const response = await VIPApi.delete(`/po_items/${id}`);
   return response.data;
 };

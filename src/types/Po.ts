@@ -26,6 +26,7 @@ export interface PoItems {
   lot_number: string;
   quantity: number;
   quantity_type: number | string;
+  id: string;
 }
 
 export interface ChangeStatusPoPayload {
