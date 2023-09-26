@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { DatePicker, Form, InputNumber, Modal, message } from 'antd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { fromUnixTime, getUnixTime } from 'date-fns';
 
 import { VIPButton } from 'components/button';
 import { Stock } from 'types/Stocks';
 import { updateStock } from 'api/stocks';
-import { fromUnixTime, getUnixTime } from 'date-fns';
-import dayjs from 'dayjs';
+import { thousandFormatter } from 'utils';
 
 interface UpdateStockModalProps {
   onClose: () => void;
@@ -24,7 +25,7 @@ export const UpdateStockModal = ({ onClose, isOpen, data }: UpdateStockModalProp
         typeof data?.expired_date === 'number' ? dayjs(new Date(fromUnixTime(data?.expired_date))) : '';
       form.setFieldsValue({
         quantity: data?.quantity,
-        quantity_type: data?.quantity_type,
+        // quantity_type: data?.quantity_type,
         expired_date: expiredDate,
       });
     };
@@ -60,17 +61,22 @@ export const UpdateStockModal = ({ onClose, isOpen, data }: UpdateStockModalProp
       <Form form={form} name='update-stock-form' requiredMark={false} onFinish={onSubmitUpdateStock} layout='vertical'>
         <Form.Item
           className='mb-5'
-          label='Quantity'
-          name='quantity'
-          rules={[{ required: true, message: 'Input item quantity!' }]}
+          label='Packaging Volume'
+          name='packaging_volume'
+          rules={[{ required: true, message: 'Input packaging volume!' }]}
         >
-          <InputNumber className='w-full' placeholder='Input Quantity' size='large' />
+          <InputNumber
+            formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+            className='w-full'
+            placeholder='Input Quantity'
+            size='large'
+          />
         </Form.Item>
         <Form.Item
           className='mb-5'
-          label='Quantity Type'
-          name='quantity_type'
-          rules={[{ required: true, message: 'Input item quantity type!' }]}
+          label='Packaging Type'
+          name='packaging_type'
+          rules={[{ required: true, message: 'Input item packaging type!' }]}
         >
           <InputNumber className='w-full' placeholder='Input Quantity' size='large' />
         </Form.Item>

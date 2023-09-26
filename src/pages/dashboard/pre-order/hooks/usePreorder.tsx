@@ -25,6 +25,10 @@ export const usePreorder = () => {
     query: { item_supplier_name: '' },
   });
 
+  const onRowClick = (record: POTableDataProps) => {
+    navigate(`/dashboard/pre-order/view/${record.id}`, { state: 'view' });
+  };
+
   const queryClient = useQueryClient();
   const {
     isLoadingSubmit,
@@ -37,6 +41,7 @@ export const usePreorder = () => {
   } = useChangeStatusModal();
 
   const onGoToCreatePO = () => navigate('/dashboard/pre-order/create', { state: 'create' });
+
   const onEditPo = (id: string) => {
     navigate(`/dashboard/pre-order/edit/${id}`, { state: 'edit' });
   };
@@ -100,7 +105,10 @@ export const usePreorder = () => {
                       <Col>
                         <Tooltip placement='topLeft' title='Complete PO'>
                           <Button
-                            onClick={() => onOpenCompleteModal(id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenCompleteModal(id);
+                            }}
                             type='primary'
                             className='bg-[#1677ff]'
                             icon={<CheckOutlined />}
@@ -114,7 +122,10 @@ export const usePreorder = () => {
                       <Col>
                         <Tooltip placement='topLeft' title='Confirm PO'>
                           <Button
-                            onClick={() => onOpenConfirmModal(id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onOpenConfirmModal(id);
+                            }}
                             type='primary'
                             className='bg-[#1677ff]'
                             icon={<CheckOutlined />}
@@ -126,12 +137,27 @@ export const usePreorder = () => {
                     )}
                     <Col>
                       <Tooltip placement='topLeft' title='Edit PO'>
-                        <Button shape='circle' icon={<EditOutlined />} onClick={() => onEditPo(id)} />
+                        <Button
+                          shape='circle'
+                          icon={<EditOutlined />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditPo(id);
+                          }}
+                        />
                       </Tooltip>
                     </Col>
                     <Col>
                       <Tooltip placement='topLeft' title='Cancel PO'>
-                        <Button onClick={() => onOpenCancelModal(id)} shape='circle' icon={<CloseOutlined />} danger />
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenCancelModal(id);
+                          }}
+                          shape='circle'
+                          icon={<CloseOutlined />}
+                          danger
+                        />
                       </Tooltip>
                     </Col>
                   </>
@@ -251,7 +277,7 @@ export const usePreorder = () => {
     queryKey: ['preOrderDetail'],
     refetchOnWindowFocus: false,
     retry: false,
-    enabled: preOrderState === 'edit',
+    enabled: preOrderState === 'edit' || preOrderState === 'view',
   });
 
   const mutationUpdateItem = useMutation({
@@ -326,6 +352,7 @@ export const usePreorder = () => {
     itemsList: modifiedItems,
     onChangeSupplier,
     onGoToCreatePO,
+    onRowClick,
     onSubmitCreatePO,
     onSubmitDeletePoItem,
     onSubmitSearch,

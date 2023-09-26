@@ -12,6 +12,7 @@ import { Stock } from 'types/Stocks';
 import { format, fromUnixTime } from 'date-fns';
 import { UpdateStockModal } from './UpdateStockModal';
 import { DeleteStockModal } from './DeleteStockModal';
+import { dollarFormatter, thousandFormatter } from 'utils';
 
 export const ItemDetail = () => {
   const queryClient = useQueryClient();
@@ -89,8 +90,25 @@ export const ItemDetail = () => {
 
   const columns = [
     { title: 'Lot Number', dataIndex: 'lot_number', key: 'lot_number' },
-    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
-    { title: 'Quantity Type', dataIndex: 'quantity_type', key: 'quantity_type' },
+    {
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      render: (value: number) => thousandFormatter(value?.toString()),
+    },
+    {
+      title: 'Price',
+      dataIndex: 'buy_price',
+      key: 'buy_price',
+      render: (value: number) => dollarFormatter(value.toString()),
+    },
+    {
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (value: number) => (value ? format(new Date(fromUnixTime(value)), 'PP') : '-'),
+    },
+
     {
       title: 'Expired Date',
       dataIndex: 'expired_date',

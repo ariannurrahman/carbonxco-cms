@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+
 import { QueryParams, SearchQuery } from 'types/types';
 import { Item, TableDataProps } from 'types/Item';
 import { createItem, getAllItem } from 'api/items';
@@ -57,9 +58,16 @@ export const useItem = () => {
   }, [data]);
 
   const columns = [
-    { title: 'Item Name', dataIndex: 'name', key: 'name' },
     { title: 'Supplier Name', dataIndex: 'supplier_name', key: 'supplier_name' },
+    { title: 'Item Name', dataIndex: 'name', key: 'name' },
+    { title: 'Packaging Type', dataIndex: 'packaging_type', key: 'packaging_type' },
     { title: 'Serial Number', dataIndex: 'serial_number', key: 'serial_number' },
+    // {
+    //   title: 'Packaging Volume',
+    //   dataIndex: 'packaging_volume',
+    //   key: 'packaging_volume',
+    //   render: (value: number) => thousandFormatter(value.toString()),
+    // },
   ];
 
   const onTableChange = (event: any) => {

@@ -4,6 +4,7 @@ import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
 import { VIPButton } from 'components/button';
 import { CheckCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePreorder } from '../hooks/usePreorder';
+import { dollarFormatter, thousandFormatter } from 'utils';
 
 export const CreatePO = () => {
   const [form] = Form.useForm();
@@ -23,20 +24,17 @@ export const CreatePO = () => {
   } = usePreorder();
 
   useEffect(() => {
-    if (preOrderState !== 'edit') return;
+    if (preOrderState === 'create') return;
     const initEdit = () => {
-      const poItems = detailPreOrder?.data.po_items.map(
-        ({ id, buy_price, item, lot_number, quantity, quantity_type }) => {
-          return {
-            buy_price,
-            item_id: item.id,
-            lot_number,
-            quantity,
-            quantity_type,
-            id,
-          };
-        },
-      );
+      const poItems = detailPreOrder?.data.po_items.map(({ id, buy_price, item, lot_number, quantity }) => {
+        return {
+          buy_price,
+          item_id: item.id,
+          lot_number,
+          quantity,
+          id,
+        };
+      });
 
       form.setFieldsValue({
         supplier_name: detailPreOrder?.data?.po_order?.supplier_name,
@@ -50,7 +48,15 @@ export const CreatePO = () => {
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
       <Row align='middle' className='w-full h-[40px] mt-5' justify='space-between'>
         <Col>
-          <p className='text-left font-bold text-lg'>{preOrderState === 'create' ? 'Create PO' : 'Edit PO'}</p>
+          <p className='text-left font-bold text-lg'>
+            {preOrderState === 'create'
+              ? 'Create PO'
+              : preOrderState === 'edit'
+              ? 'Edit Po'
+              : preOrderState === 'view'
+              ? 'View Po'
+              : ''}
+          </p>
         </Col>
         {preOrderState === 'create' ? (
           <Col>
@@ -86,7 +92,7 @@ export const CreatePO = () => {
               rules={[{ required: true, message: 'Input item name!' }]}
             >
               <Select
-                disabled={preOrderState === 'edit'}
+                disabled={preOrderState === 'edit' || preOrderState === 'view'}
                 loading={preOrderState === 'edit' ? false : isSupplierLoading}
                 size='large'
                 placeholder='Choose supplier'
@@ -114,6 +120,7 @@ export const CreatePO = () => {
                             rules={[{ required: true, message: 'Input item name!' }]}
                           >
                             <Select
+                              disabled={preOrderState === 'view'}
                               loading={isItemLoading}
                               placeholder='Choose Item'
                               size='large'
@@ -129,26 +136,23 @@ export const CreatePO = () => {
                             name={[name, 'quantity']}
                             rules={[{ required: true, message: 'Input quantity!' }]}
                           >
-                            <InputNumber className='w-full' size='large' placeholder='Input quantity' />
+                            <InputNumber
+                              disabled={preOrderState === 'view'}
+                              formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+                              className='w-full'
+                              size='large'
+                              placeholder='Input quantity'
+                            />
                           </Form.Item>
                         </Col>
-                        <Col xs={24} lg={4}>
-                          <Form.Item
-                            {...restField}
-                            label='Quantity Type'
-                            name={[name, 'quantity_type']}
-                            rules={[{ required: true, message: 'Input quantity type!' }]}
-                          >
-                            <Input size='large' placeholder='Input quantity type' />
-                          </Form.Item>
-                        </Col>
+
                         <Col xs={24} lg={3}>
                           <Form.Item
                             label='Lot Number'
                             name={[name, 'lot_number']}
                             rules={[{ required: true, message: 'Input lot number!' }]}
                           >
-                            <Input size='large' placeholder='Input lot number' />
+                            <Input size='large' placeholder='Input lot number' disabled={preOrderState === 'view'} />
                           </Form.Item>
                         </Col>
                         <Col xs={24} lg={4}>
@@ -157,7 +161,14 @@ export const CreatePO = () => {
                             name={[name, 'buy_price']}
                             rules={[{ required: true, message: 'Input buy price!' }]}
                           >
-                            <InputNumber className='w-full' size='large' type='tel' placeholder='Input buy price' />
+                            <InputNumber
+                              formatter={dollarFormatter}
+                              className='w-full'
+                              size='large'
+                              type='tel'
+                              placeholder='Input buy price'
+                              disabled={preOrderState === 'view'}
+                            />
                           </Form.Item>
                         </Col>
                         {preOrderState === 'edit' ? (
@@ -174,6 +185,7 @@ export const CreatePO = () => {
 
                         <Col xs={24} lg={3} className='flex justify-center items-center w-full'>
                           <VIPButton
+                            disabled={preOrderState === 'view'}
                             type='primary'
                             danger
                             onClick={() => {
@@ -193,20 +205,21 @@ export const CreatePO = () => {
                       </Row>
                     );
                   })}
-                  <Form.Item className='mt-3'>
-                    <VIPButton
-                      type='primary'
-                      disabled={!selectedSupplier}
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                    >
-                      Add Item
-                    </VIPButton>
-                  </Form.Item>
+                  {preOrderState === 'edit' ? (
+                    <Form.Item className='mt-3'>
+                      <VIPButton
+                        type='primary'
+                        disabled={!selectedSupplier}
+                        onClick={() => add()}
+                        icon={<PlusOutlined />}
+                      >
+                        Add Item
+                      </VIPButton>
+                    </Form.Item>
+                  ) : null}
                 </>
               )}
             </Form.List>
-            <Form.Item></Form.Item>
           </Form>
         </Col>
       </Row>

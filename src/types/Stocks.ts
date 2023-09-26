@@ -15,9 +15,18 @@ export interface GetStocksResponse {
 export interface Stock {
   buy_price: number;
   created_at: number;
-  expired_date: number | null;
+  expired_date: null | number;
   id: string;
+  item: StockItem;
   lot_number: string;
   quantity: number;
-  quantity_type: string;
+}
+
+export interface StockItem {
+  id: string;
+  name: string;
+  packaging_type: string;
+  packaging_volume: number;
+  serial_number: string;
+  supplier_name: string;
 }

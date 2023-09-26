@@ -14,7 +14,7 @@ export interface PoDetail {
       item: { id: string; name: string; serial_number: string; supplier_name: string };
       lot_number: string;
       quantity: number;
-      quantity_type: string;
+      packaging_type: string;
     }[];
   };
   trace_id: string;
@@ -99,4 +99,4 @@ export type ModalType = 'confirm' | 'cancel' | 'complete';
 
 export type Status = 'draft' | 'canceled' | 'confirm' | 'completed';
 
-export type PoState = 'create' | 'edit';
+export type PoState = 'create' | 'edit' | 'view';

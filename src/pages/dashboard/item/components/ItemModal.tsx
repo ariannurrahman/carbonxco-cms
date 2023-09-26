@@ -1,6 +1,7 @@
-import { Form, Input, Modal } from 'antd';
+import { Form, Input, InputNumber, Modal } from 'antd';
 import { VIPButton } from 'components/button';
 import { Item } from 'types/Item';
+import { thousandFormatter } from 'utils';
 
 interface ItemModalProps {
   isOpen: boolean;
@@ -35,6 +36,28 @@ export const ItemModal = ({ isOpen, onSubmit, onCancel }: ItemModalProps) => {
           rules={[{ required: true, message: 'Input serial number!' }]}
         >
           <Input size='large' placeholder='Input serial number' />
+        </Form.Item>
+        <Form.Item
+          className='mb-5'
+          label='Packaging Type'
+          name='packaging_type'
+          rules={[{ required: true, message: 'Input packaging type!' }]}
+        >
+          <Input size='large' placeholder='Input packaging type' />
+        </Form.Item>
+        <Form.Item
+          className='mb-5'
+          label='Packaging Volume'
+          name='packaging_volume'
+          rules={[{ required: true, message: 'Input packaging volume!' }]}
+        >
+          <InputNumber
+            formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+            className='w-full'
+            type='tel'
+            size='large'
+            placeholder='Input packaging volume'
+          />
         </Form.Item>
 
         <Form.Item>

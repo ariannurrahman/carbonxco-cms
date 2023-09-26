@@ -13,6 +13,7 @@ export const PreOrder = () => {
     isPoListLoading,
     onCancelModal,
     onGoToCreatePO,
+    onRowClick,
     onSubmitChangeStatusModal,
     onSubmitSearch,
     onTableChange,
@@ -41,6 +42,9 @@ export const PreOrder = () => {
         columns={columns}
         dataSource={dataSource}
         onChange={onTableChange}
+        onRow={(record) => ({
+          onClick: () => onRowClick(record),
+        })}
         pagination={{
           defaultPageSize: 5,
           pageSize: 5,

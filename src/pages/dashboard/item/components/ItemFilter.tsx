@@ -13,13 +13,13 @@ export const ItemFilter = ({ onSubmit }: ItemFilterProps) => {
         <Col lg={12} md={12} xs={24}>
           <Row className='p-0 m-0' gutter={[12, 12]}>
             <Col xs={24} md={12} className='p-0 m-0'>
-              <Form.Item className='w-full' name='item_name'>
-                <Input className='w-full' placeholder='Item Name' size='large' />
+              <Form.Item className='w-full' name='item_supplier_name'>
+                <Input className='w-full' placeholder='Supplier Name' size='large' />
               </Form.Item>
             </Col>
             <Col xs={24} md={12} className='p-0 m-0'>
-              <Form.Item className='w-full' name='item_supplier_name'>
-                <Input className='w-full' placeholder='Supplier Name' size='large' />
+              <Form.Item className='w-full' name='item_name'>
+                <Input className='w-full' placeholder='Item Name' size='large' />
               </Form.Item>
             </Col>
           </Row>
