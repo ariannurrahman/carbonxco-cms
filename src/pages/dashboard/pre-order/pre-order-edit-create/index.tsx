@@ -104,108 +104,110 @@ export const CreatePO = () => {
             <Form.List name='po_items'>
               {(fields, { add, remove }) => (
                 <>
-                  {fields.map(({ key, name, ...restField }) => {
+                  {fields.map(({ key, name, ...restField }, index) => {
                     const getFormValue = (name: number) => {
                       const fieldsValue = form.getFieldsValue();
                       return fieldsValue.po_items[name];
                     };
 
                     return (
-                      <Row gutter={[12, 12]} key={key} className='p-3 mt-3 rounded border-b-2 shadow-sm'>
-                        <Col xs={24} lg={4}>
-                          <Form.Item
-                            {...restField}
-                            label='Item Name'
-                            name={[name, 'item_id']}
-                            rules={[{ required: true, message: 'Input item name!' }]}
-                          >
-                            <Select
-                              disabled={preOrderState === 'view'}
-                              loading={isItemLoading}
-                              placeholder='Choose Item'
-                              size='large'
-                              style={{ width: '100%' }}
-                              options={itemsList}
-                            />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} lg={3}>
-                          <Form.Item
-                            {...restField}
-                            label='Quantity'
-                            name={[name, 'quantity']}
-                            rules={[{ required: true, message: 'Input quantity!' }]}
-                          >
-                            <InputNumber
-                              disabled={preOrderState === 'view'}
-                              formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
-                              className='w-full'
-                              size='large'
-                              placeholder='Input quantity'
-                            />
-                          </Form.Item>
-                        </Col>
+                      <>
+                        {index !== 0 && index !== fields.length && <Divider className='mt-1 mb-1' />}
+                        <Row gutter={[12, 12]} key={key} className='p-3'>
+                          <Col xs={24} lg={4}>
+                            <Form.Item
+                              {...restField}
+                              label='Item Name'
+                              name={[name, 'item_id']}
+                              rules={[{ required: true, message: 'Input item name!' }]}
+                            >
+                              <Select
+                                disabled={preOrderState === 'view'}
+                                loading={isItemLoading}
+                                placeholder='Choose Item'
+                                size='large'
+                                style={{ width: '100%' }}
+                                options={itemsList}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} lg={3}>
+                            <Form.Item
+                              {...restField}
+                              label='Quantity'
+                              name={[name, 'quantity']}
+                              rules={[{ required: true, message: 'Input quantity!' }]}
+                            >
+                              <InputNumber
+                                disabled={preOrderState === 'view'}
+                                formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+                                className='w-full'
+                                size='large'
+                                placeholder='Input quantity'
+                              />
+                            </Form.Item>
+                          </Col>
 
-                        <Col xs={24} lg={3}>
-                          <Form.Item
-                            label='Lot Number'
-                            name={[name, 'lot_number']}
-                            rules={[{ required: true, message: 'Input lot number!' }]}
-                          >
-                            <Input size='large' placeholder='Input lot number' disabled={preOrderState === 'view'} />
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} lg={4}>
-                          <Form.Item
-                            label='Buy Price'
-                            name={[name, 'buy_price']}
-                            rules={[{ required: true, message: 'Input buy price!' }]}
-                          >
-                            <InputNumber
-                              formatter={dollarFormatter}
-                              className='w-full'
-                              size='large'
-                              type='tel'
-                              placeholder='Input buy price'
-                              disabled={preOrderState === 'view'}
-                            />
-                          </Form.Item>
-                        </Col>
-                        {preOrderState === 'edit' ? (
+                          <Col xs={24} lg={3}>
+                            <Form.Item
+                              label='Lot Number'
+                              name={[name, 'lot_number']}
+                              rules={[{ required: true, message: 'Input lot number!' }]}
+                            >
+                              <Input size='large' placeholder='Input lot number' disabled={preOrderState === 'view'} />
+                            </Form.Item>
+                          </Col>
+                          <Col xs={24} lg={4}>
+                            <Form.Item
+                              label='Buy Price'
+                              name={[name, 'buy_price']}
+                              rules={[{ required: true, message: 'Input buy price!' }]}
+                            >
+                              <InputNumber
+                                formatter={dollarFormatter}
+                                className='w-full'
+                                size='large'
+                                type='tel'
+                                placeholder='Input buy price'
+                                disabled={preOrderState === 'view'}
+                              />
+                            </Form.Item>
+                          </Col>
+                          {preOrderState === 'edit' ? (
+                            <Col xs={24} lg={3} className='flex justify-center items-center w-full'>
+                              <VIPButton
+                                type='primary'
+                                onClick={() => onSubmitUpdateItemPO(getFormValue(name))}
+                                icon={<CheckCircleOutlined />}
+                              >
+                                Save
+                              </VIPButton>
+                            </Col>
+                          ) : null}
                           <Col xs={24} lg={3} className='flex justify-center items-center w-full'>
                             <VIPButton
+                              disabled={preOrderState === 'view'}
                               type='primary'
-                              onClick={() => onSubmitUpdateItemPO(getFormValue(name))}
-                              icon={<CheckCircleOutlined />}
+                              danger
+                              onClick={() => {
+                                if (preOrderState === 'create') {
+                                  remove(name);
+                                }
+                                if (preOrderState === 'edit') {
+                                  onSubmitDeletePoItem(getFormValue(name));
+                                  remove(name);
+                                }
+                              }}
+                              icon={<MinusCircleOutlined />}
                             >
-                              Save
+                              Remove
                             </VIPButton>
                           </Col>
-                        ) : null}
-
-                        <Col xs={24} lg={3} className='flex justify-center items-center w-full'>
-                          <VIPButton
-                            disabled={preOrderState === 'view'}
-                            type='primary'
-                            danger
-                            onClick={() => {
-                              if (preOrderState === 'create') {
-                                remove(name);
-                              }
-                              if (preOrderState === 'edit') {
-                                onSubmitDeletePoItem(getFormValue(name));
-                                remove(name);
-                              }
-                            }}
-                            icon={<MinusCircleOutlined />}
-                          >
-                            Remove
-                          </VIPButton>
-                        </Col>
-                      </Row>
+                        </Row>
+                      </>
                     );
                   })}
-                  {preOrderState === 'edit' ? (
+                  {preOrderState === 'edit' || preOrderState === 'create' ? (
                     <Form.Item className='mt-3'>
                       <VIPButton
                         type='primary'
