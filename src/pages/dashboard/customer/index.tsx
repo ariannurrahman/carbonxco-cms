@@ -18,9 +18,11 @@ export const Customer = () => {
     onClickCloseCustomerModal,
     onClickCloseUpdateCustomerModal,
     onClickOpenCustomerModal,
+    onRowClick,
     onSubmitCreateCustomer,
     onSubmitSearch,
     onSubmitUpdateCustomer,
+    onTableChange,
     selectedCustomerUpdate,
   } = useCustomer();
 
@@ -38,10 +40,10 @@ export const Customer = () => {
 
       <Table
         scroll={{ x: 300 }}
-        // onChange={onTableChange}
-        // onRow={(record) => ({
-        //   onClick: () => onRowClick(record),
-        // })}
+        onChange={onTableChange}
+        onRow={(record) => ({
+          onClick: () => onRowClick(record),
+        })}
         rowKey='id'
         className='mt-3'
         dataSource={dataSource}

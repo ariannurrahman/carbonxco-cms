@@ -25,7 +25,6 @@ export const UpdateStockModal = ({ onClose, isOpen, data }: UpdateStockModalProp
         typeof data?.expired_date === 'number' ? dayjs(new Date(fromUnixTime(data?.expired_date))) : '';
       form.setFieldsValue({
         quantity: data?.quantity,
-        // quantity_type: data?.quantity_type,
         expired_date: expiredDate,
       });
     };

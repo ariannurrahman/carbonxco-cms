@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,7 +9,7 @@ import { CreateCustomerPayload, Customer, CustomerQueryParams, CustomerSearchQue
 
 export const useCustomer = () => {
   const queryClient = useQueryClient();
-
+  const navigate = useNavigate();
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
   const [isUpdateCustomerModalOpen, setIsUpdateCustomerModalOpen] = useState(false);
   const [selectedCustomerUpdate, setSelectedCustomerUpdate] = useState<Customer>({
@@ -23,6 +24,20 @@ export const useCustomer = () => {
     pagination: { page: 1, limit: 5 },
     query: { query_customer_name: '' },
   });
+
+  const onRowClick = (record: any) => {
+    navigate(`/dashboard/customer/${record.id}`);
+  };
+
+  const onTableChange = (event: any) => {
+    const paginationPayload = tableParams;
+    paginationPayload.pagination = {
+      page: event.current,
+      limit: 5,
+    };
+    setTableParams(paginationPayload);
+    refetchCustomerList();
+  };
 
   // GET ALL RELATED ************************************************************************************************************************
   const fetchCustomers = useCallback(async () => {
@@ -141,9 +156,11 @@ export const useCustomer = () => {
     onClickCloseUpdateCustomerModal,
     onClickOpenCustomerModal,
     onClickOpenUpdateCustomerModal,
+    onRowClick,
     onSubmitCreateCustomer,
     onSubmitSearch,
     onSubmitUpdateCustomer,
+    onTableChange,
     selectedCustomerUpdate,
   };
 };
