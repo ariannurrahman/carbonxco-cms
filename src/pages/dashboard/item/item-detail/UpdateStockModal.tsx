@@ -5,16 +5,16 @@ import dayjs from 'dayjs';
 import { fromUnixTime, getUnixTime } from 'date-fns';
 
 import { VIPButton } from 'components/button';
-import { Stock } from 'types/Stocks';
+import { Stock, UpdateStock } from 'types/Stocks';
 import { updateStock } from 'api/stocks';
 import { thousandFormatter } from 'utils';
+import { dateFormat } from 'constants';
 
 interface UpdateStockModalProps {
   onClose: () => void;
   data: Stock | undefined;
   isOpen: boolean;
 }
-const dateFormat = 'DD-MM-YYYY';
 
 export const UpdateStockModal = ({ onClose, isOpen, data }: UpdateStockModalProps) => {
   const [form] = Form.useForm();
@@ -33,7 +33,7 @@ export const UpdateStockModal = ({ onClose, isOpen, data }: UpdateStockModalProp
 
   const mutation = useMutation({
     mutationKey: ['stocksList'],
-    mutationFn: (value: Stock) => {
+    mutationFn: (value: UpdateStock) => {
       return updateStock(data?.id ?? '-', value);
     },
     onSuccess: () => {

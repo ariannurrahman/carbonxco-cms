@@ -8,6 +8,7 @@ import { ItemDetail } from 'pages/dashboard/item/item-detail';
 import { CreatePO } from 'pages/dashboard/pre-order/pre-order-edit-create';
 import { Customer } from 'pages/dashboard/customer';
 import { CustomerDetail } from 'pages/dashboard/customer/customer-detail';
+import { Stock } from 'pages/dashboard/stock';
 
 export const DashboardRoutes = () => {
   return (
@@ -24,6 +25,8 @@ export const DashboardRoutes = () => {
 
           <Route path='customer' element={<Customer />} />
           <Route path='customer/:id' element={<CustomerDetail />} />
+
+          <Route path='stock' element={<Stock />} />
 
           <Route path='' element={<Navigate to='/dashboard/item' />} />
           <Route path='*' element={<Navigate to='/dashboard/item' />} />

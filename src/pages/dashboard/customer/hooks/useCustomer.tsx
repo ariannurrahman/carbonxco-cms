@@ -151,6 +151,7 @@ export const useCustomer = () => {
     dataSource,
     isCreateCustomerModalOpen,
     isLoadingCustomerList,
+    isLoadingSubmit: updateCustomerMutation.isLoading || createCustomerMutation.isLoading,
     isUpdateCustomerModalOpen,
     onClickCloseCustomerModal,
     onClickCloseUpdateCustomerModal,

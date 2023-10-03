@@ -5,12 +5,13 @@ import { Customer } from 'types/Customer';
 
 interface EditCustomerModalProps {
   isOpen: boolean;
+  isLoadingSubmit: boolean;
   onSubmit: (value: Customer) => void;
   onCancel: () => void;
   data: Customer;
 }
 
-export const EditCustomerModal = ({ data, isOpen, onSubmit, onCancel }: EditCustomerModalProps) => {
+export const EditCustomerModal = ({ isLoadingSubmit, data, isOpen, onSubmit, onCancel }: EditCustomerModalProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -72,7 +73,13 @@ export const EditCustomerModal = ({ data, isOpen, onSubmit, onCancel }: EditCust
         </Form.Item>
 
         <Form.Item>
-          <VIPButton size='large' className='w-full' htmlType='submit'>
+          <VIPButton
+            loading={isLoadingSubmit}
+            disabled={isLoadingSubmit}
+            size='large'
+            className='w-full'
+            htmlType='submit'
+          >
             Update
           </VIPButton>
         </Form.Item>

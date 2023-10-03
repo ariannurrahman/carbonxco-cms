@@ -14,6 +14,7 @@ export const Customer = () => {
     dataSource,
     isCreateCustomerModalOpen,
     isLoadingCustomerList,
+    isLoadingSubmit,
     isUpdateCustomerModalOpen,
     onClickCloseCustomerModal,
     onClickCloseUpdateCustomerModal,
@@ -56,12 +57,14 @@ export const Customer = () => {
         }}
       />
       <EditCustomerModal
+        isLoadingSubmit={isLoadingSubmit}
         isOpen={isUpdateCustomerModalOpen}
         onCancel={onClickCloseUpdateCustomerModal}
         data={selectedCustomerUpdate}
         onSubmit={onSubmitUpdateCustomer}
       />
       <CreateCustomerModal
+        isLoadingSubmit={isLoadingSubmit}
         isOpen={isCreateCustomerModalOpen}
         onCancel={onClickCloseCustomerModal}
         onSubmit={onSubmitCreateCustomer}

@@ -1,29 +1,38 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Col, Input, Row, Form, Divider, message, Table } from 'antd';
+import { Col, Input, Row, Form, Divider, message, Table, Button, InputNumber } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getItem, updateItem } from 'api/items';
 import { VIPButton } from 'components/button';
 import { Item } from 'types/Item';
-import { getStocks } from 'api/stocks';
+import { getItemStocks } from 'api/stocks';
 import { QueryParams } from 'types/types';
 import { Stock } from 'types/Stocks';
 import { format, fromUnixTime } from 'date-fns';
-import { UpdateStockModal } from './UpdateStockModal';
-import { DeleteStockModal } from './DeleteStockModal';
 import { dollarFormatter, thousandFormatter } from 'utils';
+import { StockModal } from 'pages/dashboard/stock/components/StockModal';
+import { useStock } from 'pages/dashboard/stock/hooks/useStock';
+import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 
 export const ItemDetail = () => {
   const queryClient = useQueryClient();
+
+  const {
+    isStockModalOpen,
+    onCloseStockModal,
+    onOpenStockModal,
+    onSubmitDeleteStock,
+    onSubmitUpdateStock,
+    selectedStockModal,
+    setSelectedStockModal,
+  } = useStock();
+
   const [tableParams, setTableParams] = useState<QueryParams>({
     pagination: { page: 1, limit: 5 },
     query: { item_name: '', item_supplier_name: '' },
   });
   const [isFormDisable, setIsFormDisable] = useState(true);
-  const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
-  const [isOpenDeleteStockModal, setIsOpenDeleteStockModal] = useState(false);
-  const [selectedStock, setSelectedStock] = useState<Stock>();
   const [form] = Form.useForm();
 
   const params = useParams();
@@ -36,7 +45,7 @@ export const ItemDetail = () => {
     retry: false,
   });
 
-  const mutate = useMutation({
+  const itemUpdateMutation = useMutation({
     mutationKey: ['itemUpdate'],
     mutationFn: (value: Item) => {
       return updateItem(value);
@@ -52,12 +61,7 @@ export const ItemDetail = () => {
   });
 
   useEffect(() => {
-    const initFormValue = () =>
-      form.setFieldsValue({
-        name: itemData?.data?.name,
-        supplier_name: itemData?.data?.supplier_name,
-        serial_number: itemData?.data?.serial_number,
-      });
+    const initFormValue = () => form.setFieldsValue(itemData?.data);
 
     initFormValue();
   }, [itemData, form]);
@@ -65,7 +69,7 @@ export const ItemDetail = () => {
   const onClickEditItem = () => setIsFormDisable(false);
 
   const onSubmitForm = (value: Item) => {
-    mutate.mutate({
+    itemUpdateMutation.mutate({
       ...value,
       id,
     });
@@ -76,14 +80,13 @@ export const ItemDetail = () => {
     data: stocksData,
     refetch,
   } = useQuery({
-    queryFn: () => getStocks({ pagination: { page: 1, limit: 5 }, id }),
+    queryFn: () => getItemStocks({ pagination: { page: 1, limit: 5 }, id }),
     queryKey: ['stocksList'],
     refetchOnWindowFocus: false,
     retry: false,
   });
 
   // STOCKS RELATED ****************************************************************************************** //
-
   const dataSource: Stock[] = useMemo(() => {
     return stocksData?.data ?? [];
   }, [stocksData]);
@@ -118,15 +121,30 @@ export const ItemDetail = () => {
     {
       title: 'Action',
       key: 'update_action',
-      render: (value: Stock) => (
+      render: (_: any, value: Stock) => (
         <Row gutter={[8, 8]}>
           <Col>
-            <VIPButton onClick={() => onOpenUpdateStockModal(value)}>Edit</VIPButton>
+            <Button
+              shape='circle'
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedStockModal(value);
+                onOpenStockModal('update');
+              }}
+            />
           </Col>
           <Col>
-            <VIPButton danger onClick={() => onOpenDeleteStockModal(value)}>
-              Delete
-            </VIPButton>
+            <Button
+              shape='circle'
+              danger
+              icon={<CloseOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedStockModal(value);
+                onOpenStockModal('delete');
+              }}
+            />
           </Col>
         </Row>
       ),
@@ -143,23 +161,22 @@ export const ItemDetail = () => {
     refetch();
   };
 
-  // UPDATE STOCKS RELATED ****************************************************************************************** //
-
-  const onOpenUpdateStockModal = (value: Stock) => {
-    setSelectedStock(value);
-    setIsOpenUpdateModal(true);
-  };
-  const onCloseUpdateStockModal = () => setIsOpenUpdateModal(false);
-
-  const onOpenDeleteStockModal = (value: Stock) => {
-    setSelectedStock(value);
-    setIsOpenDeleteStockModal(true);
-  };
-  const onCloseDeleteStockModal = () => setIsOpenDeleteStockModal(false);
   return (
     <>
-      <UpdateStockModal data={selectedStock} onClose={onCloseUpdateStockModal} isOpen={isOpenUpdateModal} />
-      <DeleteStockModal data={selectedStock} onClose={onCloseDeleteStockModal} isOpen={isOpenDeleteStockModal} />
+      <StockModal
+        isOpen={isStockModalOpen === 'update'}
+        onCancel={onCloseStockModal}
+        onSubmit={onSubmitUpdateStock}
+        selectedStockModal={selectedStockModal}
+        type='update'
+      />
+      <StockModal
+        isOpen={isStockModalOpen === 'delete'}
+        onCancel={onCloseStockModal}
+        onSubmit={onSubmitDeleteStock}
+        selectedStockModal={selectedStockModal}
+        type='delete'
+      />
       <Row className='min-h-screen pb-96'>
         <Row className='w-full shadow-sm bg-white rounded-md px-5 md:px-8'>
           <Row align='middle' className='w-full h-[40px] mt-5' justify='space-between'>
@@ -184,10 +201,16 @@ export const ItemDetail = () => {
                 onFinish={onSubmitForm}
                 disabled={isFormDisable || isLoadingFetchItem || isLoadingFetchStocks}
               >
-                <Form.Item label='Item Name' name='name' rules={[{ required: true, message: 'Input item name!' }]}>
+                <Form.Item
+                  className='mb-5'
+                  label='Item Name'
+                  name='name'
+                  rules={[{ required: true, message: 'Input item name!' }]}
+                >
                   <Input size='large' placeholder='Input item name' />
                 </Form.Item>
                 <Form.Item
+                  className='mb-5'
                   label='Supplier Name'
                   name='supplier_name'
                   rules={[{ required: true, message: 'Input supplier name!' }]}
@@ -195,11 +218,34 @@ export const ItemDetail = () => {
                   <Input size='large' placeholder='Input supplier name' />
                 </Form.Item>
                 <Form.Item
+                  className='mb-5'
                   label='Serial Number'
                   name='serial_number'
                   rules={[{ required: true, message: 'Input serial number!' }]}
                 >
                   <Input size='large' placeholder='Input serial number' />
+                </Form.Item>
+                <Form.Item
+                  className='mb-5'
+                  label='Packaging Type'
+                  name='packaging_type'
+                  rules={[{ required: true, message: 'Input packaging type!' }]}
+                >
+                  <Input size='large' placeholder='Input packaging type' />
+                </Form.Item>
+                <Form.Item
+                  className='mb-5'
+                  label='Packaging Volume'
+                  name='packaging_volume'
+                  rules={[{ required: true, message: 'Input packaging volume!' }]}
+                >
+                  <InputNumber
+                    formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+                    className='w-full'
+                    type='tel'
+                    size='large'
+                    placeholder='Input packaging volume'
+                  />
                 </Form.Item>
 
                 <Form.Item>

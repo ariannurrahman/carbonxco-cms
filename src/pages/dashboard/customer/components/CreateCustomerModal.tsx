@@ -5,11 +5,12 @@ import { CreateCustomerPayload } from 'types/Customer';
 
 interface CreateCustomerModalProps {
   isOpen: boolean;
+  isLoadingSubmit: boolean;
   onSubmit: (value: CreateCustomerPayload) => void;
   onCancel: () => void;
 }
 
-export const CreateCustomerModal = ({ isOpen, onSubmit, onCancel }: CreateCustomerModalProps) => {
+export const CreateCustomerModal = ({ isLoadingSubmit, isOpen, onSubmit, onCancel }: CreateCustomerModalProps) => {
   return (
     <Modal width={300} footer={false} title='Add Customer' open={isOpen} onCancel={onCancel}>
       <Form name='create-customer-form' requiredMark={false} onFinish={onSubmit} className='mt-3' layout='vertical'>
@@ -47,7 +48,13 @@ export const CreateCustomerModal = ({ isOpen, onSubmit, onCancel }: CreateCustom
         </Form.Item>
 
         <Form.Item>
-          <VIPButton size='large' className='w-full' htmlType='submit'>
+          <VIPButton
+            loading={isLoadingSubmit}
+            disabled={isLoadingSubmit}
+            size='large'
+            className='w-full'
+            htmlType='submit'
+          >
             Submit
           </VIPButton>
         </Form.Item>

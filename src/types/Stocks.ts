@@ -1,4 +1,4 @@
-export interface StockParams {
+export interface StockItemParams {
   pagination: {
     limit: number;
     page: number;
@@ -22,6 +22,12 @@ export interface Stock {
   quantity: number;
 }
 
+export interface UpdateStock {
+  expired_date: number;
+  quantity: number;
+  id: string;
+}
+
 export interface StockItem {
   id: string;
   name: string;
@@ -30,3 +36,27 @@ export interface StockItem {
   serial_number: string;
   supplier_name: string;
 }
+
+export interface StocksParams {
+  pagination: {
+    limit: number;
+    page: number;
+  };
+  query: StockSearchQuery;
+}
+
+export interface StockSearchQuery {
+  query_item_name: string;
+  query_item_supplier_name: string;
+}
+
+export interface StockModalProps {
+  isLoadingSubmit?: boolean;
+  type: StockModalType;
+  onSubmit: (value: Stock) => void;
+  onCancel: () => void;
+  isOpen: boolean;
+  selectedStockModal?: Stock;
+}
+
+export type StockModalType = 'create' | 'update' | 'delete' | undefined;
