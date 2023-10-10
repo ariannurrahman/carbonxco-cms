@@ -6,7 +6,6 @@ import { Stock, StockModalType, StockSearchQuery, StocksParams, UpdateStock } fr
 import { createStock, deleteStock, getStocks, updateStock } from 'api/stocks';
 import { thousandFormatter } from 'utils';
 import { format, fromUnixTime, getUnixTime } from 'date-fns';
-import { ColumnsType } from 'antd/es/table';
 
 export const useStock = () => {
   const queryClient = useQueryClient();
