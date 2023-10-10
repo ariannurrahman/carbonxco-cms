@@ -66,6 +66,7 @@ export const useCustomer = () => {
 
   const columns = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
+    { title: 'Payment Terms (Days)', dataIndex: 'payment_term', key: 'payment_term' },
     { title: 'Address', dataIndex: 'address', key: 'address' },
     { title: 'Invoice Address', dataIndex: 'invoice_address', key: 'invoice_address' },
     {

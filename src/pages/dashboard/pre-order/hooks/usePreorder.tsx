@@ -91,7 +91,7 @@ export const usePreorder = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 300,
+      width: 200,
       render: (status: Status, data) => {
         const id = data.id;
         return (

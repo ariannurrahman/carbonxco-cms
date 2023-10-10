@@ -123,6 +123,20 @@ export const StockModal = ({
           </Form.Item>
           <Form.Item
             className='mb-5'
+            label='Exchange Rate'
+            rules={[{ required: true, message: 'Input exchange rate!' }]}
+            name='exchange_rate'
+          >
+            <InputNumber
+              type='tel'
+              className='w-full'
+              placeholder='Input exchange rate!'
+              size='large'
+              formatter={(value: number | undefined) => thousandFormatter(value?.toString())}
+            />
+          </Form.Item>
+          <Form.Item
+            className='mb-5'
             name='buy_price'
             label='Buy Price'
             rules={[{ required: true, message: 'Input buy price!' }]}

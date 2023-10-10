@@ -57,17 +57,11 @@ export const useItem = () => {
     return data?.data ?? [];
   }, [data]);
 
-  const columns = [
-    { title: 'Supplier Name', dataIndex: 'supplier_name', key: 'supplier_name' },
-    { title: 'Item Name', dataIndex: 'name', key: 'name' },
-    { title: 'Packaging Type', dataIndex: 'packaging_type', key: 'packaging_type' },
-    { title: 'Serial Number', dataIndex: 'serial_number', key: 'serial_number' },
-    // {
-    //   title: 'Packaging Volume',
-    //   dataIndex: 'packaging_volume',
-    //   key: 'packaging_volume',
-    //   render: (value: number) => thousandFormatter(value.toString()),
-    // },
+  const columns: any = [
+    { title: 'Supplier Name', dataIndex: 'supplier_name', key: 'supplier_name', width: 120 },
+    { title: 'Item Name', dataIndex: 'name', key: 'name', width: 120 },
+    { title: 'Packaging Type', dataIndex: 'packaging_type', key: 'packaging_type', width: 120 },
+    { title: 'Serial Number', dataIndex: 'serial_number', key: 'serial_number', width: 120 },
   ];
 
   const onTableChange = (event: any) => {

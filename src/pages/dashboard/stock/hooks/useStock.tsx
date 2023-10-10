@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Col, Row, message } from 'antd';
+import { message } from 'antd';
 
 import { Stock, StockModalType, StockSearchQuery, StocksParams, UpdateStock } from 'types/Stocks';
 import { createStock, deleteStock, getStocks, updateStock } from 'api/stocks';
-import { dollarFormatter, thousandFormatter } from 'utils';
+import { thousandFormatter } from 'utils';
 import { format, fromUnixTime, getUnixTime } from 'date-fns';
+import { ColumnsType } from 'antd/es/table';
 
 export const useStock = () => {
   const queryClient = useQueryClient();
@@ -63,65 +63,30 @@ export const useStock = () => {
     return stocksList?.data ?? [];
   }, [stocksList]);
 
-  const stockColumns = [
-    { title: 'Lot Number', dataIndex: 'lot_number', key: 'lot_number' },
+  const stockColumns: any = [
+    { title: 'Supplier Name', dataIndex: ['item', 'supplier_name'], key: 'supplier_name', width: 140, fixed: 'left' },
+    { title: 'Item Name', dataIndex: ['item', 'name'], key: 'item_name', width: 120, fixed: 'left' },
+    { title: 'Lot Number', dataIndex: 'lot_number', key: 'lot_number', width: 100 },
     {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
       render: (value: number) => thousandFormatter(value.toString()),
-    },
-    {
-      title: 'Price',
-      dataIndex: 'buy_price',
-      key: 'buy_price',
-      render: (value: number) => dollarFormatter(value.toString()),
+      width: 100,
     },
     {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
       render: (value: number) => (value ? format(new Date(fromUnixTime(value)), 'PP') : '-'),
+      width: 100,
     },
     {
       title: 'Expired Date',
       dataIndex: 'expired_date',
       key: 'expired_date',
       render: (value: number) => (value ? format(new Date(fromUnixTime(value)), 'PP') : '-'),
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (_: any, stock: Stock) => {
-        return (
-          <Row gutter={[8, 8]}>
-            <Col>
-              <Button
-                shape='circle'
-                icon={<EditOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedStockModal(stock);
-                  onOpenStockModal('update');
-                }}
-              />
-            </Col>
-            <Col>
-              <Button
-                shape='circle'
-                danger
-                icon={<CloseOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedStockModal(stock);
-                  onOpenStockModal('delete');
-                }}
-              />
-            </Col>
-          </Row>
-        );
-      },
+      width: 100,
     },
   ];
 

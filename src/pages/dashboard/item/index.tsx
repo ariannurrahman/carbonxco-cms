@@ -22,7 +22,7 @@ export const Item = () => {
   } = useItem();
 
   return (
-    <div>
+    <div className='h-[1000px]'>
       <PageTitle
         title='Item'
         rightNode={

@@ -8,6 +8,7 @@ import { dollarFormatter, thousandFormatter } from 'utils';
 
 export const CreatePO = () => {
   const [form] = Form.useForm();
+  const poNumber = Form.useWatch('po_number', form);
   const {
     detailPreOrder,
     isItemLoading,
@@ -85,22 +86,37 @@ export const CreatePO = () => {
             onFinish={onSubmitCreatePO}
             autoComplete='off'
           >
-            <Form.Item
-              className=''
-              label='Supplier Name'
-              name='supplier_name'
-              rules={[{ required: true, message: 'Input item name!' }]}
-            >
-              <Select
-                disabled={preOrderState === 'edit' || preOrderState === 'view'}
-                loading={preOrderState === 'edit' ? false : isSupplierLoading}
-                size='large'
-                placeholder='Choose supplier'
-                style={{ width: 200 }}
-                onChange={onChangeSupplier}
-                options={suppliersList}
-              />
-            </Form.Item>
+            <Row gutter={[8, 8]}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  className=''
+                  label='Supplier Name'
+                  name='supplier_name'
+                  rules={[{ required: true, message: 'Input item name!' }]}
+                >
+                  <Select
+                    disabled={preOrderState === 'edit' || preOrderState === 'view'}
+                    loading={preOrderState === 'edit' ? false : isSupplierLoading}
+                    size='large'
+                    placeholder='Choose supplier'
+                    style={{ width: '100%' }}
+                    onChange={onChangeSupplier}
+                    options={suppliersList}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  className=''
+                  label='PO Number'
+                  name='po_number'
+                  rules={[{ required: true, message: 'Input item name!' }]}
+                >
+                  <Input size='large' placeholder='Input PO number' disabled={preOrderState === 'view'} />
+                </Form.Item>
+              </Col>
+            </Row>
+
             <Form.List name='po_items'>
               {(fields, { add, remove }) => (
                 <>
@@ -111,8 +127,8 @@ export const CreatePO = () => {
                     };
 
                     return (
-                      <>
-                        {index !== 0 && index !== fields.length && <Divider className='mt-1 mb-1' />}
+                      <div key={key}>
+                        {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
                         <Row gutter={[12, 12]} key={key} className='p-3'>
                           <Col xs={24} lg={4}>
                             <Form.Item
@@ -204,14 +220,14 @@ export const CreatePO = () => {
                             </VIPButton>
                           </Col>
                         </Row>
-                      </>
+                      </div>
                     );
                   })}
                   {preOrderState === 'edit' || preOrderState === 'create' ? (
                     <Form.Item className='mt-3'>
                       <VIPButton
                         type='primary'
-                        disabled={!selectedSupplier}
+                        disabled={!selectedSupplier || !poNumber}
                         onClick={() => add()}
                         icon={<PlusOutlined />}
                       >

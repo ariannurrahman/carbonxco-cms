@@ -24,7 +24,7 @@ export const Stock = () => {
   } = useStock();
 
   return (
-    <div className='h-[3000px]'>
+    <div className='h-[1000px]'>
       <PageTitle
         title='Stock'
         rightNode={

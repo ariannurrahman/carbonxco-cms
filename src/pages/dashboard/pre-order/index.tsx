@@ -23,7 +23,7 @@ export const PreOrder = () => {
   } = usePreorder();
 
   return (
-    <div>
+    <div className='h-[1000px]'>
       <PageTitle
         title='Pre-Order'
         rightNode={
