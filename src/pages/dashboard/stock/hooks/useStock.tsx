@@ -158,6 +158,7 @@ export const useStock = () => {
       expired_date: value.expired_date ? getUnixTime(new Date(value?.expired_date ?? new Date())) : 0,
       quantity: value.quantity,
       id: value?.id ?? '',
+      exchange_rate: value?.exchange_rate ?? 0,
     };
     updateStockMutation.mutate(payload);
   };

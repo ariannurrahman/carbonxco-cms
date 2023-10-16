@@ -25,7 +25,7 @@ export const Customer = () => {
     onSubmitUpdateCustomer,
     onTableChange,
     selectedCustomerUpdate,
-  } = useCustomer();
+  } = useCustomer(5);
 
   return (
     <div className='h-[1000px]'>

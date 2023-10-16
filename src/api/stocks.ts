@@ -15,6 +15,7 @@ export const updateStock = async (id: string, payload: UpdateStock) => {
   const modifiedPayload = {
     expired_date: payload.expired_date ?? 0,
     quantity: payload.quantity,
+    exchange_rate: payload.exchange_rate ?? 0,
   };
   const response = await VIPApi.put(`/stocks/${id}`, modifiedPayload);
   return response.data;

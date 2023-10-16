@@ -20,12 +20,14 @@ export interface Stock {
   item: StockItem;
   lot_number: string;
   quantity: number;
+  exchange_rate?: number;
 }
 
 export interface UpdateStock {
   expired_date: number;
   quantity: number;
   id: string;
+  exchange_rate?: number;
 }
 
 export interface StockItem {

@@ -230,10 +230,10 @@ export const usePreorder = () => {
 
   const { isLoading: isItemLoading, data: items } = useQuery({
     queryFn: fetchItems,
-    queryKey: ['itemList', selectedSupplier],
+    queryKey: ['itemList'],
     refetchOnWindowFocus: false,
     retry: false,
-    enabled: !!selectedSupplier,
+    // enabled: !!selectedSupplier,
   });
 
   const modifiedItems = useMemo(() => {

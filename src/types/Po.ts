@@ -67,6 +67,7 @@ export interface POTableDataProps {
   status: string;
   supplier_name: string;
   id: string;
+  po_number: string;
 }
 
 export interface PoResponse {

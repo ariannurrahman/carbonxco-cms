@@ -27,7 +27,7 @@ export const CreatePO = () => {
   useEffect(() => {
     if (preOrderState === 'create') return;
     const initEdit = () => {
-      const poItems = detailPreOrder?.data.po_items.map(({ id, buy_price, item, lot_number, quantity }) => {
+      const poItems = detailPreOrder?.data?.po_items?.map(({ id, buy_price, item, lot_number, quantity }) => {
         return {
           buy_price,
           item_id: item.id,
@@ -40,6 +40,7 @@ export const CreatePO = () => {
       form.setFieldsValue({
         supplier_name: detailPreOrder?.data?.po_order?.supplier_name,
         po_items: poItems,
+        po_number: detailPreOrder?.data?.po_order?.po_number ?? '',
       });
     };
     initEdit();
@@ -75,9 +76,10 @@ export const CreatePO = () => {
       </Row>
       <Divider />
 
-      <Row className='w-full'>
+      <Row className='w-full h-full pb-80'>
         <Col span={24}>
           <Form
+            className='h-full'
             form={form}
             layout='vertical'
             requiredMark={false}
@@ -127,7 +129,7 @@ export const CreatePO = () => {
                     };
 
                     return (
-                      <div key={key}>
+                      <div key={`${name}-${key}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
                         <Row gutter={[12, 12]} key={key} className='p-3'>
                           <Col xs={24} lg={4}>

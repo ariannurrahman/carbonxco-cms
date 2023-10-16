@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createCustomer, getAllCustomer, updateCustomer } from 'api/customer';
 import { CreateCustomerPayload, Customer, CustomerQueryParams, CustomerSearchQuery } from 'types/Customer';
 
-export const useCustomer = () => {
+export const useCustomer = (limit: number) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
@@ -21,7 +21,7 @@ export const useCustomer = () => {
     block_status: '',
   });
   const [tableParams, setTableParams] = useState<CustomerQueryParams>({
-    pagination: { page: 1, limit: 5 },
+    pagination: { page: 1, limit },
     query: { query_customer_name: '' },
   });
 
