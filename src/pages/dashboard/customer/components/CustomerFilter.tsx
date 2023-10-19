@@ -15,6 +15,11 @@ export const CustomerFilter = ({ onSubmit }: CustomerFilterProps) => {
             <Input className='w-full' placeholder='Customer Name' size='large' />
           </Form.Item>
         </Col>
+        <Col lg={6} md={12} xs={24}>
+          <Form.Item className='w-full' name='query_customer_address'>
+            <Input className='w-full' placeholder='Address' size='large' />
+          </Form.Item>
+        </Col>
         <Col lg={6} md={6} xs={24}>
           <Form.Item className='p-0 m-0 w-full'>
             <VIPButton className='w-full md:w-32' size='large' type='primary' htmlType='submit'>

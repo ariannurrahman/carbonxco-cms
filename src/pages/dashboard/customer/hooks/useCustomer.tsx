@@ -22,7 +22,7 @@ export const useCustomer = (limit: number) => {
   });
   const [tableParams, setTableParams] = useState<CustomerQueryParams>({
     pagination: { page: 1, limit },
-    query: { query_customer_name: '' },
+    query: { query_customer_name: '', query_customer_address: '' },
   });
 
   const onRowClick = (record: any) => {
@@ -45,6 +45,7 @@ export const useCustomer = (limit: number) => {
       pagination: { page: tableParams.pagination.page, limit: tableParams.pagination.limit },
       query: {
         query_customer_name: tableParams.query.query_customer_name,
+        query_customer_address: tableParams.query.query_customer_address,
       },
     });
   }, [tableParams]);

@@ -4,4 +4,5 @@ export const SIDEBAR_NAV = [
   { href: 'customer', label: 'Customer' },
   { href: 'stock', label: 'Stock' },
   { href: 'invoice-po', label: 'Invoice PO' },
+  { href: 'order-invoice', label: 'Invoice Order' },
 ];

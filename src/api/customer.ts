@@ -12,9 +12,9 @@ import {
 
 export const getAllCustomer = async ({ pagination, query }: CustomerQueryParams) => {
   const { page = 1, limit = 15 } = pagination;
-  const { query_customer_name = '' } = query;
+  const { query_customer_name = '', query_customer_address = '' } = query;
   const response = await VIPApi.get<CustomerGetAllResponse>(
-    `customers?page=${page}&limit=${limit}&query_customer_name=${query_customer_name}`,
+    `customers?page=${page}&limit=${limit}&query_customer_name=${query_customer_name}&query_customer_address=${query_customer_address}`,
   );
   return response.data;
 };

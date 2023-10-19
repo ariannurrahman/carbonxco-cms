@@ -11,6 +11,8 @@ import { CustomerDetail } from 'pages/dashboard/customer/customer-detail';
 import { Stock } from 'pages/dashboard/stock';
 import { InvoicePO } from 'pages/dashboard/invoice-po';
 import { InvoicePoEditCreate } from 'pages/dashboard/invoice-po/invoice-po-edit-create';
+import { Invoice } from 'pages/dashboard/invoice';
+import { CreateEditInvoice } from 'pages/dashboard/invoice/create-edit-invoice';
 
 export const DashboardRoutes = () => {
   return (
@@ -32,6 +34,9 @@ export const DashboardRoutes = () => {
           <Route path='invoice-po' element={<InvoicePO />} />
           <Route path='invoice-po/create' element={<InvoicePoEditCreate state='create' />} />
           <Route path='invoice-po/edit/:id' element={<InvoicePoEditCreate state='edit' />} />
+
+          <Route path='order-invoice' element={<Invoice />} />
+          <Route path='order-invoice/create' element={<CreateEditInvoice state='create' />} />
 
           <Route path='' element={<Navigate to='/dashboard/item' />} />
           <Route path='*' element={<Navigate to='/dashboard/item' />} />

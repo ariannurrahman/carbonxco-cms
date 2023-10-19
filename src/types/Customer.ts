@@ -60,6 +60,7 @@ export interface CustomerQueryParams {
 
 export interface CustomerSearchQuery {
   query_customer_name: string;
+  query_customer_address: string;
 }
 
 export interface CreateCustomerPayload {

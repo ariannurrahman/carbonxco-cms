@@ -7,7 +7,8 @@ import { InvoicePoFilter } from './components/InvoicePoFilter';
 
 const InvoicePO = () => {
   const navigate = useNavigate();
-  const { invoicePoList, isLoadingInvoicePoList, invoicePoColumn, onTableChange, onRowClick } = useInvoicePo('view');
+  const { invoicePoList, onSubmitSearch, isLoadingInvoicePoList, invoicePoColumn, onTableChange, onRowClick } =
+    useInvoicePo('view');
 
   return (
     <div className='h-[1000px]'>
@@ -19,7 +20,7 @@ const InvoicePO = () => {
           </VIPButton>
         }
       />
-      <InvoicePoFilter onSubmit={() => {}} />
+      <InvoicePoFilter onSubmit={onSubmitSearch} />
       <Table
         scroll={{ x: 300 }}
         onChange={onTableChange}

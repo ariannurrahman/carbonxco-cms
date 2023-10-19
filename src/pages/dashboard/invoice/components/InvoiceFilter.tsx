@@ -1,12 +1,12 @@
 import { Col, Form, Input, Row } from 'antd';
 import { VIPButton } from 'components/button';
-import { InvoicePoSearchQuery } from 'types/InvoicePo';
+import { InvoiceSearchQuery } from 'types/Invoice';
 
-interface InvoicePoFilter {
-  onSubmit: (value: InvoicePoSearchQuery) => void;
+interface InvoiceFilterProps {
+  onSubmit: (value: InvoiceSearchQuery) => void;
 }
 
-export const InvoicePoFilter = ({ onSubmit }: InvoicePoFilter) => {
+export const InvoiceFilter = ({ onSubmit }: InvoiceFilterProps) => {
   return (
     <Form onFinish={onSubmit} layout='inline' className='p-0 my-3 w-full flex flex-col justify-center items-center'>
       <Row justify='start' align='middle' gutter={[12, 12]} className='w-full'>

@@ -2,7 +2,13 @@ import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 
-import { InvoicePoCreatePayload, InvoicePoItems, InvoicePoParams, InvoicePoUpdatePayload } from 'types/InvoicePo';
+import {
+  InvoicePoCreatePayload,
+  InvoicePoItems,
+  InvoicePoParams,
+  InvoicePoSearchQuery,
+  InvoicePoUpdatePayload,
+} from 'types/InvoicePo';
 import {
   createInvoicePo,
   createItemInvoicePo,
@@ -14,11 +20,14 @@ import {
 } from 'api/invoicePo';
 import { useNavigate, useParams } from 'react-router-dom';
 import { InvoicePoState } from '../invoice-po-edit-create';
+import { useInvoice } from 'pages/dashboard/invoice/hooks/useInvoice';
 
 export const useInvoicePo = (state: InvoicePoState) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const { onCreateInvoiceOrder } = useInvoice();
 
   const [tableParams, setTableParams] = useState<InvoicePoParams>({
     pagination: { page: 1, limit: 5 },
@@ -37,6 +46,17 @@ export const useInvoicePo = (state: InvoicePoState) => {
 
   const onRowClick = (record: any) => {
     navigate(`/dashboard/invoice-po/edit/${record.id}`);
+  };
+
+  const onSubmitSearch = (value: InvoicePoSearchQuery) => {
+    const searchPayload = tableParams;
+    searchPayload.query = value;
+    searchPayload.pagination = {
+      page: 1,
+      limit: 15,
+    };
+    setTableParams(searchPayload);
+    refetchInvoicePoList();
   };
 
   const fetchInvoicePo = useCallback(async () => {
@@ -148,13 +168,23 @@ export const useInvoicePo = (state: InvoicePoState) => {
   });
 
   const onSubmitDeleteItemInvoicePo = (id: string) => {
-    console.log({ id });
-
     mutationDeleteItemInvoicePo.mutate(id);
   };
 
-  const onSubmitCreateInvoicePo = (value: InvoicePoCreatePayload) => {
-    mutationCreateInvoicePo.mutate(value);
+  const onSubmitCreateInvoicePo = (value: InvoicePoCreatePayload, type: string) => {
+    if (type === 'create-invoice-po') {
+      mutationCreateInvoicePo.mutate(value);
+    }
+    if (type === 'create-invoice-order') {
+      const invoice_items = value.invoice_po_items.map((eachPoItem) => {
+        return {
+          invoice_po_item_id: eachPoItem.id,
+          quantity: eachPoItem.quantity,
+        };
+      });
+
+      onCreateInvoiceOrder({ invoice_items });
+    }
   };
 
   const mutationUpdateInvoicePoItem = useMutation({
@@ -187,6 +217,7 @@ export const useInvoicePo = (state: InvoicePoState) => {
     onSubmitCreateInvoicePo,
     onSubmitCreateItemInvoicePo,
     onSubmitDeleteItemInvoicePo,
+    onSubmitSearch,
     onSubmitUpdateInvoicePo,
     onSubmitUpdateInvoicePoItem,
     onTableChange,

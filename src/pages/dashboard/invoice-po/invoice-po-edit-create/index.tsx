@@ -56,7 +56,6 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
         exchange_rate: invoicePoDetail?.data?.invoice_po?.exchange_rate,
         invoice_po_items: invoicePoItems,
       };
-      console.log('initialForm', initialForm);
       form.setFieldsValue(initialForm);
     };
     initData();
@@ -83,7 +82,6 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
       : '';
 
   const onSaveCreateItemOnEdit = (value: InvoicePoUpdatePayload) => {
-    console.log('value', value);
     onSubmitCreateItemInvoicePo(value);
   };
 
@@ -100,6 +98,13 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
             </VIPButton>
           </Col>
         ) : null}
+        {state === 'edit' ? (
+          <Col>
+            <VIPButton form={`${state}-invoice-po-form`} type='primary' htmlType='submit'>
+              Create Invoice Order
+            </VIPButton>
+          </Col>
+        ) : null}
       </Row>
       <Divider />
 
@@ -113,7 +118,12 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
             name={`${state}-invoice-po-form`}
             id={`${state}-invoice-po-form`}
             autoComplete='off'
-            onFinish={onSubmitCreateInvoicePo}
+            onFinish={(value) =>
+              onSubmitCreateInvoicePo(
+                value,
+                state === 'create' ? 'create-invoice-po' : state === 'edit' ? 'create-invoice-order' : '',
+              )
+            }
           >
             <Row gutter={[8, 8]}>
               <Col xs={24} md={24}>
