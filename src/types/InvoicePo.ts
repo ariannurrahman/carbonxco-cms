@@ -100,3 +100,36 @@ export interface InvoicePoUpdateModalProps {
   onCancel: () => void;
   isOpen: boolean;
 }
+
+export interface GetInvoicePoItems {
+  data: Datum[];
+  metadata: Metadata;
+  trace_id: string;
+}
+
+export interface Datum {
+  id: string;
+  item: Item;
+  price: number;
+  quantity: number;
+}
+
+export interface Item {
+  id: string;
+  name: string;
+  packaging_type: string;
+  packaging_volume: number;
+  serial_number: string;
+  supplier_name: string;
+}
+
+export interface Metadata {
+  current_page: number;
+  item_from: number;
+  item_to: number;
+  limit: number;
+  next_page: null;
+  previous_page: null;
+  total_items: number;
+  total_pages: number;
+}

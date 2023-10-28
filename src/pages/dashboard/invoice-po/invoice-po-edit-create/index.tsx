@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CheckCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Col, Divider, Form, Input, InputNumber, Row, Select } from 'antd';
 
@@ -6,7 +6,7 @@ import { VIPButton } from 'components/button';
 import { useCustomer } from 'pages/dashboard/customer/hooks/useCustomer';
 import { usePreorder } from 'pages/dashboard/pre-order/hooks/usePreorder';
 import { dollarFormatter, thousandFormatter } from 'utils';
-import { Customer, InvoicePoUpdatePayload } from 'types/InvoicePo';
+import { Customer } from 'types/InvoicePo';
 import { useInvoicePo } from '../hooks/useInvoicePo';
 
 export type InvoicePoState = 'create' | 'edit' | 'view';
@@ -31,35 +31,38 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
     invoicePoDetail,
     onSubmitUpdateInvoicePo,
     isLoadingUpdateInvoicePo,
-    onSubmitCreateItemInvoicePo,
+    mutationCreateItemInvoicePo,
     onSubmitDeleteItemInvoicePo,
   } = useInvoicePo(state);
 
-  useEffect(() => {
+  const initData = useCallback(() => {
+    console.log('triggered?');
     if (state === 'create') return;
     if (!invoicePoDetail) return;
-    const initData = () => {
-      if (invoicePoDetail?.data?.invoice_po?.customer) {
-        setSelectedCustomer(invoicePoDetail.data.invoice_po.customer);
-      }
+    console.log('TRIGGERED?');
+    if (invoicePoDetail?.data?.invoice_po?.customer) {
+      setSelectedCustomer(invoicePoDetail.data.invoice_po.customer);
+    }
 
-      const invoicePoItems = invoicePoDetail?.data?.invoice_po_items.map((eachItem) => {
-        return {
-          ...eachItem,
-          item_id: eachItem.item.id,
-        };
-      });
-
-      const initialForm = {
-        customer_id: invoicePoDetail?.data?.invoice_po?.customer.name,
-        po_number: invoicePoDetail?.data?.invoice_po?.po_number,
-        exchange_rate: invoicePoDetail?.data?.invoice_po?.exchange_rate,
-        invoice_po_items: invoicePoItems,
+    const invoicePoItems = invoicePoDetail?.data?.invoice_po_items.map((eachItem) => {
+      return {
+        ...eachItem,
+        item_id: eachItem.item.id,
       };
-      form.setFieldsValue(initialForm);
+    });
+
+    const initialForm = {
+      customer_id: invoicePoDetail?.data?.invoice_po?.customer.name,
+      po_number: invoicePoDetail?.data?.invoice_po?.po_number,
+      exchange_rate: invoicePoDetail?.data?.invoice_po?.exchange_rate,
+      invoice_po_items: invoicePoItems,
     };
+    form.setFieldsValue(initialForm);
+  }, [invoicePoDetail, form, state]);
+
+  useEffect(() => {
     initData();
-  }, [state, form, invoicePoDetail]);
+  }, [initData]);
 
   const customerOptions = customerList?.data.map(({ name, address, invoice_address, id }) => {
     return {
@@ -81,9 +84,7 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
       ? 'View Invoice Po'
       : '';
 
-  const onSaveCreateItemOnEdit = (value: InvoicePoUpdatePayload) => {
-    onSubmitCreateItemInvoicePo(value);
-  };
+  console.log('form.getFieldsValue()', form.getFieldsValue());
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -260,7 +261,9 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                                   }
 
                                   if (createOnEdit) {
-                                    onSaveCreateItemOnEdit(getFormValue(name));
+                                    mutationCreateItemInvoicePo.mutate(getFormValue(name));
+                                    // refetchInvoicePoDetail();
+                                    // initData();
                                   }
                                 }}
                                 icon={<CheckCircleOutlined />}
@@ -279,7 +282,8 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                                   remove(name);
                                 }
                                 if (state === 'edit') {
-                                  onSubmitDeleteItemInvoicePo(getFormValue(name).id);
+                                  const response = mutationCreateItemInvoicePo.data;
+                                  onSubmitDeleteItemInvoicePo(getFormValue(name).id ?? response.data.id);
                                   remove(name);
                                 }
                               }}

@@ -1,5 +1,6 @@
 import VIPApi from 'api';
 import {
+  GetInvoicePoItems,
   InvoicePoCreatePayload,
   InvoicePoDetailResponse,
   InvoicePoItems,
@@ -14,6 +15,11 @@ export const getInvoicePo = async ({ pagination, query }: InvoicePoParams) => {
   const response = await VIPApi.get<InvoicePoResponse>(
     `invoice_pos?limit=${limit}&page=${page}&query_customer_name=${query_customer_name}&query_po_number=${query_po_number}`,
   );
+  return response.data;
+};
+
+export const getInvoicePoItems = async (id: string) => {
+  const response = await VIPApi.get<GetInvoicePoItems>(`invoice_pos/${id}/invoice_po_items?limit=999&page=1`);
   return response.data;
 };
 

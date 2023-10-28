@@ -2,8 +2,16 @@ import { useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createInvoice, getInvoice } from 'api/invoice';
-import { CreateInvoicePayload, InvoiceParams, InvoiceSearchQuery } from 'types/Invoice';
+import {
+  createInvoice,
+  createInvoiceItem,
+  getInvoice,
+  payInvoice,
+  printInvoice,
+  updateInvoice,
+  updateInvoiceItem,
+} from 'api/invoice';
+import { CreateInvoicePayload, InvoiceParams, InvoiceSearchQuery, UpdateInvoicePayload } from 'types/Invoice';
 import { dollarFormatter } from 'utils';
 import { Button, Col, Row, Tooltip, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
@@ -18,6 +26,8 @@ export const useInvoice = () => {
     pagination: { page: 1, limit: 5 },
     query: { query_customer_name: '', query_po_number: '' },
   });
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const onTableChange = (event: any) => {
     const paginationPayload = tableParams;
@@ -29,8 +39,9 @@ export const useInvoice = () => {
     refetchInvoiceList();
   };
   const onRowClick = (record: any) => {
-    navigate(`/dashboard/order-invoice/edit/${record.id}`);
+    navigate(`/dashboard/order-invoice/view/${record.id}`);
   };
+
   const onSubmitSearch = (value: InvoiceSearchQuery) => {
     const searchPayload = tableParams;
     searchPayload.query = value;
@@ -50,6 +61,7 @@ export const useInvoice = () => {
     onSuccess: () => {
       message.success('Create invoice order success!');
       queryClient.invalidateQueries(['createInvoiceOrder', 'invoiceList']);
+      navigate('/dashboard/invoice-po');
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
@@ -82,6 +94,172 @@ export const useInvoice = () => {
     retry: false,
   });
 
+  const mutationUpdateInvoiceOrder = useMutation({
+    mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
+    mutationFn: (value: UpdateInvoicePayload) => {
+      return updateInvoice(id ?? '', value);
+    },
+    onSuccess: () => {
+      message.success('Update invoice order success!');
+      queryClient.invalidateQueries(['invoiceDetail', 'invoiceList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitUpdateInvoice = (value: UpdateInvoicePayload) => {
+    mutationUpdateInvoiceOrder.mutate(value);
+  };
+
+  const mutationCreateInvoiceItem = useMutation({
+    mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
+    mutationFn: ({ id: invId, value }: any) => {
+      return createInvoiceItem(id ?? '', invId, value);
+    },
+    onSuccess: () => {
+      message.success('Create invoice order item success!');
+      queryClient.invalidateQueries(['invoiceDetail']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitCreateInvoiceItem = (id: string, value: number) => {
+    mutationCreateInvoiceItem.mutate({ id, value });
+  };
+
+  const mutationUpdateInvoiceItem = useMutation({
+    mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
+    mutationFn: ({ invItemId, quantity }: any) => {
+      return updateInvoiceItem(invItemId ?? '', quantity);
+    },
+    onSuccess: () => {
+      message.success('Update invoice order item success!');
+      queryClient.invalidateQueries(['createInvoiceOrder', 'invoiceDetail', 'invoiceList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+  const mutationPayInvoice = useMutation({
+    mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
+    mutationFn: (id: string) => {
+      return payInvoice(id ?? '');
+    },
+    onSuccess: () => {
+      message.success('Invoice paid!');
+      queryClient.invalidateQueries(['invoiceList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+  const mutationPrintInvoice = useMutation({
+    mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
+    mutationFn: ({ invId, isForce }: { invId: string; isForce: boolean }) => {
+      return printInvoice(invId ?? '', isForce);
+    },
+    onSuccess: () => {
+      message.success('Invoice paid!');
+      queryClient.invalidateQueries(['invoiceList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitUpdateInvoiceItem = (invItemId: string, quantity: number) => {
+    mutationUpdateInvoiceItem.mutate({ invItemId, quantity });
+  };
+
+  const onClickEditInvoice = (invoiceId: string) => {
+    navigate(`/dashboard/order-invoice/edit/${invoiceId}`);
+  };
+
+  const onClickOpenPay = () => setIsPayModalOpen(true);
+  const onClickClosePay = () => setIsPayModalOpen(false);
+
+  const onClickOpenPrint = () => setIsPrintModalOpen(true);
+  const onClickClosePrint = () => setIsPrintModalOpen(false);
+
+  const onClickPayInvoice = (invId: string) => {
+    mutationPayInvoice.mutate(invId);
+  };
+
+  const onClickPrintInvoice = (invoiceId: string, isForce: boolean) => {
+    mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
+  };
+
+  const RenderActionButton = (status: string, invoiceId: string) => {
+    // if (status === 'due') return <></>;
+    return (
+      <Row gutter={[8, 8]}>
+        {status === 'draft' ? (
+          <Col>
+            <Tooltip placement='topLeft' title='Edit'>
+              <Button
+                shape='circle'
+                icon={<EditOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClickEditInvoice(invoiceId);
+                }}
+              />
+            </Tooltip>
+          </Col>
+        ) : null}
+        {status === 'approve' || status === 'due' ? (
+          <Col>
+            <Tooltip placement='topLeft' title='Pay'>
+              <Button
+                disabled={mutationUpdateInvoiceItem.isLoading}
+                loading={mutationUpdateInvoiceItem.isLoading}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClickPayInvoice(invoiceId);
+                }}
+                type='primary'
+                className='bg-[#1677ff]'
+              >
+                Pay
+              </Button>
+            </Tooltip>
+          </Col>
+        ) : null}
+
+        {status === 'draft' || status === 'approve' || status === 'due' ? (
+          <Col>
+            <Tooltip placement='topLeft' title='Print'>
+              <Button
+                disabled={mutationPrintInvoice.isLoading}
+                loading={mutationPrintInvoice.isLoading}
+                danger={status === 'due'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (status !== 'due') {
+                    return onClickPrintInvoice(invoiceId, false);
+                  }
+                  if (status === 'due') {
+                    return onClickPrintInvoice(invoiceId, true);
+                  }
+                }}
+              >
+                {status === 'due' ? 'Force Print' : 'Print'}
+              </Button>
+            </Tooltip>
+          </Col>
+        ) : null}
+      </Row>
+    );
+  };
+
   const invoiceColumn: ColumnsType<any> = [
     { title: 'Customer Name', dataIndex: ['customer', 'name'], key: 'customerName', width: 200, fixed: 'left' },
     {
@@ -103,55 +281,20 @@ export const useInvoice = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      width: 120,
       render: (status: string) => status.toUpperCase(),
     },
     {
       title: 'Actions',
-      dataIndex: '',
+      dataIndex: ['status'],
       key: 'action',
       width: 300,
-      render: () => {
-        return (
-          <Row gutter={[8, 8]}>
-            <Col>
-              <Tooltip placement='topLeft' title='Edit'>
-                <Button
-                  shape='circle'
-                  icon={<EditOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                />
-              </Tooltip>
-            </Col>
-            <Col>
-              <Tooltip placement='topLeft' title='Pay'>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  type='primary'
-                  className='bg-[#1677ff]'
-                >
-                  Pay
-                </Button>
-              </Tooltip>
-            </Col>
-
-            <Col>
-              <Tooltip placement='topLeft' title='Print'>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  Print
-                </Button>
-              </Tooltip>
-            </Col>
-          </Row>
-        );
+      render: (status: string, data: any) => {
+        // draft print edit
+        // approve print + pay
+        // due pay
+        // paid no actions (detail only)
+        return RenderActionButton(status, data?.id ?? '');
       },
     },
   ];
@@ -160,9 +303,19 @@ export const useInvoice = () => {
     invoiceColumn,
     invoiceList,
     isLoadingInvoiceList,
+    isPayModalOpen,
     onCreateInvoiceOrder,
     onRowClick,
     onSubmitSearch,
     onTableChange,
+    isPrintModalOpen,
+    onClickClosePay,
+    onClickClosePrint,
+    onClickOpenPay,
+    onClickOpenPrint,
+    onSubmitUpdateInvoice,
+    isSubmitUpdateInvoiceLoading: mutationUpdateInvoiceOrder.isLoading,
+    onSubmitCreateInvoiceItem,
+    onSubmitUpdateInvoiceItem,
   };
 };

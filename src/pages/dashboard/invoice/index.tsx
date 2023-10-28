@@ -1,25 +1,15 @@
 import { Table } from 'antd';
-import { VIPButton } from 'components/button';
+
 import { PageTitle } from 'components/page-title';
-import { useNavigate } from 'react-router-dom';
 import { useInvoice } from './hooks/useInvoice';
 import { InvoiceFilter } from './components/InvoiceFilter';
 
 const Invoice = () => {
-  const navigate = useNavigate();
-
-  const { invoiceList, isLoadingInvoiceList, invoiceColumn, onTableChange, onSubmitSearch } = useInvoice();
+  const { invoiceList, isLoadingInvoiceList, invoiceColumn, onTableChange, onSubmitSearch, onRowClick } = useInvoice();
 
   return (
     <div className='h-[1000px]'>
-      <PageTitle
-        title='Invoice Order'
-        rightNode={
-          <VIPButton size='large' onClick={() => navigate('/dashboard/order-invoice/create')}>
-            Create Invoice
-          </VIPButton>
-        }
-      />
+      <PageTitle title='Invoice Order' />
       <InvoiceFilter onSubmit={onSubmitSearch} />
       <Table
         scroll={{ x: 300 }}
@@ -29,9 +19,9 @@ const Invoice = () => {
         dataSource={invoiceList?.data ?? []}
         columns={invoiceColumn}
         loading={isLoadingInvoiceList}
-        // onRow={(record) => ({
-        //   onClick: () => onRowClick(record),
-        // })}
+        onRow={(record) => ({
+          onClick: () => onRowClick(record),
+        })}
         pagination={{
           defaultPageSize: 5,
           pageSize: 5,

@@ -36,7 +36,8 @@ export const DashboardRoutes = () => {
           <Route path='invoice-po/edit/:id' element={<InvoicePoEditCreate state='edit' />} />
 
           <Route path='order-invoice' element={<Invoice />} />
-          <Route path='order-invoice/create' element={<CreateEditInvoice state='create' />} />
+          <Route path='order-invoice/view/:id' element={<CreateEditInvoice state='view' />} />
+          <Route path='order-invoice/edit/:id' element={<CreateEditInvoice state='edit' />} />
 
           <Route path='' element={<Navigate to='/dashboard/item' />} />
           <Route path='*' element={<Navigate to='/dashboard/item' />} />

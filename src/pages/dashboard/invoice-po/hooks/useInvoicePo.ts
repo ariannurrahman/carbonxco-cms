@@ -90,7 +90,7 @@ export const useInvoicePo = (state: InvoicePoState) => {
     return response;
   };
 
-  const { data: invoicePoDetail } = useQuery({
+  const { data: invoicePoDetail, refetch: refetchInvoicePoDetail } = useQuery({
     queryFn: fetchDetailInvoicePo,
     queryKey: ['invoicePoDetail'],
     refetchOnWindowFocus: false,
@@ -105,7 +105,7 @@ export const useInvoicePo = (state: InvoicePoState) => {
     },
     onSuccess: () => {
       message.success('Invoice PO updated!');
-      queryClient.invalidateQueries(['invoicePoList']);
+      queryClient.invalidateQueries(['invoicePoList', 'invoicePoDetail']);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
@@ -120,17 +120,13 @@ export const useInvoicePo = (state: InvoicePoState) => {
     },
     onSuccess: () => {
       message.success('Item Invoice PO created!');
-      queryClient.invalidateQueries(['invoicePoList']);
+      queryClient.invalidateQueries(['invoicePoList', 'invoicePoDetail']);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
       message.error(`${errorBE}`);
     },
   });
-
-  const onSubmitCreateItemInvoicePo = (value: InvoicePoUpdatePayload) => {
-    mutationCreateItemInvoicePo.mutate(value);
-  };
 
   const onSubmitUpdateInvoicePo = (value: InvoicePoUpdatePayload) => {
     mutationUpdateInvoicePo.mutate(value);
@@ -159,7 +155,7 @@ export const useInvoicePo = (state: InvoicePoState) => {
     },
     onSuccess: () => {
       message.success('Item Invoice Po Deleted!');
-      queryClient.invalidateQueries(['invoicePoList']);
+      queryClient.invalidateQueries(['invoicePoList', 'invoicePoDetail']);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
@@ -215,11 +211,12 @@ export const useInvoicePo = (state: InvoicePoState) => {
     isLoadingUpdateInvoicePo: mutationUpdateInvoicePo.isLoading,
     onRowClick,
     onSubmitCreateInvoicePo,
-    onSubmitCreateItemInvoicePo,
+    mutationCreateItemInvoicePo,
     onSubmitDeleteItemInvoicePo,
     onSubmitSearch,
     onSubmitUpdateInvoicePo,
     onSubmitUpdateInvoicePoItem,
     onTableChange,
+    refetchInvoicePoDetail,
   };
 };

@@ -27,6 +27,14 @@ export interface CreateInvoicePayload {
   invoice_items: InvoicePayload[];
 }
 
+export interface UpdateInvoicePayload {
+  exchange_rate: number;
+}
+
+export interface UpdateInvoiceItemPayload {
+  quantity: number;
+}
+
 export interface Invoice {
   id: string;
   customer: Customer;
@@ -54,4 +62,53 @@ export interface Metadata {
   limit: number;
   next_page: null;
   previous_page: null;
+}
+
+export interface InvoiceDetailResponseRoot {
+  data: Data;
+  trace_id: string;
+}
+
+export interface Data {
+  invoice: InvoiceDetail;
+  invoice_items: InvoiceItem[];
+}
+
+export interface InvoiceDetail {
+  customer: Customer;
+  due_date: number;
+  exchange_rate: number;
+  id: string;
+  invoice_po: InvoicePo;
+  paid_date: null;
+  po_number: string;
+  print_date: null;
+  status: string;
+  total_price: number;
+  travel_permit_number: string;
+}
+
+export interface InvoicePo {
+  customer: Customer;
+  exchange_rate: number;
+  id: string;
+  po_number: string;
+  total_price: number;
+}
+
+export interface InvoiceItem {
+  id: string;
+  invoice_po_item?: InvoiceItem;
+  item: Item;
+  price: number;
+  quantity: number;
+}
+
+export interface Item {
+  id: string;
+  name: string;
+  packaging_type: string;
+  packaging_volume: number;
+  serial_number: string;
+  supplier_name: string;
 }
