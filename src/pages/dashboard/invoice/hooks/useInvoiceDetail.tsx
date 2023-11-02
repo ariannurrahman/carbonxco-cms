@@ -11,6 +11,7 @@ export const useInvoiceDetail = (id: string) => {
     queryKey: ['invoiceDetail', id],
     refetchOnWindowFocus: false,
     retry: false,
+    enabled: !!id,
   });
 
   const mutationDeleteItemInvoice = useMutation({

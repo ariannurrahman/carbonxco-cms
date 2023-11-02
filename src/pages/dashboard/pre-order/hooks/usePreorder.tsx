@@ -12,6 +12,7 @@ import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
 import { SearchQuery } from 'types/types';
 import { POTableDataProps, PoItems, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
+import { PoTemplateWrapper } from '../components/PoTemplateWrapper';
 
 export const usePreorder = () => {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ export const usePreorder = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 200,
+      width: 240,
       render: (status: Status, data) => {
         const id = data.id;
         return (
@@ -119,21 +120,38 @@ export const usePreorder = () => {
                       </Col>
                     )}
                     {status === 'draft' && (
-                      <Col>
-                        <Tooltip placement='topLeft' title='Confirm PO'>
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onOpenConfirmModal(id);
-                            }}
-                            type='primary'
-                            className='bg-[#1677ff]'
-                            icon={<CheckOutlined />}
-                          >
-                            Confirm
-                          </Button>
-                        </Tooltip>
-                      </Col>
+                      <>
+                        <Col>
+                          <Tooltip placement='topLeft' title='Confirm PO'>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenConfirmModal(id);
+                              }}
+                              type='primary'
+                              className='bg-[#1677ff]'
+                              icon={<CheckOutlined />}
+                            >
+                              Confirm
+                            </Button>
+                          </Tooltip>
+                        </Col>
+                        <Col>
+                          <Tooltip placement='topLeft' title='Print'>
+                            <Button
+                              style={{ width: 80 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              type='primary'
+                              className='bg-[#1677ff]'
+                            >
+                              <PoTemplateWrapper data={data} status={status} />
+                              Print
+                            </Button>
+                          </Tooltip>
+                        </Col>
+                      </>
                     )}
                     <Col>
                       <Tooltip placement='topLeft' title='Edit PO'>

@@ -109,6 +109,7 @@ export const CreateEditInvoice = ({ state }: InvoiceEditCreateProps) => {
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
+      {/* <InvoiceTemplate /> */}
       <Row align='middle' className='w-full h-[40px] mt-5' justify='space-between'>
         <Col>
           <p className='text-left font-bold text-lg'>{pageTitle}</p>

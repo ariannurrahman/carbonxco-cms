@@ -1,0 +1,30 @@
+.invoice-pdf-wrapper {
+  .invoice-table {
+    background-color: none;
+    .ant-table-thead {
+      padding: 8px !important;
+      .ant-table-cell {
+        background: none !important;
+      }
+    }
+    .ant-table-thead > tr > th {
+      padding: 8px !important;
+    }
+
+    .ant-table-tbody {
+      padding: 8px !important;
+      .ant-table-cell {
+        background: none !important;
+      }
+    }
+    .ant-table-tbody > tr > td {
+      padding: 8px !important;
+    }
+  }
+  .ant-table-footer {
+    background: none !important;
+  }
+  @media screen {
+    visibility: hidden;
+  }
+}

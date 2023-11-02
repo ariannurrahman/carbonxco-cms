@@ -11,17 +11,26 @@ import {
   updateInvoice,
   updateInvoiceItem,
 } from 'api/invoice';
-import { CreateInvoicePayload, InvoiceParams, InvoiceSearchQuery, UpdateInvoicePayload } from 'types/Invoice';
+import {
+  CreateInvoicePayload,
+  InvoiceDetail,
+  InvoiceParams,
+  InvoiceSearchQuery,
+  UpdateInvoicePayload,
+} from 'types/Invoice';
 import { dollarFormatter } from 'utils';
 import { Button, Col, Row, Tooltip, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { format, fromUnixTime } from 'date-fns';
 import { ColumnsType } from 'antd/es/table';
+import { InvoicePrintWrapper } from '../components/InvoicePrintWrapper';
 
 export const useInvoice = () => {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const [selectedInvoiceToPrint, setSelectedInvoiceToPrint] = useState<InvoiceDetail>();
   const [tableParams, setTableParams] = useState<InvoiceParams>({
     pagination: { page: 1, limit: 5 },
     query: { query_customer_name: '', query_po_number: '' },
@@ -193,12 +202,15 @@ export const useInvoice = () => {
     mutationPayInvoice.mutate(invId);
   };
 
-  const onClickPrintInvoice = (invoiceId: string, isForce: boolean) => {
-    mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
+  const onClickPrintInvoice = (invoiceId: string, isForce: boolean, data: InvoiceDetail) => {
+    // onPrint();
+    console.log('invoiceId', invoiceId, isForce);
+    console.log('data', data);
+
+    // mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
   };
 
-  const RenderActionButton = (status: string, invoiceId: string) => {
-    // if (status === 'due') return <></>;
+  const RenderActionButton = (status: string, invoiceId: string, data: InvoiceDetail) => {
     return (
       <Row gutter={[8, 8]}>
         {status === 'draft' ? (
@@ -238,20 +250,23 @@ export const useInvoice = () => {
           <Col>
             <Tooltip placement='topLeft' title='Print'>
               <Button
+                style={{ width: 80 }}
                 disabled={mutationPrintInvoice.isLoading}
                 loading={mutationPrintInvoice.isLoading}
                 danger={status === 'due'}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (status !== 'due') {
-                    return onClickPrintInvoice(invoiceId, false);
+                    setSelectedInvoiceToPrint(data);
+                    return onClickPrintInvoice(invoiceId, false, data);
                   }
                   if (status === 'due') {
-                    return onClickPrintInvoice(invoiceId, true);
+                    setSelectedInvoiceToPrint(data);
+                    return onClickPrintInvoice(invoiceId, true, data);
                   }
                 }}
               >
-                {status === 'due' ? 'Force Print' : 'Print'}
+                <InvoicePrintWrapper data={data} status={status} />;
               </Button>
             </Tooltip>
           </Col>
@@ -289,12 +304,12 @@ export const useInvoice = () => {
       dataIndex: ['status'],
       key: 'action',
       width: 300,
-      render: (status: string, data: any) => {
+      render: (status: string, data: InvoiceDetail) => {
         // draft print edit
         // approve print + pay
         // due pay
         // paid no actions (detail only)
-        return RenderActionButton(status, data?.id ?? '');
+        return RenderActionButton(status, data?.id ?? '', data);
       },
     },
   ];
@@ -304,18 +319,19 @@ export const useInvoice = () => {
     invoiceList,
     isLoadingInvoiceList,
     isPayModalOpen,
-    onCreateInvoiceOrder,
-    onRowClick,
-    onSubmitSearch,
-    onTableChange,
     isPrintModalOpen,
+    isSubmitUpdateInvoiceLoading: mutationUpdateInvoiceOrder.isLoading,
     onClickClosePay,
     onClickClosePrint,
     onClickOpenPay,
     onClickOpenPrint,
-    onSubmitUpdateInvoice,
-    isSubmitUpdateInvoiceLoading: mutationUpdateInvoiceOrder.isLoading,
+    onCreateInvoiceOrder,
+    onRowClick,
     onSubmitCreateInvoiceItem,
+    onSubmitSearch,
+    onSubmitUpdateInvoice,
     onSubmitUpdateInvoiceItem,
+    onTableChange,
+    selectedInvoiceToPrint,
   };
 };

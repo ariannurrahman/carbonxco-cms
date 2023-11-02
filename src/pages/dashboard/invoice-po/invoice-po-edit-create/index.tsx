@@ -196,7 +196,7 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                     };
 
                     return (
-                      <div key={`${key}-${index}`}>
+                      <div key={`${key}-${index}-${getFormValue(name)}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
                         <Row gutter={[12, 12]} className='p-3'>
                           <Col xs={24} lg={4}>

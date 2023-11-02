@@ -127,11 +127,10 @@ export const CreatePO = () => {
                       const fieldsValue = form.getFieldsValue();
                       return fieldsValue.po_items[name];
                     };
-
                     return (
-                      <div key={`${name}-${key}`}>
+                      <div key={`${name}-${key}-${getFormValue(name)?.item_id}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
-                        <Row gutter={[12, 12]} key={key} className='p-3'>
+                        <Row gutter={[12, 12]} className='p-3'>
                           <Col xs={24} lg={4}>
                             <Form.Item
                               {...restField}
