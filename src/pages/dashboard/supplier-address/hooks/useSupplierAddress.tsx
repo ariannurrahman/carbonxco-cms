@@ -1,3 +1,4 @@
+import { CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Col, Row, message } from 'antd';
 import { getSuppliers } from 'api/supplier';
@@ -25,6 +26,9 @@ export const useSupplierAddress = () => {
     pagination: {
       page: 1,
       limit: 5,
+    },
+    query: {
+      query_item_supplier_name: '',
     },
   });
 
@@ -57,6 +61,7 @@ export const useSupplierAddress = () => {
   };
 
   const fetchAllSupplierAddress = useCallback(async () => {
+    console.log('tableParams', tableParams);
     return await getAllSupplierAddress(tableParams);
   }, [tableParams]);
 
@@ -66,7 +71,7 @@ export const useSupplierAddress = () => {
     refetch: refetchSupplierAddressList,
   } = useQuery({
     queryFn: fetchAllSupplierAddress,
-    queryKey: ['supplierAddressList'],
+    queryKey: ['supplierAddressList', tableParams],
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -107,12 +112,25 @@ export const useSupplierAddress = () => {
         return (
           <Row gutter={[8, 8]}>
             <Col>
-              <Button onClick={() => onSupplierModalOpen('edit', data)}>Edit</Button>
+              <Button
+                shape='circle'
+                icon={<EditOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSupplierModalOpen('edit', data);
+                }}
+              />
             </Col>
             <Col>
-              <Button onClick={() => onSupplierModalOpen('delete', data)} danger>
-                Delete
-              </Button>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSupplierModalOpen('delete', data);
+                }}
+                shape='circle'
+                icon={<CloseOutlined />}
+                danger
+              />
             </Col>
           </Row>
         );
@@ -204,6 +222,7 @@ export const useSupplierAddress = () => {
     onSupplierModalOpen,
     onTableChange,
     selectedSupplier,
+    setTableParams,
     supplierAddressList,
     updateSupplierAddressMutation,
   };

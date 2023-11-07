@@ -6,11 +6,16 @@ export interface GetAllSupplierAddressParams {
     limit: number;
     page: number;
   };
+  query: {
+    query_item_supplier_name: string;
+  };
 }
 
-export const getAllSupplierAddress = async ({ pagination }: GetAllSupplierAddressParams) => {
+export const getAllSupplierAddress = async ({ pagination, query }: GetAllSupplierAddressParams) => {
   const { page = 1, limit = 5 } = pagination;
-  const response = await VIPApi.get(`supplier_addresses?page=${page}&limit=${limit}`);
+  const { query_item_supplier_name = '' } = query;
+  const filter = query_item_supplier_name ? `&query_item_supplier_name=${query_item_supplier_name}` : '';
+  const response = await VIPApi.get(`supplier_addresses?page=${page}&limit=${limit}${filter}`);
   return response.data;
 };
 

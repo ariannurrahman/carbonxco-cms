@@ -1,14 +1,29 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
 
 import { VIPButton } from 'components/button';
 import { CheckCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePreorder } from '../hooks/usePreorder';
 import { dollarFormatter, thousandFormatter } from 'utils';
+import { useSupplierAddress } from 'pages/dashboard/supplier-address/hooks/useSupplierAddress';
+import { CURRENCY_TYPE } from '../constants';
 
 export const CreatePO = () => {
   const [form] = Form.useForm();
+  const [isFormShow, setIsFormShow] = useState({
+    isSupplierAddress: false,
+    isPoNumber: false,
+    isCurrency: false,
+    isExchangeRate: false,
+  });
+  const [isAbleToAdd, setIsAbleToAdd] = useState(false);
+
   const poNumber = Form.useWatch('po_number', form);
+  const selectedSupplierAddress = Form.useWatch('supplier_address_id', form);
+  const selectedCurrencyType = Form.useWatch('currency_type', form);
+  const exchangeRate = Form.useWatch('exchange_rate', form);
+  const poItems = Form.useWatch('po_items', form);
+
   const {
     detailPreOrder,
     isItemLoading,
@@ -23,6 +38,25 @@ export const CreatePO = () => {
     selectedSupplier,
     suppliersList,
   } = usePreorder();
+
+  const { supplierAddressList, setTableParams } = useSupplierAddress();
+
+  const fetchSupplierAddress = useCallback(() => {
+    setTableParams((prevState) => ({ ...prevState, query: { query_item_supplier_name: selectedSupplier } }));
+  }, [selectedSupplier, setTableParams]);
+
+  useEffect(() => {
+    fetchSupplierAddress();
+  }, [fetchSupplierAddress]);
+
+  const modifiedSupplierAddress = supplierAddressList?.data?.map(({ address = '', id = '' }) => {
+    return {
+      label: address,
+      value: id,
+    };
+  });
+
+  console.log('detailPreOrder', detailPreOrder);
 
   useEffect(() => {
     if (preOrderState === 'create') return;
@@ -41,10 +75,35 @@ export const CreatePO = () => {
         supplier_name: detailPreOrder?.data?.po_order?.supplier_name,
         po_items: poItems,
         po_number: detailPreOrder?.data?.po_order?.po_number ?? '',
+        supplier_address_id: detailPreOrder?.data?.po_order?.supplier_address?.id,
+        currency_type: detailPreOrder?.data?.po_order?.currency_type,
+        exchange_rate: detailPreOrder?.data?.po_order?.exchange_rate,
       });
     };
     initEdit();
   }, [form, preOrderState, detailPreOrder]);
+
+  const showForm = useCallback(() => {
+    if (selectedSupplier) {
+      setIsFormShow((prevState) => ({ ...prevState, isSupplierAddress: true }));
+    }
+    if (selectedSupplierAddress) {
+      setIsFormShow((prevState) => ({ ...prevState, isPoNumber: true }));
+    }
+    if (poNumber) {
+      setIsFormShow((prevState) => ({ ...prevState, isCurrency: true }));
+    }
+    if (selectedCurrencyType) {
+      setIsFormShow((prevState) => ({ ...prevState, isExchangeRate: true }));
+    }
+    if (exchangeRate) {
+      setIsAbleToAdd(true);
+    }
+  }, [poNumber, selectedSupplier, selectedSupplierAddress, selectedCurrencyType, exchangeRate]);
+
+  useEffect(() => {
+    showForm();
+  }, [showForm]);
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -63,7 +122,7 @@ export const CreatePO = () => {
         {preOrderState === 'create' ? (
           <Col>
             <VIPButton
-              disabled={!selectedSupplier || isLoadingSubmitPO}
+              disabled={!poItems?.length || isLoadingSubmitPO}
               loading={isLoadingSubmitPO}
               form='create-po-form'
               type='primary'
@@ -91,7 +150,6 @@ export const CreatePO = () => {
             <Row gutter={[8, 8]}>
               <Col xs={24} md={12}>
                 <Form.Item
-                  className=''
                   label='Supplier Name'
                   name='supplier_name'
                   rules={[{ required: true, message: 'Input item name!' }]}
@@ -107,16 +165,78 @@ export const CreatePO = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col xs={24} md={12}>
-                <Form.Item
-                  className=''
-                  label='PO Number'
-                  name='po_number'
-                  rules={[{ required: true, message: 'Input item name!' }]}
-                >
-                  <Input size='large' placeholder='Input PO number' disabled={preOrderState === 'view'} />
-                </Form.Item>
-              </Col>
+              {isFormShow.isSupplierAddress && (
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label='Supplier Address'
+                    name='supplier_address_id'
+                    rules={[{ required: true, message: 'Input supplier address!' }]}
+                  >
+                    <Select
+                      disabled={preOrderState === 'edit' || preOrderState === 'view'}
+                      loading={preOrderState === 'edit' ? false : isSupplierLoading}
+                      size='large'
+                      placeholder='Choose supplier address'
+                      style={{ width: '100%' }}
+                      options={modifiedSupplierAddress}
+                    />
+                  </Form.Item>
+                </Col>
+              )}
+
+              {isFormShow.isPoNumber && (
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    className=''
+                    label='PO Number'
+                    name='po_number'
+                    rules={[{ required: true, message: 'Input item name!' }]}
+                  >
+                    <Input
+                      size='large'
+                      placeholder='Input PO number'
+                      disabled={preOrderState === 'edit' || preOrderState === 'view'}
+                    />
+                  </Form.Item>
+                </Col>
+              )}
+
+              {isFormShow.isCurrency && (
+                <Col xs={24} md={3}>
+                  <Form.Item
+                    label='Currency'
+                    name='currency_type'
+                    rules={[{ required: true, message: 'Input currency type!' }]}
+                  >
+                    <Select
+                      disabled={preOrderState === 'edit' || preOrderState === 'view'}
+                      loading={preOrderState === 'edit' ? false : isSupplierLoading}
+                      size='large'
+                      placeholder='Choose currency type'
+                      style={{ width: '100%' }}
+                      options={CURRENCY_TYPE}
+                    />
+                  </Form.Item>
+                </Col>
+              )}
+              {isFormShow.isExchangeRate && (
+                <Col xs={24} md={9}>
+                  <Form.Item
+                    label='Exchange Rate'
+                    name='exchange_rate'
+                    rules={[{ required: true, message: 'Input exchange rate!' }]}
+                  >
+                    <InputNumber
+                      disabled={preOrderState === 'edit' || preOrderState === 'view'}
+                      formatter={thousandFormatter}
+                      className='w-full'
+                      type='tel'
+                      size='large'
+                      placeholder='Input exchange rate'
+                    />
+                  </Form.Item>
+                </Col>
+              )}
             </Row>
 
             <Form.List name='po_items'>
@@ -226,12 +346,7 @@ export const CreatePO = () => {
                   })}
                   {preOrderState === 'edit' || preOrderState === 'create' ? (
                     <Form.Item className='mt-3'>
-                      <VIPButton
-                        type='primary'
-                        disabled={!selectedSupplier || !poNumber}
-                        onClick={() => add()}
-                        icon={<PlusOutlined />}
-                      >
+                      <VIPButton type='primary' disabled={!isAbleToAdd} onClick={() => add()} icon={<PlusOutlined />}>
                         Add Item
                       </VIPButton>
                     </Form.Item>
