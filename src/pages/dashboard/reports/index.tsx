@@ -31,6 +31,7 @@ export const Reports = () => {
   });
 
   console.log('data', data);
+  console.log('isLoadingFetchReports', isLoadingFetchReports);
 
   const onChangeMonth: DatePickerProps['onChange'] = (_, dateString) => {
     const modifiedDate = dateString.split('/');

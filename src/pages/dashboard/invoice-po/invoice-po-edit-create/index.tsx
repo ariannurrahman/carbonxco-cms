@@ -21,10 +21,10 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
   const exchangeRate = Form.useWatch('exchange_rate', form);
 
   const [createOnEdit, setCreateOnEdit] = useState(false);
-  const [isFormShow, setIsFormShow] = useState({
-    isSupplierName: false,
-    isPoNumber: false,
-  });
+  // const [isFormShow, setIsFormShow] = useState({
+  //   isSupplierName: false,
+  //   isPoNumber: false,
+  // });
   const { customerList, isLoadingCustomerList } = useCustomer(999);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
 

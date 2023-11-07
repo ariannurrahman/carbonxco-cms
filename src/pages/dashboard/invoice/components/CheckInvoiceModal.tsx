@@ -8,7 +8,7 @@ interface CheckInvoiceModalProps {
   isLoadingCheck: boolean;
   onSubmit: () => void;
   onCancel: () => void;
-  data: CheckInvoiceResponse;
+  data: CheckInvoiceResponse | undefined;
 }
 
 export const CheckInvoiceModal = ({
