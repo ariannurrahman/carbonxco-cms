@@ -21,6 +21,10 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
   const exchangeRate = Form.useWatch('exchange_rate', form);
 
   const [createOnEdit, setCreateOnEdit] = useState(false);
+  const [isFormShow, setIsFormShow] = useState({
+    isSupplierName: false,
+    isPoNumber: false,
+  });
   const { customerList, isLoadingCustomerList } = useCustomer(999);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
 
@@ -36,10 +40,8 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
   } = useInvoicePo(state);
 
   const initData = useCallback(() => {
-    console.log('triggered?');
     if (state === 'create') return;
     if (!invoicePoDetail) return;
-    console.log('TRIGGERED?');
     if (invoicePoDetail?.data?.invoice_po?.customer) {
       setSelectedCustomer(invoicePoDetail.data.invoice_po.customer);
     }

@@ -4,53 +4,37 @@ import { PageTitle } from 'components/page-title';
 import { useInvoice } from './hooks/useInvoice';
 import { InvoiceFilter } from './components/InvoiceFilter';
 import { usePrintInvoice } from './hooks/usePrintInvoice';
+import { CheckInvoiceModal } from './components/CheckInvoiceModal';
 
 const Invoice = () => {
   const { componentRef } = usePrintInvoice();
-  const { invoiceColumn, invoiceList, isLoadingInvoiceList, onRowClick, onSubmitSearch, onTableChange } = useInvoice();
+  const {
+    onCloseCheckInvoice,
+    selectedCheckedInvoiceId,
+    invoiceColumn,
+    invoiceList,
+    isLoadingInvoiceList,
+    onRowClick,
+    onSubmitSearch,
+    onTableChange,
+    invoiceCheckData,
+    isLoadingCheckInvoice,
+  } = useInvoice();
+
+  console.log('invoiceCheckData', invoiceCheckData);
 
   return (
     <div className='h-[1000px]' ref={componentRef}>
       <PageTitle title='Invoice Order' />
       <InvoiceFilter onSubmit={onSubmitSearch} />
-      {/* <InvoicePrintWrapper
-        data={{
-          id: 'c23b7dba-e1a4-4044-a664-ed97c017dda7',
-          invoice_po: {
-            id: '28c708d0-61d9-495c-aa65-3712cc0ed753',
-            customer: {
-              id: 'c1bc87d1-f49c-48f0-a398-c24f20ba3266',
-              name: 'First customer',
-              payment_term: 45,
-              address: 'First street, NY.',
-              invoice_address: 'First invoice street, NY.',
-              block_status: false,
-              pic: 'First PIC',
-            },
-            exchange_rate: 12500,
-            po_number: '123',
-            total_price: 0,
-          },
-          customer: {
-            id: 'c1bc87d1-f49c-48f0-a398-c24f20ba3266',
-            name: 'First customer',
-            payment_term: 45,
-            address: 'First street, NY.',
-            invoice_address: 'First invoice street, NY.',
-            block_status: false,
-            pic: 'First PIC',
-          },
-          exchange_rate: 12500,
-          po_number: '123',
-          total_price: 2500000,
-          due_date: 1702693832,
-          print_date: null,
-          paid_date: null,
-          status: 'draft',
-          travel_permit_number: '',
-        }}
-        status='due'
-      /> */}
+      <CheckInvoiceModal
+        data={invoiceCheckData}
+        isLoadingCheck={isLoadingCheckInvoice}
+        isOpen={!!selectedCheckedInvoiceId}
+        onSubmit={() => {}}
+        onCancel={onCloseCheckInvoice}
+        isLoadingSubmit={false}
+      />
       <Table
         scroll={{ x: 300 }}
         onChange={onTableChange}

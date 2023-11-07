@@ -112,3 +112,10 @@ export interface Item {
   serial_number: string;
   supplier_name: string;
 }
+
+export interface CheckInvoiceResponse {
+  data: {
+    total_price: number;
+    total_due: number;
+  };
+}

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  checkInvoice,
   createInvoice,
   createInvoiceItem,
   getInvoice,
@@ -30,6 +31,7 @@ export const useInvoice = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const [selectedCheckedInvoiceId, setSelectedCheckedInvoiceId] = useState<string | undefined>('');
   const [selectedInvoiceToPrint, setSelectedInvoiceToPrint] = useState<InvoiceDetail>();
   const [tableParams, setTableParams] = useState<InvoiceParams>({
     pagination: { page: 1, limit: 5 },
@@ -155,6 +157,7 @@ export const useInvoice = () => {
       message.error(`${errorBE}`);
     },
   });
+
   const mutationPayInvoice = useMutation({
     mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
     mutationFn: (id: string) => {
@@ -169,6 +172,7 @@ export const useInvoice = () => {
       message.error(`${errorBE}`);
     },
   });
+
   const mutationPrintInvoice = useMutation({
     mutationKey: ['updateInvoiceOrder', 'invoiceDetail'],
     mutationFn: ({ invId, isForce }: { invId: string; isForce: boolean }) => {
@@ -210,22 +214,52 @@ export const useInvoice = () => {
     // mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
   };
 
+  const { isLoading: isLoadingCheckInvoice, data: invoiceCheckData } = useQuery({
+    queryFn: () => checkInvoice(selectedCheckedInvoiceId ?? ''),
+    queryKey: ['invoiceList'],
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: !!selectedCheckedInvoiceId,
+  });
+
+  const onClickCheckInvoice = (id: string) => {
+    setSelectedCheckedInvoiceId(id);
+  };
+
+  const onCloseCheckInvoice = () => {
+    setSelectedCheckedInvoiceId('');
+  };
+
   const RenderActionButton = (status: string, invoiceId: string, data: InvoiceDetail) => {
     return (
       <Row gutter={[8, 8]}>
         {status === 'draft' ? (
-          <Col>
-            <Tooltip placement='topLeft' title='Edit'>
-              <Button
-                shape='circle'
-                icon={<EditOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClickEditInvoice(invoiceId);
-                }}
-              />
-            </Tooltip>
-          </Col>
+          <>
+            <Col>
+              <Tooltip placement='topLeft' title='Edit'>
+                <Button
+                  shape='circle'
+                  icon={<EditOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickEditInvoice(invoiceId);
+                  }}
+                />
+              </Tooltip>
+            </Col>
+            <Col>
+              <Tooltip placement='topLeft' title='Check'>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickCheckInvoice(invoiceId);
+                  }}
+                >
+                  Check
+                </Button>
+              </Tooltip>
+            </Col>
+          </>
         ) : null}
         {status === 'approve' || status === 'due' ? (
           <Col>
@@ -315,6 +349,8 @@ export const useInvoice = () => {
   ];
 
   return {
+    invoiceCheckData,
+    isLoadingCheckInvoice,
     invoiceColumn,
     invoiceList,
     isLoadingInvoiceList,
@@ -325,6 +361,7 @@ export const useInvoice = () => {
     onClickClosePrint,
     onClickOpenPay,
     onClickOpenPrint,
+    onCloseCheckInvoice,
     onCreateInvoiceOrder,
     onRowClick,
     onSubmitCreateInvoiceItem,
@@ -333,5 +370,6 @@ export const useInvoice = () => {
     onSubmitUpdateInvoiceItem,
     onTableChange,
     selectedInvoiceToPrint,
+    selectedCheckedInvoiceId,
   };
 };

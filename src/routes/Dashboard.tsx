@@ -13,6 +13,8 @@ import { InvoicePO } from 'pages/dashboard/invoice-po';
 import { InvoicePoEditCreate } from 'pages/dashboard/invoice-po/invoice-po-edit-create';
 import { Invoice } from 'pages/dashboard/invoice';
 import { CreateEditInvoice } from 'pages/dashboard/invoice/create-edit-invoice';
+import { Reports } from 'pages/dashboard/reports';
+import { SupplierAddress } from 'pages/dashboard/supplier-address';
 
 export const DashboardRoutes = () => {
   return (
@@ -30,6 +32,8 @@ export const DashboardRoutes = () => {
           <Route path='customer' element={<Customer />} />
           <Route path='customer/:id' element={<CustomerDetail />} />
 
+          <Route path='supplier-address' element={<SupplierAddress />} />
+
           <Route path='stock' element={<Stock />} />
           <Route path='invoice-po' element={<InvoicePO />} />
           <Route path='invoice-po/create' element={<InvoicePoEditCreate state='create' />} />
@@ -38,6 +42,8 @@ export const DashboardRoutes = () => {
           <Route path='order-invoice' element={<Invoice />} />
           <Route path='order-invoice/view/:id' element={<CreateEditInvoice state='view' />} />
           <Route path='order-invoice/edit/:id' element={<CreateEditInvoice state='edit' />} />
+
+          <Route path='reports' element={<Reports />} />
 
           <Route path='' element={<Navigate to='/dashboard/item' />} />
           <Route path='*' element={<Navigate to='/dashboard/item' />} />

@@ -1,5 +1,11 @@
 import VIPApi from 'api';
-import { InvoiceDetailResponseRoot, InvoiceParams, InvoiceResponse, UpdateInvoicePayload } from 'types/Invoice';
+import {
+  CheckInvoiceResponse,
+  InvoiceDetailResponseRoot,
+  InvoiceParams,
+  InvoiceResponse,
+  UpdateInvoicePayload,
+} from 'types/Invoice';
 
 export const getInvoice = async ({ pagination, query }: InvoiceParams) => {
   const { page = 1, limit = 5 } = pagination;
@@ -48,5 +54,10 @@ export const payInvoice = async (id: string) => {
 export const printInvoice = async (id: string, force: boolean) => {
   const isForce = force ? '?force_print_invoice=true' : '';
   const response = await VIPApi.post(`invoices/${id}/print${isForce}`);
+  return response.data;
+};
+
+export const checkInvoice = async (id: string) => {
+  const response = await VIPApi.get<CheckInvoiceResponse>(`invoices/${id}/check`);
   return response.data;
 };
