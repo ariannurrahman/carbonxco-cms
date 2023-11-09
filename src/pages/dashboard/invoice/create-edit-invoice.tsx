@@ -193,8 +193,6 @@ export const CreateEditInvoice = ({ state }: InvoiceEditCreateProps) => {
                       return fieldsValue.invoice_items[name];
                     };
 
-                    console.log('getFormValue(name)', getFormValue(name));
-
                     return (
                       <div key={`${key}-${index}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
@@ -290,7 +288,6 @@ export const CreateEditInvoice = ({ state }: InvoiceEditCreateProps) => {
                   isAbleCreateNewItem()
                     ? itemDiff?.map((eachItem: any, index: number) => {
                         const { item, id: itemId, price, quantity } = eachItem;
-                        console.log('eachItem', eachItem);
                         return (
                           <Form.Item className='mt-3' key={itemId}>
                             <VIPButton

@@ -4,21 +4,11 @@ import { CheckInvoiceResponse } from 'types/Invoice';
 
 interface CheckInvoiceModalProps {
   isOpen: boolean;
-  isLoadingSubmit: boolean;
-  isLoadingCheck: boolean;
-  onSubmit: () => void;
   onCancel: () => void;
   data: CheckInvoiceResponse | undefined;
 }
 
-export const CheckInvoiceModal = ({
-  isLoadingCheck,
-  data,
-  isLoadingSubmit,
-  isOpen,
-  onSubmit,
-  onCancel,
-}: CheckInvoiceModalProps) => {
+export const CheckInvoiceModal = ({ data, isOpen, onCancel }: CheckInvoiceModalProps) => {
   return (
     <Modal width={300} footer={false} title='Check Invoice' open={isOpen} onCancel={onCancel}>
       <Row>
@@ -31,21 +21,9 @@ export const CheckInvoiceModal = ({
       </Row>
 
       <Row className='w-full' gutter={[8, 8]}>
-        <Col span={12}>
-          <VIPButton className='w-full' danger onClick={onCancel}>
-            Cancel
-          </VIPButton>
-        </Col>
-        <Col span={12}>
-          <VIPButton
-            className='w-full'
-            loading={isLoadingSubmit || isLoadingCheck}
-            disabled={isLoadingSubmit || isLoadingCheck}
-            onClick={onSubmit}
-          >
-            Check
-          </VIPButton>
-        </Col>
+        <VIPButton className='w-full' onClick={onCancel}>
+          Back
+        </VIPButton>
       </Row>
     </Modal>
   );

@@ -56,8 +56,6 @@ export const CreatePO = () => {
     };
   });
 
-  console.log('detailPreOrder', detailPreOrder);
-
   useEffect(() => {
     if (preOrderState === 'create') return;
     const initEdit = () => {

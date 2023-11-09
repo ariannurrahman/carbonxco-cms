@@ -70,7 +70,6 @@ export const CreateEditSupplierAddressModal = ({
 
     if (status === 'delete') {
       const payload: Supplier = form.getFieldsValue();
-      console.log('payload', payload);
       onSubmitDelete?.mutate(payload.id ?? '');
     }
   };

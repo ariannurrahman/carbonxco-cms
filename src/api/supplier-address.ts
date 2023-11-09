@@ -30,7 +30,6 @@ export const updateSupplierAddress = async (payload: Supplier, id: string) => {
 };
 
 export const deleteSupplierAddress = async (id: string) => {
-  console.log('id', id);
   const response = await VIPApi.delete(`supplier_addresses/${id}`);
   return response.data;
 };

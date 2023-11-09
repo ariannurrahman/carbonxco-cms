@@ -18,23 +18,13 @@ const Invoice = () => {
     onSubmitSearch,
     onTableChange,
     invoiceCheckData,
-    isLoadingCheckInvoice,
   } = useInvoice();
-
-  console.log('invoiceCheckData', invoiceCheckData);
 
   return (
     <div className='h-[1000px]' ref={componentRef}>
       <PageTitle title='Invoice Order' />
       <InvoiceFilter onSubmit={onSubmitSearch} />
-      <CheckInvoiceModal
-        data={invoiceCheckData}
-        isLoadingCheck={isLoadingCheckInvoice}
-        isOpen={!!selectedCheckedInvoiceId}
-        onSubmit={() => {}}
-        onCancel={onCloseCheckInvoice}
-        isLoadingSubmit={false}
-      />
+      <CheckInvoiceModal data={invoiceCheckData} isOpen={!!selectedCheckedInvoiceId} onCancel={onCloseCheckInvoice} />
       <Table
         scroll={{ x: 300 }}
         onChange={onTableChange}

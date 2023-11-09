@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -26,13 +26,18 @@ import { format, fromUnixTime } from 'date-fns';
 import { ColumnsType } from 'antd/es/table';
 import { InvoicePrintWrapper } from '../components/InvoicePrintWrapper';
 
+interface CheckInvoiceList {
+  due: number | undefined;
+  id: string | undefined;
+}
+
 export const useInvoice = () => {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const [checkedInvoiceList, setCheckedInvoiceList] = useState<CheckInvoiceList[]>([]);
   const [selectedCheckedInvoiceId, setSelectedCheckedInvoiceId] = useState<string | undefined>('');
-  const [selectedInvoiceToPrint, setSelectedInvoiceToPrint] = useState<InvoiceDetail>();
   const [tableParams, setTableParams] = useState<InvoiceParams>({
     pagination: { page: 1, limit: 5 },
     query: { query_customer_name: '', query_po_number: '' },
@@ -49,6 +54,7 @@ export const useInvoice = () => {
     setTableParams(paginationPayload);
     refetchInvoiceList();
   };
+
   const onRowClick = (record: any) => {
     navigate(`/dashboard/order-invoice/view/${record.id}`);
   };
@@ -179,7 +185,7 @@ export const useInvoice = () => {
       return printInvoice(invId ?? '', isForce);
     },
     onSuccess: () => {
-      message.success('Invoice paid!');
+      message.success('Invoice approved!');
       queryClient.invalidateQueries(['invoiceList']);
     },
     onError: (e: any) => {
@@ -206,17 +212,13 @@ export const useInvoice = () => {
     mutationPayInvoice.mutate(invId);
   };
 
-  const onClickPrintInvoice = (invoiceId: string, isForce: boolean, data: InvoiceDetail) => {
-    // onPrint();
-    console.log('invoiceId', invoiceId, isForce);
-    console.log('data', data);
-
-    // mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
+  const onClickApprove = (invoiceId: string, isForce: boolean) => {
+    mutationPrintInvoice.mutate({ invId: invoiceId, isForce });
   };
 
-  const { isLoading: isLoadingCheckInvoice, data: invoiceCheckData } = useQuery({
+  const { data: invoiceCheckData, isSuccess: isSuccessFetchCheckData } = useQuery({
     queryFn: () => checkInvoice(selectedCheckedInvoiceId ?? ''),
-    queryKey: ['invoiceList'],
+    queryKey: ['invoiceList', checkedInvoiceList],
     refetchOnWindowFocus: false,
     retry: false,
     enabled: !!selectedCheckedInvoiceId,
@@ -225,12 +227,30 @@ export const useInvoice = () => {
   const onClickCheckInvoice = (id: string) => {
     setSelectedCheckedInvoiceId(id);
   };
+  const setupCheckedInvoice = useCallback(() => {
+    if (!selectedCheckedInvoiceId) return;
+    const checkedList = [...checkedInvoiceList];
+    if (!checkedList.some(({ id }) => id === selectedCheckedInvoiceId) && isSuccessFetchCheckData) {
+      const newChecked = {
+        id: selectedCheckedInvoiceId,
+        due: invoiceCheckData?.data?.total_due,
+      };
+      checkedList.push(newChecked);
+      setCheckedInvoiceList(checkedList);
+    }
+  }, [selectedCheckedInvoiceId, invoiceCheckData, checkedInvoiceList, isSuccessFetchCheckData]);
+
+  useEffect(() => {
+    setupCheckedInvoice();
+  }, [setupCheckedInvoice]);
 
   const onCloseCheckInvoice = () => {
     setSelectedCheckedInvoiceId('');
   };
 
   const RenderActionButton = (status: string, invoiceId: string, data: InvoiceDetail) => {
+    const isRenderForcePrint = checkedInvoiceList.some(({ id, due }) => invoiceId === id && due === 0);
+
     return (
       <Row gutter={[8, 8]}>
         {status === 'draft' ? (
@@ -259,51 +279,57 @@ export const useInvoice = () => {
                 </Button>
               </Tooltip>
             </Col>
+            <Col>
+              <Tooltip placement='topLeft' title='Check'>
+                <Button
+                  className={`${!isRenderForcePrint ? 'bg-gray-300' : 'bg-[#1677ff]'}`}
+                  // disabled={!isRenderForcePrint}
+                  type='primary'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickApprove(invoiceId, !isRenderForcePrint);
+                  }}
+                >
+                  {`${!isRenderForcePrint ? 'Force Approve' : 'Approve'}`}
+                </Button>
+              </Tooltip>
+            </Col>
           </>
         ) : null}
-        {status === 'approve' || status === 'due' ? (
-          <Col>
-            <Tooltip placement='topLeft' title='Pay'>
-              <Button
-                disabled={mutationUpdateInvoiceItem.isLoading}
-                loading={mutationUpdateInvoiceItem.isLoading}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClickPayInvoice(invoiceId);
-                }}
-                type='primary'
-                className='bg-[#1677ff]'
-              >
-                Pay
-              </Button>
-            </Tooltip>
-          </Col>
-        ) : null}
-
-        {status === 'draft' || status === 'approve' || status === 'due' ? (
-          <Col>
-            <Tooltip placement='topLeft' title='Print'>
-              <Button
-                style={{ width: 80 }}
-                disabled={mutationPrintInvoice.isLoading}
-                loading={mutationPrintInvoice.isLoading}
-                danger={status === 'due'}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (status !== 'due') {
-                    setSelectedInvoiceToPrint(data);
-                    return onClickPrintInvoice(invoiceId, false, data);
-                  }
-                  if (status === 'due') {
-                    setSelectedInvoiceToPrint(data);
-                    return onClickPrintInvoice(invoiceId, true, data);
-                  }
-                }}
-              >
-                <InvoicePrintWrapper data={data} status={status} />;
-              </Button>
-            </Tooltip>
-          </Col>
+        {status === 'approved' || status === 'due' ? (
+          <>
+            <Col>
+              <Tooltip placement='topLeft' title='Print'>
+                <Button
+                  style={{ width: 80 }}
+                  disabled={mutationPrintInvoice.isLoading}
+                  loading={mutationPrintInvoice.isLoading}
+                  danger={status === 'due'}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <InvoicePrintWrapper data={data} status={status} />;
+                </Button>
+              </Tooltip>
+            </Col>
+            <Col>
+              <Tooltip placement='topLeft' title='Pay'>
+                <Button
+                  disabled={mutationUpdateInvoiceItem.isLoading}
+                  loading={mutationUpdateInvoiceItem.isLoading}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClickPayInvoice(invoiceId);
+                  }}
+                  type='primary'
+                  className='bg-[#1677ff]'
+                >
+                  Pay
+                </Button>
+              </Tooltip>
+            </Col>
+          </>
         ) : null}
       </Row>
     );
@@ -350,7 +376,6 @@ export const useInvoice = () => {
 
   return {
     invoiceCheckData,
-    isLoadingCheckInvoice,
     invoiceColumn,
     invoiceList,
     isLoadingInvoiceList,
@@ -369,7 +394,6 @@ export const useInvoice = () => {
     onSubmitUpdateInvoice,
     onSubmitUpdateInvoiceItem,
     onTableChange,
-    selectedInvoiceToPrint,
     selectedCheckedInvoiceId,
   };
 };

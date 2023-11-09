@@ -61,7 +61,6 @@ export const useSupplierAddress = () => {
   };
 
   const fetchAllSupplierAddress = useCallback(async () => {
-    console.log('tableParams', tableParams);
     return await getAllSupplierAddress(tableParams);
   }, [tableParams]);
 

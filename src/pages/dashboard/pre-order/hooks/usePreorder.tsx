@@ -277,7 +277,6 @@ export const usePreorder = () => {
   });
 
   const onSubmitCreatePO = (value: PoPayload) => {
-    console.log('value', value);
     mutationCreatePo.mutate(value);
   };
 

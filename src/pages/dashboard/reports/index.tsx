@@ -17,11 +17,7 @@ export const Reports = () => {
     return await getReports(selectedTime.month.toString(), selectedTime.year.toString());
   };
 
-  const {
-    data,
-    isLoading: isLoadingFetchReports,
-    refetch: refetchGetReports,
-  } = useQuery({
+  const { refetch: refetchGetReports } = useQuery({
     queryFn: fetchReports,
     queryKey: ['getReports'],
     refetchOnWindowFocus: false,
@@ -29,9 +25,6 @@ export const Reports = () => {
     // manual: true,
     enabled: !!selectedTime.month || !!selectedTime.year,
   });
-
-  console.log('data', data);
-  console.log('isLoadingFetchReports', isLoadingFetchReports);
 
   const onChangeMonth: DatePickerProps['onChange'] = (_, dateString) => {
     const modifiedDate = dateString.split('/');

@@ -83,8 +83,6 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
       ? 'View Invoice Po'
       : '';
 
-  console.log('form.getFieldsValue()', form.getFieldsValue());
-
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
       <Row align='middle' className='w-full h-[40px] mt-5' justify='space-between'>
