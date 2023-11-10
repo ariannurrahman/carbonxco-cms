@@ -21,6 +21,7 @@
     "react-device-detect": "^2.2.3",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.11",
+    "react-json-to-csv": "^1.2.0",
     "react-router-dom": "^6.15.0",
     "react-to-print": "^2.14.15",
     "sass": "^1.66.1"
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/react-json-to-csv": "^1.2.3",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "@vitejs/plugin-react-swc": "^3.3.2",

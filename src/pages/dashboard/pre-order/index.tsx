@@ -8,6 +8,7 @@ import { PoFilter } from './components/PoFilter';
 
 export const PreOrder = () => {
   const {
+    currentExchangeRate,
     isLoadingSubmit,
     isModalOpen,
     isPoListLoading,
@@ -52,25 +53,33 @@ export const PreOrder = () => {
         }}
       />
       <ChangeModalStatus
-        onSubmit={onSubmitChangeStatusModal}
-        onCancelModal={onCancelModal}
-        type='confirm'
+        isLoadingSubmit={isLoadingSubmit}
         isOpen={isModalOpen.confirm}
-        isLoadingSubmit={isLoadingSubmit}
+        onCancelModal={onCancelModal}
+        onSubmit={onSubmitChangeStatusModal}
+        type='confirm'
       />
       <ChangeModalStatus
-        onSubmit={onSubmitChangeStatusModal}
-        onCancelModal={onCancelModal}
-        type='cancel'
+        isLoadingSubmit={isLoadingSubmit}
         isOpen={isModalOpen.cancel}
-        isLoadingSubmit={isLoadingSubmit}
+        onCancelModal={onCancelModal}
+        onSubmit={onSubmitChangeStatusModal}
+        type='cancel'
       />
       <ChangeModalStatus
-        onSubmit={onSubmitChangeStatusModal}
-        onCancelModal={onCancelModal}
-        type='complete'
-        isOpen={isModalOpen.complete}
         isLoadingSubmit={isLoadingSubmit}
+        isOpen={isModalOpen.complete}
+        onCancelModal={onCancelModal}
+        onSubmit={onSubmitChangeStatusModal}
+        type='complete'
+      />
+      <ChangeModalStatus
+        currentExchangeRate={currentExchangeRate}
+        isLoadingSubmit={isLoadingSubmit}
+        isOpen={isModalOpen.paid}
+        onCancelModal={onCancelModal}
+        onSubmit={onSubmitChangeStatusModal}
+        type='paid'
       />
     </div>
   );

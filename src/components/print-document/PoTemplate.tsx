@@ -2,10 +2,11 @@ import './style.scss';
 
 import { forwardRef } from 'react';
 import { Col, Row, Space, Table } from 'antd';
-import { dollarFormatter, thousandFormatter } from 'utils';
+import { capitalizeFirstLetter, thousandFormatter } from 'utils';
 import { POTableDataProps } from 'types/Po';
 import { useQuery } from '@tanstack/react-query';
 import { getDetailPreOrder } from 'api/pre-order';
+import { format } from 'date-fns';
 
 interface InvoiceTemplateProps {
   data: POTableDataProps;
@@ -29,10 +30,24 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
 
   const order = detailPreOrder?.data?.po_order;
   const items = detailPreOrder?.data?.po_items.map((eachItem, index) => ({ ...eachItem, index: index + 1 }));
+  const currency = detailPreOrder?.data?.po_order?.currency_type.toUpperCase() ?? '-';
+  const currencySymbol = currency === 'IDR' ? 'Rp' : currency === 'USD' ? '$' : '';
 
-  const columns = [
-    { title: 'No', dataIndex: 'index', key: 'index', width: 40 },
-    { title: 'Description', dataIndex: ['item', 'name'], key: 'item_name' },
+  const columns: any = [
+    { title: 'No', dataIndex: 'index', key: 'index', width: 40, align: 'center' },
+    {
+      title: 'Description',
+      dataIndex: ['item', 'name'],
+      key: 'item_name',
+      render: (name: string, data: any) => {
+        return (
+          <div>
+            <p>{name}</p>
+            <p>Batch nmbr: {data?.lot_number ?? '-'}</p>
+          </div>
+        );
+      },
+    },
     {
       title: 'Pack Size (kg)',
       dataIndex: ['item', 'packaging_volume'],
@@ -45,7 +60,12 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
       key: 'quantity',
       render: (qty: number) => thousandFormatter(qty.toString()),
     },
-    { title: 'Packing', dataIndex: ['item', 'packaging_type'], key: 'packaging_type' },
+    {
+      title: 'Packing',
+      dataIndex: ['item', 'packaging_type'],
+      key: 'packaging_type',
+      render: (type: string) => capitalizeFirstLetter(type),
+    },
     {
       title: 'Net Weight (kg)',
       dataIndex: ['item'],
@@ -60,7 +80,7 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
       title: 'Price /kg',
       dataIndex: 'buy_price',
       key: 'price',
-      render: (price: number) => dollarFormatter(price.toString()),
+      render: (price: number) => `${currencySymbol} ${thousandFormatter(price.toString())}`,
     },
     {
       title: 'Total',
@@ -68,11 +88,10 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
       key: 'subTotal',
       render: (price: number, data: any) => {
         const total = price * data.quantity;
-        return dollarFormatter(total.toString());
+        return `${currencySymbol} ${thousandFormatter(total.toString())}`;
       },
     },
   ];
-
   return (
     <div ref={ref} className='invoice-pdf-wrapper p-7' style={{ minWidth: '21cm', minHeight: '29.7cm' }}>
       <Row className='text-center' justify='center'>
@@ -85,7 +104,11 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
         <Col span={12}>
           <p>To: </p>
           <p>{order?.supplier_name}</p>
-          {/* <p>{order?.supplier_address}</p> */}
+          <p>{order?.supplier_address?.address}</p>
+          <p>Tel: {order?.supplier_address?.phone}</p>
+          <p>Fax: {order?.supplier_address?.fax}</p>
+          <p>Attn: {order?.supplier_address?.pic}</p>
+          <p>Date: {format(new Date(), 'PP')}</p>
         </Col>
         <Col span={12}>
           <p>Bill/ Notify to:</p>
@@ -100,7 +123,7 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
 
       <Row className='mt-8 mb-2' justify='space-between'>
         <Col className='text-left'>PLEASE SUPPLY US WITH THE FOLLOWING ITEMS :</Col>
-        <Col className='text-right'>Currency : USD</Col>
+        <Col className='text-right'>Currency : {currency}</Col>
       </Row>
       <Table
         className='invoice-table'
@@ -134,7 +157,7 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
         <Col offset={2} span={12}>
           <Row className='flex justify-between flex-row'>
             <Col span={8}>Payment Terms</Col>
-            <Col span={12}>: XXXXX</Col>
+            <Col span={12}>: 90</Col>
           </Row>
           <Row className='flex justify-between flex-row'>
             <Col span={8}>Delivery Time</Col>

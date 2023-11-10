@@ -38,6 +38,7 @@ export interface ChangeStatusPoPayload {
   eta?: number;
   etd?: number;
   id: string;
+  exchange_rate?: number;
   type: ModalType;
 }
 
@@ -99,20 +100,24 @@ export interface PoTableParams {
 }
 
 export interface ConfirmFormProps {
-  eta: number;
-  etd: number;
+  eta?: number;
+  etd?: number;
+}
+export interface PaidForm {
+  exchange_rate?: number;
 }
 
 export interface ChangeModalStatusProps {
   isOpen: boolean;
   type: ModalType;
   onCancelModal: () => void;
-  onSubmit: (form: ConfirmFormProps, str: ModalType) => void;
+  onSubmit: (form: ConfirmFormProps & PaidForm, str: ModalType) => void;
   isLoadingSubmit: boolean;
+  currentExchangeRate?: number;
 }
 
-export type ModalType = 'confirm' | 'cancel' | 'complete';
+export type ModalType = 'confirm' | 'cancel' | 'complete' | 'paid';
 
-export type Status = 'draft' | 'canceled' | 'confirm' | 'completed';
+export type Status = 'draft' | 'canceled' | 'confirm' | 'completed' | 'paid';
 
 export type PoState = 'create' | 'edit' | 'view';

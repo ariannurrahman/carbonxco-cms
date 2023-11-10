@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { changeStatusPO } from 'api/pre-order';
-import { ChangeStatusPoPayload, ConfirmFormProps, ModalType } from 'types/Po';
+import { ChangeStatusPoPayload, ConfirmFormProps, ModalType, PaidForm } from 'types/Po';
 
 export const useChangeStatusModal = () => {
   const queryClient = useQueryClient();
@@ -11,6 +11,7 @@ export const useChangeStatusModal = () => {
     cancel: false,
     confirm: false,
     complete: false,
+    paid: false,
     id: '',
   });
 
@@ -42,11 +43,15 @@ export const useChangeStatusModal = () => {
     setIsModalOpen((prevState) => ({ ...prevState, complete: true, id }));
   };
 
-  const onCancelModal = () => {
-    setIsModalOpen({ cancel: false, confirm: false, complete: false, id: '' });
+  const onOpenExchangeRateModal = (id: string) => {
+    setIsModalOpen((prevState) => ({ ...prevState, paid: true, id }));
   };
 
-  const onSubmitChangeStatusModal = (confirmForm: ConfirmFormProps, type: ModalType) => {
+  const onCancelModal = () => {
+    setIsModalOpen({ paid: false, cancel: false, confirm: false, complete: false, id: '' });
+  };
+
+  const onSubmitChangeStatusModal = (confirmForm: ConfirmFormProps & PaidForm, type: ModalType) => {
     if (type === 'confirm') {
       const payload = {
         eta: confirmForm.eta,
@@ -62,6 +67,15 @@ export const useChangeStatusModal = () => {
     if (type === 'cancel') {
       mutation.mutate({ id: isModalOpen.id, type });
     }
+
+    if (type === 'paid') {
+      const payload = {
+        type,
+        exchange_rate: confirmForm.exchange_rate,
+        id: isModalOpen.id,
+      };
+      mutation.mutate(payload);
+    }
   };
   return {
     isLoadingSubmit: mutation.isLoading,
@@ -69,6 +83,7 @@ export const useChangeStatusModal = () => {
     onOpenConfirmModal,
     onOpenCancelModal,
     onOpenCompleteModal,
+    onOpenExchangeRateModal,
     onSubmitChangeStatusModal,
     onCancelModal,
   };

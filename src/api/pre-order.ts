@@ -15,9 +15,14 @@ export const createPO = async (payload: PoPayload) => {
   return response.data;
 };
 
-export const changeStatusPO = async ({ eta, etd, id, type }: ChangeStatusPoPayload) => {
-  const response = await VIPApi.post(`/po_orders/${id}/${type}`, { eta, etd });
-  return response.data;
+export const changeStatusPO = async ({ exchange_rate, eta, etd, id, type }: ChangeStatusPoPayload) => {
+  if (type === 'paid') {
+    const response = await VIPApi.post(`/po_orders/${id}/paid`, { exchange_rate });
+    return response.data;
+  } else {
+    const response = await VIPApi.post(`/po_orders/${id}/${type}`, { eta, etd });
+    return response.data;
+  }
 };
 
 export const getDetailPreOrder = async (id: string) => {

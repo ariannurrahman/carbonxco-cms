@@ -1,8 +1,9 @@
-import { Col, Row, Modal, DatePicker } from 'antd';
+import { Col, Row, Modal, DatePicker, InputNumber } from 'antd';
 import { VIPButton } from 'components/button';
 import { getUnixTime } from 'date-fns';
-import { useState } from 'react';
-import { ChangeModalStatusProps, ConfirmFormProps } from 'types/Po';
+import { useEffect, useState } from 'react';
+import { ChangeModalStatusProps, ConfirmFormProps, PaidForm } from 'types/Po';
+import { thousandFormatter } from 'utils';
 
 export const ChangeModalStatus = ({
   onSubmit,
@@ -10,8 +11,16 @@ export const ChangeModalStatus = ({
   type,
   onCancelModal,
   isLoadingSubmit,
+  currentExchangeRate,
 }: ChangeModalStatusProps) => {
   const [confirmForm, setConfirmForm] = useState<ConfirmFormProps>({ eta: 0, etd: 0 });
+  const [exchangeRate, setExchangeRate] = useState<PaidForm>({ exchange_rate: currentExchangeRate });
+
+  useEffect(() => {
+    if (currentExchangeRate) {
+      setExchangeRate({ exchange_rate: currentExchangeRate });
+    }
+  }, [currentExchangeRate]);
 
   const onChangeForm = (value: any, name: string) => {
     if (!value) return;
@@ -40,6 +49,23 @@ export const ChangeModalStatus = ({
           />
         </>
       )}
+
+      {type === 'paid' && (
+        <InputNumber
+          value={exchangeRate.exchange_rate?.toString()}
+          formatter={thousandFormatter}
+          onChange={(value) => {
+            if (typeof value !== 'string' && value) {
+              setExchangeRate({ exchange_rate: parseInt(value) });
+            }
+          }}
+          type='tel'
+          className='w-full'
+          size='large'
+          placeholder='Input exchange rate'
+        />
+      )}
+
       <Row className='mt-3' justify='center' align='middle' gutter={[12, 12]}>
         <Col>
           <VIPButton
@@ -47,7 +73,13 @@ export const ChangeModalStatus = ({
             disabled={isDisabledSubmit || isLoadingSubmit}
             htmlType='submit'
             form='confirm-po'
-            onClick={() => onSubmit(confirmForm, type)}
+            onClick={() => {
+              if (type === 'paid') {
+                onSubmit(exchangeRate, type);
+              } else {
+                onSubmit(confirmForm, type);
+              }
+            }}
           >
             Yes
           </VIPButton>

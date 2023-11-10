@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Col, Input, Form, Select, Row, Divider, InputNumber } from 'antd';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Col, Input, Form, Select, Row, Divider, InputNumber, Space, Alert, Tooltip } from 'antd';
 
 import { VIPButton } from 'components/button';
-import { CheckCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, InfoCircleTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePreorder } from '../hooks/usePreorder';
 import { dollarFormatter, thousandFormatter } from 'utils';
 import { useSupplierAddress } from 'pages/dashboard/supplier-address/hooks/useSupplierAddress';
@@ -103,6 +103,14 @@ export const CreatePO = () => {
     showForm();
   }, [showForm]);
 
+  const selectedSupplierAddressDetail = useMemo(() => {
+    if (!selectedSupplierAddress) return;
+    const filtered = supplierAddressList?.data?.filter(
+      ({ id: supAddId }: { id: string }) => supAddId === selectedSupplierAddress,
+    );
+    return filtered;
+  }, [selectedSupplierAddress, supplierAddressList]);
+
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
       <Row align='middle' className='w-full h-[40px] mt-5' justify='space-between'>
@@ -164,7 +172,7 @@ export const CreatePO = () => {
                 </Form.Item>
               </Col>
               {isFormShow.isSupplierAddress && (
-                <Col xs={24} md={12}>
+                <Col xs={24} md={6} className='relative'>
                   <Form.Item
                     label='Supplier Address'
                     name='supplier_address_id'
@@ -179,6 +187,26 @@ export const CreatePO = () => {
                       options={modifiedSupplierAddress}
                     />
                   </Form.Item>
+                </Col>
+              )}
+              {isFormShow.isPoNumber && (
+                <Col xs={24} md={6} className='p-0'>
+                  <Alert
+                    className='relative'
+                    message={
+                      <>
+                        <Tooltip title='Supplier address info'>
+                          <InfoCircleTwoTone className='absolute top-2 right-2' />
+                        </Tooltip>
+                        <Space className='relative' size={0} direction='vertical'>
+                          <p>Phone: {selectedSupplierAddressDetail[0]?.phone ?? '-'}</p>
+                          <p>PIC: {selectedSupplierAddressDetail[0]?.pic ?? '-'}</p>
+                          <p>Fax: {selectedSupplierAddressDetail[0]?.fax ?? '-'}</p>
+                        </Space>
+                      </>
+                    }
+                    type='info'
+                  />
                 </Col>
               )}
 

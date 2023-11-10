@@ -17,9 +17,11 @@ import { PoTemplateWrapper } from '../components/PoTemplateWrapper';
 export const usePreorder = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const preOrderState: PoState = location.state;
+  const queryClient = useQueryClient();
   const { id } = useParams();
 
+  const preOrderState: PoState = location.state;
+  const [currentExchangeRate, setCurrentExchangeRate] = useState(0);
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [tableParams, setTableParams] = useState<PoTableParams>({
     pagination: { page: 1, limit: 5 },
@@ -30,15 +32,15 @@ export const usePreorder = () => {
     navigate(`/dashboard/pre-order/view/${record.id}`, { state: 'view' });
   };
 
-  const queryClient = useQueryClient();
   const {
     isLoadingSubmit,
     isModalOpen,
-    onOpenConfirmModal,
+    onCancelModal,
     onOpenCancelModal,
     onOpenCompleteModal,
+    onOpenConfirmModal,
+    onOpenExchangeRateModal,
     onSubmitChangeStatusModal,
-    onCancelModal,
   } = useChangeStatusModal();
 
   const onGoToCreatePO = () => navigate('/dashboard/pre-order/create', { state: 'create' });
@@ -151,34 +153,52 @@ export const usePreorder = () => {
                             </Button>
                           </Tooltip>
                         </Col>
+                        <Col>
+                          <Tooltip placement='topLeft' title='Edit PO'>
+                            <Button
+                              shape='circle'
+                              icon={<EditOutlined />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEditPo(id);
+                              }}
+                            />
+                          </Tooltip>
+                        </Col>
+                        <Col>
+                          <Tooltip placement='topLeft' title='Cancel PO'>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenCancelModal(id);
+                              }}
+                              shape='circle'
+                              icon={<CloseOutlined />}
+                              danger
+                            />
+                          </Tooltip>
+                        </Col>
                       </>
                     )}
-                    <Col>
-                      <Tooltip placement='topLeft' title='Edit PO'>
-                        <Button
-                          shape='circle'
-                          icon={<EditOutlined />}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEditPo(id);
-                          }}
-                        />
-                      </Tooltip>
-                    </Col>
-                    <Col>
-                      <Tooltip placement='topLeft' title='Cancel PO'>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenCancelModal(id);
-                          }}
-                          shape='circle'
-                          icon={<CloseOutlined />}
-                          danger
-                        />
-                      </Tooltip>
-                    </Col>
                   </>
+                )}
+                {(status === 'completed' || status === 'paid') && (
+                  <Col>
+                    <Tooltip placement='topLeft' title='Exchange Rate'>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentExchangeRate(data?.exchange_rate ?? 0);
+                          onOpenExchangeRateModal(id);
+                        }}
+                        type='primary'
+                        className='bg-[#1677ff]'
+                        icon={<CheckOutlined />}
+                      >
+                        {status === 'paid' ? 'Exchange Rate' : 'Paid'}
+                      </Button>
+                    </Tooltip>
+                  </Col>
                 )}
               </Row>
             </Col>
@@ -361,6 +381,7 @@ export const usePreorder = () => {
   };
 
   return {
+    currentExchangeRate,
     detailPreOrder,
     isDetailPreOrderLoading,
     isItemLoading,

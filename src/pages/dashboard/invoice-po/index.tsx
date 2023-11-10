@@ -32,11 +32,11 @@ const InvoicePO = () => {
         onRow={(record) => ({
           onClick: () => onRowClick(record),
         })}
-        // pagination={{
-        //   defaultPageSize: 5,
-        //   pageSize: 5,
-        //   total: stocksList?.metadata?.total_items,
-        // }}
+        pagination={{
+          defaultPageSize: 5,
+          pageSize: 5,
+          total: invoicePoList?.metadata?.total_items,
+        }}
       />
     </div>
   );

@@ -20,13 +20,13 @@ export const InvoiceTemplate = forwardRef((props: InvoiceTemplateProps, ref: any
     return { ...eachItem, index: index + 1 };
   });
 
-  const INVOICE_COLUMNS = [
+  const INVOICE_COLUMNS: any = [
     {
       title: 'No',
       dataIndex: 'index',
       key: 'index',
       width: 40,
-      render: (no: number) => <p className='text-center'>{no}</p>,
+      align: 'center',
     },
     { title: 'Description', dataIndex: ['item', 'name'], key: 'itemName' },
 
