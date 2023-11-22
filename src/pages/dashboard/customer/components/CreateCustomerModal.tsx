@@ -46,10 +46,17 @@ export const CreateCustomerModal = ({ isLoadingSubmit, isOpen, onSubmit, onCance
         >
           <Input size='large' placeholder='Input invoice address' />
         </Form.Item>
+        <Form.Item
+          className='mb-5'
+          label='Tax Number'
+          name='tax_number'
+          rules={[{ required: true, message: 'Input tax number!' }]}
+        >
+          <Input size='large' placeholder='Input tax number' />
+        </Form.Item>
         <Form.Item className='mb-5' label='PIC' name='pic' rules={[{ required: true, message: 'Input pic!' }]}>
           <Input size='large' placeholder='Input pic' />
         </Form.Item>
-
         <Form.Item>
           <VIPButton
             loading={isLoadingSubmit}

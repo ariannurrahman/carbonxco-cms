@@ -5,6 +5,7 @@ import { PageTitle } from 'components/page-title';
 import { usePreorder } from './hooks/usePreorder';
 import { ChangeModalStatus } from './components/ChangeModalStatus';
 import { PoFilter } from './components/PoFilter';
+import { PaymentTermsModal } from './components/PaymentTermsModal';
 
 export const PreOrder = () => {
   const {
@@ -13,14 +14,17 @@ export const PreOrder = () => {
     isModalOpen,
     isPoListLoading,
     onCancelModal,
+    onClosePaymentTermsModal,
     onGoToCreatePO,
     onRowClick,
     onSubmitChangeStatusModal,
     onSubmitSearch,
     onTableChange,
+    paymentTermsModal,
     poColumns: columns,
     poDataSource: dataSource,
     poList,
+    onChangePaymentTerms,
   } = usePreorder();
 
   return (
@@ -51,6 +55,14 @@ export const PreOrder = () => {
           pageSize: 5,
           total: poList?.metadata?.total_items,
         }}
+      />
+      <PaymentTermsModal
+        paymentTerms={paymentTermsModal.payment_terms}
+        onChangePaymentTerms={onChangePaymentTerms}
+        open={paymentTermsModal.open}
+        onCancel={onClosePaymentTermsModal}
+        data={paymentTermsModal.data}
+        status={paymentTermsModal.status}
       />
       <ChangeModalStatus
         isLoadingSubmit={isLoadingSubmit}

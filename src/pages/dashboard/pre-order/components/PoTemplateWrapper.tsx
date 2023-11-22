@@ -5,11 +5,12 @@ import ReactToPrint from 'react-to-print';
 import { POTableDataProps } from 'types/Po';
 
 interface InvoicePrintWrapperProps {
-  data: POTableDataProps;
+  data: POTableDataProps | undefined;
   status: string;
+  paymentTerms: number;
 }
 
-export const PoTemplateWrapper = ({ data, status }: InvoicePrintWrapperProps) => {
+export const PoTemplateWrapper = ({ data, status, paymentTerms }: InvoicePrintWrapperProps) => {
   const componentRef = useRef(null);
   return (
     <>
@@ -19,7 +20,7 @@ export const PoTemplateWrapper = ({ data, status }: InvoicePrintWrapperProps) =>
         }}
         content={() => componentRef.current}
       />
-      <PoTemplate ref={componentRef} data={data} />
+      <PoTemplate ref={componentRef} data={data} paymentTerms={paymentTerms} />
     </>
   );
 };

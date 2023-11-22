@@ -9,12 +9,13 @@ import { getDetailPreOrder } from 'api/pre-order';
 import { format } from 'date-fns';
 
 interface InvoiceTemplateProps {
-  data: POTableDataProps;
+  data: POTableDataProps | undefined;
+  paymentTerms: number;
 }
 
 export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => {
   const { data } = props;
-  const { id } = data;
+  const { id = '' } = data || {};
   const fetchDetailPreOrder = async () => {
     if (!id) return;
     const response = await getDetailPreOrder(id);
@@ -22,7 +23,7 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
   };
   const { data: detailPreOrder } = useQuery({
     queryFn: fetchDetailPreOrder,
-    queryKey: ['preOrderDetail'],
+    queryKey: ['preOrderDetail', id],
     refetchOnWindowFocus: false,
     retry: false,
     enabled: !!id,
@@ -32,6 +33,8 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
   const items = detailPreOrder?.data?.po_items.map((eachItem, index) => ({ ...eachItem, index: index + 1 }));
   const currency = detailPreOrder?.data?.po_order?.currency_type.toUpperCase() ?? '-';
   const currencySymbol = currency === 'IDR' ? 'Rp' : currency === 'USD' ? '$' : '';
+  const eachTotal = detailPreOrder?.data?.po_items?.map(({ buy_price, quantity }) => buy_price * quantity);
+  const totalSum = eachTotal?.reduce((curr, total) => curr + total, 0);
 
   const columns: any = [
     { title: 'No', dataIndex: 'index', key: 'index', width: 40, align: 'center' },
@@ -134,7 +137,9 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
                 <strong>Total</strong>
               </Col>
               <Col>
-                {/* <strong>{dollarFormatter(invoiceDetail?.data?.invoice?.total_price.toString())}</strong> */}
+                <strong>
+                  {currencySymbol} {thousandFormatter(totalSum?.toString())}
+                </strong>
               </Col>
             </Row>
           );
@@ -157,7 +162,7 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
         <Col offset={2} span={12}>
           <Row className='flex justify-between flex-row'>
             <Col span={8}>Payment Terms</Col>
-            <Col span={12}>: 90</Col>
+            <Col span={12}>: {props.paymentTerms || 90}</Col>
           </Row>
           <Row className='flex justify-between flex-row'>
             <Col span={8}>Delivery Time</Col>

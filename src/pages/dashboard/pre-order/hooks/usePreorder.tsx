@@ -12,7 +12,13 @@ import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
 import { SearchQuery } from 'types/types';
 import { POTableDataProps, PoItems, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
-import { PoTemplateWrapper } from '../components/PoTemplateWrapper';
+
+interface PaymentTermsState {
+  data: POTableDataProps | undefined;
+  payment_terms: number;
+  open: boolean;
+  status: string;
+}
 
 export const usePreorder = () => {
   const navigate = useNavigate();
@@ -22,11 +28,25 @@ export const usePreorder = () => {
 
   const preOrderState: PoState = location.state;
   const [currentExchangeRate, setCurrentExchangeRate] = useState(0);
+  const [paymentTermsModal, setPaymentTermsModal] = useState<PaymentTermsState>({
+    open: false,
+    payment_terms: 0,
+    data: undefined,
+    status: '',
+  });
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [tableParams, setTableParams] = useState<PoTableParams>({
     pagination: { page: 1, limit: 5 },
     query: { item_supplier_name: '' },
   });
+
+  const onClosePaymentTermsModal = () => {
+    setPaymentTermsModal((prevState) => ({ ...prevState, open: false, status: '', payment_terms: 0, data: undefined }));
+  };
+
+  const onChangePaymentTerms = (value: number) => {
+    setPaymentTermsModal((prevState) => ({ ...prevState, payment_terms: value }));
+  };
 
   const onRowClick = (record: POTableDataProps) => {
     navigate(`/dashboard/pre-order/view/${record.id}`, { state: 'view' });
@@ -144,11 +164,11 @@ export const usePreorder = () => {
                               style={{ width: 80 }}
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setPaymentTermsModal((prevState) => ({ ...prevState, open: true, data, status }));
                               }}
                               type='primary'
                               className='bg-[#1677ff]'
                             >
-                              <PoTemplateWrapper data={data} status={status} />
                               Print
                             </Button>
                           </Tooltip>
@@ -390,6 +410,8 @@ export const usePreorder = () => {
     isSupplierLoading,
     itemsList: modifiedItems,
     onChangeSupplier,
+    onChangePaymentTerms,
+    onClosePaymentTermsModal,
     onGoToCreatePO,
     onRowClick,
     onSubmitCreatePO,
@@ -397,6 +419,7 @@ export const usePreorder = () => {
     onSubmitSearch,
     onSubmitUpdateItemPO,
     onTableChange,
+    paymentTermsModal,
     poColumns,
     poDataSource,
     poList,

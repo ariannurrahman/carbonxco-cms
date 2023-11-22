@@ -70,6 +70,8 @@ export const useCustomer = (limit: number) => {
     { title: 'Payment Terms (Days)', dataIndex: 'payment_term', key: 'payment_term' },
     { title: 'Address', dataIndex: 'address', key: 'address' },
     { title: 'Invoice Address', dataIndex: 'invoice_address', key: 'invoice_address' },
+    { title: 'Tax', dataIndex: 'tax_number', key: 'tax_number' },
+    { title: 'PIC', dataIndex: 'pic', key: 'pic' },
     {
       title: 'Action',
       dataIndex: 'action',

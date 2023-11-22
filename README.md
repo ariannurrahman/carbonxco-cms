@@ -1,11 +1,3 @@
-INVOICE -> STATUS APPROVED -> PRINT
-DRAFT TO APPROVED -> CHECK INVOICE
-
-CHECK -> MODAL TOTAL DUE, TOTAL PRICE
-CHECK INVOICE TOTAL DUE = 0 ? PRINT NORMAL : FORCE BUTTON NAME FORCE APPROVE
-
-WHEN APPROVE -> PRINT APPEAR NORMAL
-
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
