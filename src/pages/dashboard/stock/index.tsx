@@ -2,7 +2,7 @@ import { VIPButton } from 'components/button';
 import { PageTitle } from 'components/page-title';
 import { useStock } from './hooks/useStock';
 import { StockFilter } from './components/StockFilter';
-import { Table } from 'antd';
+import { Alert, Table } from 'antd';
 import { StockModal } from './components/StockModal';
 
 export const Stock = () => {
@@ -23,6 +23,8 @@ export const Stock = () => {
     stocksList,
   } = useStock();
 
+  const qtyTotal = stocksList?.data?.map(({ quantity }) => quantity).reduce((curr, total) => curr + total, 0);
+
   return (
     <div className='h-[1000px]'>
       <PageTitle
@@ -34,6 +36,7 @@ export const Stock = () => {
         }
       />
       <StockFilter onSubmit={onSubmitSearch} />
+      <Alert className='w-[300px]' type='info' message={<strong> Quantity Total: {qtyTotal}</strong>} />
 
       <StockModal
         isLoadingSubmit={isLoadingSubmit}

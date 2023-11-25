@@ -7,8 +7,11 @@ import { usePreorder } from '../hooks/usePreorder';
 import { dollarFormatter, thousandFormatter } from 'utils';
 import { useSupplierAddress } from 'pages/dashboard/supplier-address/hooks/useSupplierAddress';
 import { CURRENCY_TYPE } from '../constants';
+import { PoPayload } from 'types/Po';
+import { useParams } from 'react-router-dom';
 
 export const CreatePO = () => {
+  const { id = '' } = useParams();
   const [form] = Form.useForm();
   const [isFormShow, setIsFormShow] = useState({
     isSupplierAddress: false,
@@ -33,6 +36,7 @@ export const CreatePO = () => {
     onChangeSupplier,
     onSubmitCreatePO,
     onSubmitDeletePoItem,
+    onSubmitUpdatePo,
     onSubmitUpdateItemPO,
     preOrderState,
     selectedSupplier,
@@ -44,7 +48,7 @@ export const CreatePO = () => {
   const fetchSupplierAddress = useCallback(() => {
     setTableParams((prevState) => ({ ...prevState, query: { query_item_supplier_name: selectedSupplier } }));
   }, [selectedSupplier, setTableParams]);
-
+  console.log('selectedSupplier', selectedSupplier);
   useEffect(() => {
     fetchSupplierAddress();
   }, [fetchSupplierAddress]);
@@ -81,6 +85,16 @@ export const CreatePO = () => {
     initEdit();
   }, [form, preOrderState, detailPreOrder]);
 
+  const getUpdatePoPayload = (): PoPayload => {
+    const payload = {
+      supplier_address_id: form.getFieldValue('supplier_address_id'),
+      currency_type: form.getFieldValue('currency_type'),
+      exchange_rate: form.getFieldValue('exchange_rate'),
+      po_number: form.getFieldValue('po_number'),
+    };
+    return payload;
+  };
+
   const showForm = useCallback(() => {
     if (selectedSupplier) {
       setIsFormShow((prevState) => ({ ...prevState, isSupplierAddress: true }));
@@ -110,6 +124,12 @@ export const CreatePO = () => {
     );
     return filtered;
   }, [selectedSupplierAddress, supplierAddressList]);
+
+  const filterOption = (input: string, option?: { label: string; value: string }) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
+  console.log('selectedSupplierAddress', selectedSupplierAddress);
+  console.log('selectedSupplierAddressDetail', selectedSupplierAddressDetail);
 
   return (
     <Row className='shadow-sm bg-white rounded-md w-full px-5 md:px-8'>
@@ -167,6 +187,8 @@ export const CreatePO = () => {
                     placeholder='Choose supplier'
                     style={{ width: '100%' }}
                     onChange={onChangeSupplier}
+                    filterOption={filterOption}
+                    showSearch
                     options={suppliersList}
                   />
                 </Form.Item>
@@ -199,9 +221,9 @@ export const CreatePO = () => {
                           <InfoCircleTwoTone className='absolute top-2 right-2' />
                         </Tooltip>
                         <Space className='relative' size={0} direction='vertical'>
-                          <p>Phone: {selectedSupplierAddressDetail[0]?.phone ?? '-'}</p>
-                          <p>PIC: {selectedSupplierAddressDetail[0]?.pic ?? '-'}</p>
-                          <p>Fax: {selectedSupplierAddressDetail[0]?.fax ?? '-'}</p>
+                          <p>Phone: {selectedSupplierAddressDetail?.[0]?.phone ?? '-'}</p>
+                          <p>PIC: {selectedSupplierAddressDetail?.[0]?.pic ?? '-'}</p>
+                          <p>Fax: {selectedSupplierAddressDetail?.[0]?.fax ?? '-'}</p>
                         </Space>
                       </>
                     }
@@ -211,18 +233,23 @@ export const CreatePO = () => {
               )}
 
               {isFormShow.isPoNumber && (
-                <Col xs={24} md={12}>
+                <Col xs={24} md={preOrderState === 'view' ? 12 : 10}>
                   <Form.Item
                     className=''
                     label='PO Number'
                     name='po_number'
-                    rules={[{ required: true, message: 'Input item name!' }]}
+                    rules={[{ required: true, message: 'Input Po number!' }]}
                   >
-                    <Input
-                      size='large'
-                      placeholder='Input PO number'
-                      disabled={preOrderState === 'edit' || preOrderState === 'view'}
-                    />
+                    <Input size='large' placeholder='Input PO number' disabled={preOrderState === 'view'} />
+                  </Form.Item>
+                </Col>
+              )}
+              {isFormShow.isPoNumber && preOrderState === 'edit' && (
+                <Col xs={24} md={2}>
+                  <Form.Item label={' '} name=''>
+                    <VIPButton type='primary' onClick={() => onSubmitUpdatePo(getUpdatePoPayload(), id)}>
+                      Save
+                    </VIPButton>
                   </Form.Item>
                 </Col>
               )}
@@ -268,7 +295,7 @@ export const CreatePO = () => {
             <Form.List name='po_items'>
               {(fields, { add, remove }) => (
                 <>
-                  {fields.map(({ key, name, ...restField }, index) => {
+                  {fields?.map(({ key, name, ...restField }, index) => {
                     const getFormValue = (name: number) => {
                       const fieldsValue = form.getFieldsValue();
                       return fieldsValue.po_items[name];
@@ -277,7 +304,7 @@ export const CreatePO = () => {
                       <div key={`${name}-${key}-${getFormValue(name)?.item_id}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
                         <Row gutter={[12, 12]} className='p-3'>
-                          <Col xs={24} lg={4}>
+                          <Col xs={24} lg={6}>
                             <Form.Item
                               {...restField}
                               label='Item Name'

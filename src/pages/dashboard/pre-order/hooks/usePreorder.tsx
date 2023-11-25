@@ -5,13 +5,22 @@ import { fromUnixTime, format } from 'date-fns';
 
 import { getSuppliers } from 'api/supplier';
 import { getAllItem } from 'api/items';
-import { createItemPo, createPO, deletePoItem, getDetailPreOrder, getPreOrder, updatePoItem } from 'api/pre-order';
+import {
+  createItemPo,
+  createPO,
+  deletePoItem,
+  getDetailPreOrder,
+  getPreOrder,
+  updatePo,
+  updatePoItem,
+} from 'api/pre-order';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
 import { useChangeStatusModal } from './useChangeStatusModal';
 import { SearchQuery } from 'types/types';
 import { POTableDataProps, PoItems, PoPayload, PoState, PoTableParams, Status } from 'types/Po';
+import { thousandFormatter } from 'utils';
 
 interface PaymentTermsState {
   data: POTableDataProps | undefined;
@@ -35,6 +44,7 @@ export const usePreorder = () => {
     status: '',
   });
   const [selectedSupplier, setSelectedSupplier] = useState('');
+  console.log('selectedSupplier', selectedSupplier);
   const [tableParams, setTableParams] = useState<PoTableParams>({
     pagination: { page: 1, limit: 5 },
     query: { item_supplier_name: '' },
@@ -122,6 +132,19 @@ export const usePreorder = () => {
             <Col span={6}>{status.toUpperCase()}</Col>
             <Col span={18}>
               <Row gutter={[8, 8]}>
+                <Col>
+                  <Tooltip placement='topLeft' title='Print'>
+                    <Button
+                      style={{ width: 80 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPaymentTermsModal((prevState) => ({ ...prevState, open: true, data, status }));
+                      }}
+                    >
+                      Print
+                    </Button>
+                  </Tooltip>
+                </Col>
                 {status !== 'canceled' && status !== 'completed' && (
                   <>
                     {status === 'confirm' && (
@@ -158,21 +181,7 @@ export const usePreorder = () => {
                             </Button>
                           </Tooltip>
                         </Col>
-                        <Col>
-                          <Tooltip placement='topLeft' title='Print'>
-                            <Button
-                              style={{ width: 80 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setPaymentTermsModal((prevState) => ({ ...prevState, open: true, data, status }));
-                              }}
-                              type='primary'
-                              className='bg-[#1677ff]'
-                            >
-                              Print
-                            </Button>
-                          </Tooltip>
-                        </Col>
+
                         <Col>
                           <Tooltip placement='topLeft' title='Edit PO'>
                             <Button
@@ -291,12 +300,18 @@ export const usePreorder = () => {
     queryKey: ['itemList'],
     refetchOnWindowFocus: false,
     retry: false,
-    // enabled: !!selectedSupplier,
+    enabled: !!selectedSupplier,
   });
 
   const modifiedItems = useMemo(() => {
     return items?.data.map((eachItem) => {
-      return { label: eachItem.name, value: eachItem.id, id: eachItem.id };
+      return {
+        label: `${eachItem.name} - ${eachItem.packaging_type} - ${thousandFormatter(
+          eachItem.packaging_volume.toString() ?? '',
+        )}`,
+        value: eachItem.id,
+        id: eachItem.id,
+      };
     });
   }, [items]);
 
@@ -337,6 +352,25 @@ export const usePreorder = () => {
     retry: false,
     enabled: preOrderState === 'edit' || preOrderState === 'view',
   });
+
+  const mutationUpdatePo = useMutation({
+    mutationKey: ['preOrderList', 'preOrderDetail'],
+    mutationFn: ({ value, id }: { value: PoPayload; id: string }) => {
+      return updatePo(value, id);
+    },
+    onSuccess: () => {
+      message.success('PO updated!');
+      queryClient.invalidateQueries(['preOrderList']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
+  const onSubmitUpdatePo = (payload: PoPayload, id: string) => {
+    mutationUpdatePo.mutate({ value: payload, id });
+  };
 
   const mutationUpdateItem = useMutation({
     mutationKey: ['preOrderList', 'preOrderDetail'],
@@ -417,6 +451,7 @@ export const usePreorder = () => {
     onSubmitCreatePO,
     onSubmitDeletePoItem,
     onSubmitSearch,
+    onSubmitUpdatePo,
     onSubmitUpdateItemPO,
     onTableChange,
     paymentTermsModal,

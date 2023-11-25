@@ -10,9 +10,12 @@ import { createCustomerItem, getAllCustomerItems, updateCustomerItem } from 'api
 import { Button, Col, Row, message } from 'antd';
 import { dollarFormatter, thousandFormatter } from 'utils';
 import { EditOutlined } from '@ant-design/icons';
+import { getSuppliers } from 'api/supplier';
+import { getAllItem } from 'api/items';
 
 export const useCustomerItem = (customerId: string) => {
   const queryClient = useQueryClient();
+  const [selectedSupplier, setSelectedSupplier] = useState('');
   const [isCreateCustomerItemModalOpen, setIsCreateCustomerItemModalOpen] = useState(false);
   const [isUpdateCustomerItemModalOpen, setIsUpdateCustomerItemModalOpen] = useState(false);
   const [selectedCustomerItem, setSelectedCustomerItem] = useState<CustomerItem>({
@@ -27,6 +30,7 @@ export const useCustomerItem = (customerId: string) => {
       supplier_name: '',
     },
   });
+
   const [tableParams, setTableParams] = useState<CustomerItemQueryParams>({
     pagination: { page: 1, limit: 5 },
     query: { query_item_name: '' },
@@ -158,10 +162,77 @@ export const useCustomerItem = (customerId: string) => {
   });
 
   const onSubmitUpdateCustomerItem = (value: UpdateCustomerItemPayload) => {
-    updateCustomerItemMutation.mutate(value);
+    console.log('value PAYLOAD', value);
+    const payload = {
+      item_id: value.item_id,
+      bind_price: value.bind_price,
+      customer_id: value.customer_id,
+    };
+    updateCustomerItemMutation.mutate(payload);
   };
 
+  // SUPPLIER RELATED  ************************************************************************************************************************
+
+  const onChangeSupplier = (supplierValue: string) => {
+    setSelectedSupplier(supplierValue);
+  };
+
+  const fetchSuppliers = async () => {
+    return await getSuppliers({
+      pagination: { page: 1, limit: 999 },
+      query: { item_name: '', item_supplier_name: '' },
+    });
+  };
+
+  const { data: supplierList } = useQuery({
+    queryFn: fetchSuppliers,
+    queryKey: ['supplierList'],
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
+  const fetchItems = useCallback(async () => {
+    return await getAllItem({
+      pagination: { page: 1, limit: 999 },
+      query: {
+        item_supplier_name: selectedSupplier,
+      },
+    });
+  }, [selectedSupplier]);
+
+  const { data: items } = useQuery({
+    queryFn: fetchItems,
+    queryKey: ['itemList', selectedSupplier],
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: !!selectedSupplier,
+  });
+
+  const modifiedItems = useMemo(() => {
+    if (items?.data?.length) {
+      return items?.data.map((eachItem) => {
+        return {
+          label: `${eachItem.name} - ${eachItem.packaging_type} - ${thousandFormatter(
+            eachItem.packaging_volume.toString() ?? '',
+          )}`,
+          value: eachItem.id ?? '',
+        };
+      });
+    } else {
+      return [];
+    }
+  }, [items]);
+
+  const modifiedSupplier = useMemo(() => {
+    return supplierList?.data?.map((eachSupplier: string) => {
+      return { label: eachSupplier, value: eachSupplier };
+    });
+  }, [supplierList]);
+
   return {
+    onChangeSupplier,
+    modifiedItems,
+    supplierList: modifiedSupplier,
     customerItemListColumn,
     customerItemListDataSource,
     isCreateCustomerItemModalOpen,

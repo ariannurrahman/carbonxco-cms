@@ -29,11 +29,15 @@ export const PoTemplate = forwardRef((props: InvoiceTemplateProps, ref: any) => 
     enabled: !!id,
   });
 
+  console.log('detailPreOrder', detailPreOrder);
+
   const order = detailPreOrder?.data?.po_order;
   const items = detailPreOrder?.data?.po_items.map((eachItem, index) => ({ ...eachItem, index: index + 1 }));
   const currency = detailPreOrder?.data?.po_order?.currency_type.toUpperCase() ?? '-';
   const currencySymbol = currency === 'IDR' ? 'Rp' : currency === 'USD' ? '$' : '';
-  const eachTotal = detailPreOrder?.data?.po_items?.map(({ buy_price, quantity }) => buy_price * quantity);
+  const eachTotal = detailPreOrder?.data?.po_items?.map(
+    ({ buy_price, quantity, item }) => buy_price * quantity * item.packaging_volume,
+  );
   const totalSum = eachTotal?.reduce((curr, total) => curr + total, 0);
 
   const columns: any = [

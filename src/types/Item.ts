@@ -11,6 +11,8 @@ export interface Item {
   name: string;
   supplier_name: string;
   serial_number: string;
+  packaging_type: string;
+  packaging_volume: number;
   id?: string;
 }
 

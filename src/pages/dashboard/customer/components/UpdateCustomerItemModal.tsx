@@ -3,15 +3,21 @@ import { Form, InputNumber, Modal, Select } from 'antd';
 import { VIPButton } from 'components/button';
 import { useEffect } from 'react';
 import { CustomerItem, UpdateCustomerItemPayload } from 'types/Customer';
-import { Item } from 'types/Item';
-import { dollarFormatter } from 'utils';
+import { dollarFormatter, thousandFormatter } from 'utils';
+
+interface ItemSelectList {
+  label: string;
+  value: string;
+}
 
 interface UpdateCustomerItemModalProps {
   isOpen: boolean;
   onSubmit: (value: UpdateCustomerItemPayload) => void;
   onCancel: () => void;
-  itemDataSource: Item[];
+  itemDataSource: ItemSelectList[];
   selectedCustomerItem: CustomerItem;
+  supplierList: any;
+  onChangeSupplier: (supplier: string) => void;
 }
 
 export const UpdateCustomerItemModal = ({
@@ -20,19 +26,27 @@ export const UpdateCustomerItemModal = ({
   onCancel,
   itemDataSource,
   selectedCustomerItem,
+  supplierList,
+  onChangeSupplier,
 }: UpdateCustomerItemModalProps) => {
   const [form] = Form.useForm();
 
-  const selectItemList = itemDataSource.map((eachItem) => {
-    return {
-      label: eachItem.name,
-      value: eachItem.id,
-    };
-  });
+  console.log('selectedCustomerItem', selectedCustomerItem);
+  console.log('itemDataSource', itemDataSource);
 
   useEffect(() => {
     const initData = () => {
-      form.setFieldsValue(selectedCustomerItem);
+      form.setFieldsValue({
+        supplier_name: selectedCustomerItem?.item?.supplier_name,
+        item: {
+          label: `${selectedCustomerItem?.item?.name} - ${
+            selectedCustomerItem?.item?.packaging_type
+          } - ${thousandFormatter(selectedCustomerItem?.item?.packaging_volume.toString() ?? '')}`,
+          value: selectedCustomerItem?.item?.id,
+        },
+        // item_id: selectedCustomerItem?.item?.id,
+        bind_price: selectedCustomerItem?.bind_price,
+      });
     };
 
     initData();
@@ -45,10 +59,10 @@ export const UpdateCustomerItemModal = ({
   };
 
   return (
-    <Modal width={300} footer={false} title='Edit Customer' open={isOpen} onCancel={onCancel}>
+    <Modal width={300} footer={false} title='Edit Customer Item' open={isOpen} onCancel={onCancel}>
       <Form
         initialValues={{
-          item_id: defaultValue.value,
+          item_id: defaultValue.label,
           customer_id: defaultValue.customer_id,
         }}
         form={form}
@@ -63,11 +77,19 @@ export const UpdateCustomerItemModal = ({
         </Form.Item>
         <Form.Item
           className='mb-5'
+          label='Supplier Name'
+          name='supplier_name'
+          rules={[{ required: true, message: 'Select supplier!' }]}
+        >
+          <Select options={supplierList ?? []} size='large' onChange={onChangeSupplier} />
+        </Form.Item>
+        <Form.Item
+          className='mb-5'
           label='Item Name'
           name='item_id'
           rules={[{ required: true, message: 'Select item!' }]}
         >
-          <Select options={selectItemList} size='large' />
+          <Select options={itemDataSource} size='large' />
         </Form.Item>
         <Form.Item
           className='mb-5'

@@ -10,6 +10,7 @@ import { CreateCustomerPayload, Customer, CustomerQueryParams, CustomerSearchQue
 export const useCustomer = (limit: number) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
   const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
   const [isUpdateCustomerModalOpen, setIsUpdateCustomerModalOpen] = useState(false);
   const [selectedCustomerUpdate, setSelectedCustomerUpdate] = useState<Customer>({

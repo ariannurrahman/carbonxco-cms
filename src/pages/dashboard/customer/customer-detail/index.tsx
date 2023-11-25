@@ -4,7 +4,6 @@ import { PageTitle } from 'components/page-title';
 import { useCustomerItem } from '../hooks/useCustomerItem';
 import { useParams } from 'react-router-dom';
 import { VIPButton } from 'components/button';
-import { useItem } from 'pages/dashboard/item/hooks/useItem';
 import { CreateCustomerItemModal } from '../components/CreateCustomerItemModal';
 import { UpdateCustomerItemModal } from '../components/UpdateCustomerItemModal';
 
@@ -23,8 +22,10 @@ export const CustomerDetail = () => {
     onSubmitCreateCustomerItem,
     onSubmitUpdateCustomerItem,
     selectedCustomerItem,
+    onChangeSupplier,
+    modifiedItems,
+    supplierList,
   } = useCustomerItem(id ?? '-');
-  const { itemDataSource } = useItem();
 
   return (
     <div>
@@ -38,14 +39,18 @@ export const CustomerDetail = () => {
       />
 
       <CreateCustomerItemModal
-        itemDataSource={itemDataSource}
+        onChangeSupplier={onChangeSupplier}
+        supplierList={supplierList}
+        itemDataSource={modifiedItems}
         isOpen={isCreateCustomerItemModalOpen}
         onCancel={onCloseCreateCustomerItemModal}
         onSubmit={onSubmitCreateCustomerItem}
       />
       <UpdateCustomerItemModal
+        onChangeSupplier={onChangeSupplier}
+        supplierList={supplierList}
         selectedCustomerItem={selectedCustomerItem}
-        itemDataSource={itemDataSource}
+        itemDataSource={modifiedItems}
         isOpen={isUpdateCustomerItemModalOpen}
         onCancel={onCloseUpdateCustomerItemModal}
         onSubmit={onSubmitUpdateCustomerItem}

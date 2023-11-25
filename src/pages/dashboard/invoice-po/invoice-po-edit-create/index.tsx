@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Col, Divider, Form, Input, InputNumber, Row, Select } from 'antd';
 
 import { VIPButton } from 'components/button';
 import { useCustomer } from 'pages/dashboard/customer/hooks/useCustomer';
-import { usePreorder } from 'pages/dashboard/pre-order/hooks/usePreorder';
 import { dollarFormatter, thousandFormatter } from 'utils';
 import { Customer } from 'types/InvoicePo';
 import { useInvoicePo } from '../hooks/useInvoicePo';
+import { getAllItem } from 'api/items';
+import { useQuery } from '@tanstack/react-query';
 
 export type InvoicePoState = 'create' | 'edit' | 'view';
 
@@ -25,7 +26,34 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
   const { customerList, isLoadingCustomerList } = useCustomer(999);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>();
 
-  const { itemsList } = usePreorder();
+  const fetchItems = useCallback(async () => {
+    return await getAllItem({
+      pagination: { page: 1, limit: 999 },
+      query: {
+        item_supplier_name: '',
+      },
+    });
+  }, []);
+
+  const { isLoading: isItemLoading, data: items } = useQuery({
+    queryFn: fetchItems,
+    queryKey: ['itemList'],
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: !!selectedCustomer,
+  });
+
+  const modifiedItems = useMemo(() => {
+    return items?.data.map((eachItem) => {
+      return {
+        label: `${eachItem.name} - ${eachItem.packaging_type} - ${thousandFormatter(
+          eachItem.packaging_volume.toString() ?? '',
+        )}`,
+        value: eachItem.id,
+        id: eachItem.id,
+      };
+    });
+  }, [items]);
   const {
     onSubmitCreateInvoicePo,
     onSubmitUpdateInvoicePoItem,
@@ -73,6 +101,9 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
   const onSelectCustomer = (value: Customer) => {
     setSelectedCustomer(value);
   };
+
+  const filterOptionCustomer = (input: string, option?: { label: string; value: string }) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
   const pageTitle =
     state === 'create'
@@ -132,6 +163,8 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                   rules={[{ required: true, message: 'Input customer!' }]}
                 >
                   <Select
+                    showSearch
+                    filterOption={filterOptionCustomer}
                     disabled={state === 'edit' || state === 'view'}
                     loading={state === 'edit' ? false : isLoadingCustomerList}
                     size='large'
@@ -196,7 +229,7 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                       <div key={`${key}-${index}-${getFormValue(name)}`}>
                         {index !== 0 && index !== fields.length && <Divider key={key} className='mt-1 mb-1' />}
                         <Row gutter={[12, 12]} className='p-3'>
-                          <Col xs={24} lg={4}>
+                          <Col xs={24} lg={6}>
                             <Form.Item
                               {...restField}
                               label='Item Name'
@@ -204,11 +237,12 @@ export const InvoicePoEditCreate = ({ state }: InvoicePoEditCreateProps) => {
                               rules={[{ required: true, message: 'Input item name!' }]}
                             >
                               <Select
+                                loading={isItemLoading}
                                 disabled={state === 'view'}
                                 placeholder='Choose Item'
                                 size='large'
                                 style={{ width: '100%' }}
-                                options={itemsList}
+                                options={modifiedItems}
                               />
                             </Form.Item>
                           </Col>

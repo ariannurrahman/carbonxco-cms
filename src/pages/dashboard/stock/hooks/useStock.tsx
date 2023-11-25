@@ -74,6 +74,23 @@ export const useStock = () => {
       width: 100,
     },
     {
+      title: 'Packaging Type',
+      dataIndex: ['item', 'packaging_type'],
+      key: 'packaging_type',
+      render: (value: string) => value,
+      width: 160,
+    },
+    {
+      title: 'Total',
+      dataIndex: ['quantity'],
+      key: 'total',
+      render: (qty: number, item: any) => {
+        const total = qty * item.item.packaging_volume;
+        return thousandFormatter(total.toString() ?? '');
+      },
+      width: 100,
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',

@@ -19,7 +19,7 @@ import {
   InvoiceSearchQuery,
   UpdateInvoicePayload,
 } from 'types/Invoice';
-import { dollarFormatter } from 'utils';
+import { thousandFormatter } from 'utils';
 import { Button, Col, Row, Tooltip, message } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import { format, fromUnixTime } from 'date-fns';
@@ -253,6 +253,21 @@ export const useInvoice = () => {
 
     return (
       <Row gutter={[8, 8]}>
+        <Col>
+          <Tooltip placement='topLeft' title='Print'>
+            <Button
+              style={{ width: 80 }}
+              disabled={mutationPrintInvoice.isLoading}
+              loading={mutationPrintInvoice.isLoading}
+              danger={status === 'due'}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <InvoicePrintWrapper data={data} status={status} />;
+            </Button>
+          </Tooltip>
+        </Col>
         {status === 'draft' ? (
           <>
             <Col>
@@ -283,7 +298,6 @@ export const useInvoice = () => {
               <Tooltip placement='topLeft' title='Check'>
                 <Button
                   className={`${!isRenderForcePrint ? 'bg-gray-300' : 'bg-[#1677ff]'}`}
-                  // disabled={!isRenderForcePrint}
                   type='primary'
                   onClick={(e) => {
                     e.stopPropagation();
@@ -297,39 +311,22 @@ export const useInvoice = () => {
           </>
         ) : null}
         {status === 'approved' || status === 'due' ? (
-          <>
-            <Col>
-              <Tooltip placement='topLeft' title='Print'>
-                <Button
-                  style={{ width: 80 }}
-                  disabled={mutationPrintInvoice.isLoading}
-                  loading={mutationPrintInvoice.isLoading}
-                  danger={status === 'due'}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <InvoicePrintWrapper data={data} status={status} />;
-                </Button>
-              </Tooltip>
-            </Col>
-            <Col>
-              <Tooltip placement='topLeft' title='Pay'>
-                <Button
-                  disabled={mutationUpdateInvoiceItem.isLoading}
-                  loading={mutationUpdateInvoiceItem.isLoading}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClickPayInvoice(invoiceId);
-                  }}
-                  type='primary'
-                  className='bg-[#1677ff]'
-                >
-                  Pay
-                </Button>
-              </Tooltip>
-            </Col>
-          </>
+          <Col>
+            <Tooltip placement='topLeft' title='Pay'>
+              <Button
+                disabled={mutationUpdateInvoiceItem.isLoading}
+                loading={mutationUpdateInvoiceItem.isLoading}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClickPayInvoice(invoiceId);
+                }}
+                type='primary'
+                className='bg-[#1677ff]'
+              >
+                Pay
+              </Button>
+            </Tooltip>
+          </Col>
         ) : null}
       </Row>
     );
@@ -342,7 +339,7 @@ export const useInvoice = () => {
       dataIndex: 'total_price',
       key: 'total_price',
       width: 120,
-      render: (value: number) => dollarFormatter(value.toString()),
+      render: (value: number) => `Rp ${thousandFormatter(value.toString() ?? 0)}`,
     },
     { title: 'PO Number', dataIndex: 'po_number', key: 'po_number', width: 120 },
     {
@@ -358,6 +355,19 @@ export const useInvoice = () => {
       key: 'status',
       width: 120,
       render: (status: string) => status.toUpperCase(),
+    },
+    {
+      title: 'Created At',
+      dataIndex: ['created_at'],
+      key: 'created_at',
+      width: 140,
+      render: (date: number) => {
+        if (!date) {
+          return '-';
+        }
+
+        return format(new Date(fromUnixTime(date)), 'PP');
+      },
     },
     {
       title: 'Actions',

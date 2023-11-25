@@ -2,12 +2,12 @@ import { SearchQuery } from './types';
 
 export type currencyType = 'IDR' | 'USD';
 export interface PoPayload {
-  supplier_name: string;
+  supplier_name?: string;
   supplier_address_id: string;
   currency_type: currencyType;
   exchange_rate: number;
   po_number: string;
-  po_items: PoItems[];
+  po_items?: PoItems[];
 }
 
 export interface PoDetail {
@@ -16,7 +16,7 @@ export interface PoDetail {
     po_items: {
       buy_price: number;
       id: string;
-      item: { id: string; name: string; serial_number: string; supplier_name: string };
+      item: { id: string; name: string; serial_number: string; supplier_name: string; packaging_volume: number };
       lot_number: string;
       quantity: number;
       packaging_type: string;

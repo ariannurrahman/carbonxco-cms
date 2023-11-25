@@ -2,14 +2,19 @@ import { Form, InputNumber, Modal, Select } from 'antd';
 
 import { VIPButton } from 'components/button';
 import { CreateCustomerItemPayload } from 'types/Customer';
-import { Item } from 'types/Item';
 import { dollarFormatter } from 'utils';
 
+interface ItemSelectList {
+  label: string;
+  value: string;
+}
 interface CreateCustomerItemModalProps {
   isOpen: boolean;
   onSubmit: (value: CreateCustomerItemPayload) => void;
   onCancel: () => void;
-  itemDataSource: Item[];
+  itemDataSource: ItemSelectList[];
+  supplierList: any;
+  onChangeSupplier: (supplier: string) => void;
 }
 
 export const CreateCustomerItemModal = ({
@@ -17,14 +22,9 @@ export const CreateCustomerItemModal = ({
   onSubmit,
   onCancel,
   itemDataSource,
+  supplierList,
+  onChangeSupplier,
 }: CreateCustomerItemModalProps) => {
-  const selectItemList = itemDataSource.map((eachItem) => {
-    return {
-      label: eachItem.name,
-      value: eachItem.id,
-    };
-  });
-
   return (
     <Modal width={300} footer={false} title='Add Customer' open={isOpen} onCancel={onCancel}>
       <Form
@@ -36,11 +36,19 @@ export const CreateCustomerItemModal = ({
       >
         <Form.Item
           className='mb-5'
+          label='Supplier Name'
+          name='supplier_name'
+          rules={[{ required: true, message: 'Select supplier!' }]}
+        >
+          <Select options={supplierList ?? []} size='large' onChange={onChangeSupplier} />
+        </Form.Item>
+        <Form.Item
+          className='mb-5'
           label='Item Name'
           name='item_id'
           rules={[{ required: true, message: 'Select item!' }]}
         >
-          <Select options={selectItemList} size='large' />
+          <Select options={itemDataSource} size='large' />
         </Form.Item>
         <Form.Item
           className='mb-5'
