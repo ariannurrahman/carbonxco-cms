@@ -1,10 +1,11 @@
 export const SIDEBAR_NAV = [
-  { href: 'item', label: 'Item' },
-  { href: 'pre-order', label: 'PO Supplier' },
-  { href: 'supplier-address', label: 'Supplier Address' },
-  { href: 'customer', label: 'Customer' },
-  { href: 'stock', label: 'Stock' },
-  { href: 'invoice-po', label: 'PO Pending' },
-  { href: 'order-invoice', label: 'Invoice Order' },
-  { href: 'reports', label: 'Reports' },
+  { href: 'projects', label: 'Projects' },
+  { href: 'news', label: 'News & Insight' },
+  { href: 'teams', label: 'Meet the Team' },
+  { href: 'jobs', label: 'Job Opportunities' },
+  { href: 'faq', label: 'F.A.Q' },
+  { href: 'contacts', label: 'Contact Us Forms' },
+  { href: 'jobs-opp', label: 'Job Opp Forms' },
 ];
+
+export const showSidebarPath = ['create', 'edit'];

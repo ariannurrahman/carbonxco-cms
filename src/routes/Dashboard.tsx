@@ -2,51 +2,23 @@ import { Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { DashboardLayout } from 'layout/DashboardLayout';
-import { Item } from 'pages/dashboard/item';
-import { PreOrder } from 'pages/dashboard/pre-order';
-import { ItemDetail } from 'pages/dashboard/item/item-detail';
-import { CreatePO } from 'pages/dashboard/pre-order/pre-order-edit-create';
-import { Customer } from 'pages/dashboard/customer';
-import { CustomerDetail } from 'pages/dashboard/customer/customer-detail';
-import { Stock } from 'pages/dashboard/stock';
-import { InvoicePO } from 'pages/dashboard/invoice-po';
-import { InvoicePoEditCreate } from 'pages/dashboard/invoice-po/invoice-po-edit-create';
-import { Invoice } from 'pages/dashboard/invoice';
-import { CreateEditInvoice } from 'pages/dashboard/invoice/create-edit-invoice';
-import { Reports } from 'pages/dashboard/reports';
-import { SupplierAddress } from 'pages/dashboard/supplier-address';
+
+import { Projects } from 'pages/dashboard/projects';
+import { ProjectForm } from 'pages/dashboard/projects/project-form';
+
+import { News } from 'pages/dashboard/news';
 
 export const DashboardRoutes = () => {
   return (
     <Suspense fallback={<p>Loading</p>}>
       <Routes>
         <Route path='/' element={<DashboardLayout />}>
-          <Route path='item' element={<Item />} />
-          <Route path='item/:id' element={<ItemDetail />} />
+          <Route path='projects' element={<Projects />} />
+          <Route path='projects/create' element={<ProjectForm />} />
+          <Route path='news' element={<News />} />
 
-          <Route path='pre-order' element={<PreOrder />} />
-          <Route path='pre-order/create' element={<CreatePO />} />
-          <Route path='pre-order/edit/:id' element={<CreatePO />} />
-          <Route path='pre-order/view/:id' element={<CreatePO />} />
-
-          <Route path='customer' element={<Customer />} />
-          <Route path='customer/:id' element={<CustomerDetail />} />
-
-          <Route path='supplier-address' element={<SupplierAddress />} />
-
-          <Route path='stock' element={<Stock />} />
-          <Route path='invoice-po' element={<InvoicePO />} />
-          <Route path='invoice-po/create' element={<InvoicePoEditCreate state='create' />} />
-          <Route path='invoice-po/edit/:id' element={<InvoicePoEditCreate state='edit' />} />
-
-          <Route path='order-invoice' element={<Invoice />} />
-          <Route path='order-invoice/view/:id' element={<CreateEditInvoice state='view' />} />
-          <Route path='order-invoice/edit/:id' element={<CreateEditInvoice state='edit' />} />
-
-          <Route path='reports' element={<Reports />} />
-
-          <Route path='' element={<Navigate to='/dashboard/item' />} />
-          <Route path='*' element={<Navigate to='/dashboard/item' />} />
+          <Route path='' element={<Navigate to='/dashboard/projects' />} />
+          <Route path='*' element={<Navigate to='/dashboard/projects' />} />
         </Route>
       </Routes>
     </Suspense>

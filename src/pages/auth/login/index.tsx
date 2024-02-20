@@ -1,8 +1,10 @@
-import { Card, Form, Input, Row, Typography, message } from 'antd';
-import { VIPButton } from 'components/button';
+import './style.scss';
+
+import { Button, Card, Form, Input, Row, message } from 'antd';
 import { useAuth } from 'hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { LoginPayload } from 'types/Auth';
+import LoginBg from 'assets/bg-login.png';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ export const Login = () => {
 
   const onFinish = (payload: LoginPayload) => {
     login(payload);
-    if (payload.password === 'inventory') {
+    if (payload.password === 'admin' && payload.username === 'admin') {
       navigate('/dashboard/item');
     } else {
       return message.error('Wrong password');
@@ -18,35 +20,45 @@ export const Login = () => {
   };
 
   return (
-    <Card className='p-3 w-[320px]'>
-      <Typography.Title className='text-center mb-3' level={3}>
-        Welcome to VIP
-      </Typography.Title>
-      <Row>
-        <Form
-          name='login-form'
-          layout='vertical'
-          className='w-[300px] mt-3'
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          autoComplete='off'
-          requiredMark={false}
-        >
-          <Form.Item<LoginPayload>
-            label='Password'
-            name='password'
-            rules={[{ required: true, message: 'Please input the password!' }]}
+    <div className='relative w-screen h-screen flex justify-center items-center'>
+      <Card className='bg-transparent p-3 w-[388px] relative z-20 border-none'>
+        <p className='text-center mb-3 text-white text-[32px] font-medium'>Login</p>
+        <Row>
+          <Form
+            name='login-form'
+            layout='vertical'
+            className='w-full mt-3 flex justify-center flex-col items-center'
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete='off'
+            requiredMark={false}
           >
-            <Input.Password size='large' placeholder='Insert password' autoComplete='on' />
-          </Form.Item>
+            <Form.Item<LoginPayload>
+              className='form-input w-full'
+              label='E-mail Address*'
+              name='username'
+              rules={[{ required: true, message: 'Please input the username!' }]}
+            >
+              <Input className='form-input h-16 px-5 text-white' size='large' autoComplete='on' />
+            </Form.Item>
+            <Form.Item<LoginPayload>
+              className='form-input w-full'
+              label='Password*'
+              name='password'
+              rules={[{ required: true, message: 'Please input the password!' }]}
+            >
+              <Input.Password className='form-input h-16 px-5 text-white' size='large' autoComplete='on' />
+            </Form.Item>
 
-          <Form.Item>
-            <VIPButton className='w-full' size='large' type='primary' htmlType='submit'>
-              Submit
-            </VIPButton>
-          </Form.Item>
-        </Form>
-      </Row>
-    </Card>
+            <Form.Item>
+              <Button size='large' className='bg-[#46A7ED] w-[86px] h-10 rounded-[4px] border-none' htmlType='submit'>
+                <p className='text-white hover:text-white'>Login</p>
+              </Button>
+            </Form.Item>
+          </Form>
+        </Row>
+      </Card>
+      <img src={LoginBg} className='absolute top-0 left-0 z-10 object-fill w-full h-full' alt='login' />
+    </div>
   );
 };

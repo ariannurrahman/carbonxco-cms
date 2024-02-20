@@ -1,4 +1,4 @@
-import { Table } from 'antd';
-export const VIPTable = () => {
-  return <Table />;
+import { Table, TableProps } from 'antd';
+export const CarbonxTable = (props: TableProps<any>) => {
+  return <Table {...props} />;
 };

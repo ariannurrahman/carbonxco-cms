@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Layout } from 'antd';
 
 import { Sidebar as VIPSidebar } from 'layout/sidebar';
@@ -9,6 +9,12 @@ import { useDetectScreen } from 'hooks/useDetectScreen';
 const { Header, Content } = Layout;
 
 export function DashboardLayout() {
+  const location = useLocation();
+
+  const isShowSidebar = location.pathname.includes('create') || location.pathname.includes('edit');
+  console.log('isShowSidebar', isShowSidebar);
+  console.log('location.', location.pathname);
+
   const { isMobile } = useDetectScreen();
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
   const onClickSidebar = () => setIsSidebarOpen((prevState) => !prevState);
@@ -33,12 +39,12 @@ export function DashboardLayout() {
 
   return (
     <Layout className='h-screen w-screen max-h-screen min-h-screen md:overflow-hidden'>
-      <Header className='bg-white shadow-lg p-0 h-[80px]'>
+      <Header className='bg-white p-0 h-[80px]'>
         <VIPHeader onClickSidebar={onClickSidebar} />
       </Header>
-      <Layout hasSider className='h-full transition-all'>
-        <VIPSidebar isOpen={isSidebarOpen} />
-        <Content className='p-3 h-screen overflow-scroll max-h-screen'>
+      <Layout hasSider className='h-full transition-all bg-white'>
+        {!isShowSidebar && <VIPSidebar isOpen={isSidebarOpen} />}
+        <Content className='p-3 h-screen overflow-scroll max-h-screen lg:pr-20'>
           <Outlet />
         </Content>
       </Layout>

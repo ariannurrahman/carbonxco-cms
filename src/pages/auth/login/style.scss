@@ -1,0 +1,19 @@
+.form-input {
+  color: white;
+  background-color: transparent !important;
+
+  label {
+    color: white !important;
+  }
+  input {
+    background-color: transparent !important;
+  }
+  svg {
+    color: white !important;
+  }
+  span {
+    input {
+      color: white !important;
+    }
+  }
+}
