@@ -7,6 +7,7 @@ import { Projects } from 'pages/dashboard/projects';
 import { ProjectForm } from 'pages/dashboard/projects/project-form';
 
 import { News } from 'pages/dashboard/news';
+import { NewsForm } from 'pages/dashboard/news/news-form';
 
 export const DashboardRoutes = () => {
   return (
@@ -15,7 +16,9 @@ export const DashboardRoutes = () => {
         <Route path='/' element={<DashboardLayout />}>
           <Route path='projects' element={<Projects />} />
           <Route path='projects/create' element={<ProjectForm />} />
+
           <Route path='news' element={<News />} />
+          <Route path='news/create' element={<NewsForm />} />
 
           <Route path='' element={<Navigate to='/dashboard/projects' />} />
           <Route path='*' element={<Navigate to='/dashboard/projects' />} />

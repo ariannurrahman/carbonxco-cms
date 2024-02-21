@@ -1,13 +1,13 @@
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Upload, UploadFile, UploadProps } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Upload, UploadFile, UploadProps } from 'antd';
 import { SGD, status } from '../constants';
+import { CarbonxUploadButton } from 'components/upload-button';
 
 interface ProjectFormData {
   title: string;
   summary: string;
-  featureImage: FileList;
+  featuredImage: FileList;
   sgd: string[];
   projectStarted: string;
   location: string;
@@ -40,6 +40,7 @@ export const ProjectForm = () => {
 
     setLoading(false);
   };
+
   const handleChangeProjectMap: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
@@ -49,6 +50,7 @@ export const ProjectForm = () => {
 
     setLoading(false);
   };
+
   const handleChangeGallery: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
@@ -57,11 +59,10 @@ export const ProjectForm = () => {
 
     setLoading(false);
   };
-  const uploadButton = (
-    <button className='border-solid bg-white' type='button'>
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-    </button>
-  );
+
+  const onClickBack = () => {
+    navigate(-1);
+  };
 
   const onFinish = () => {
     const data = form.getFieldsValue();
@@ -70,7 +71,7 @@ export const ProjectForm = () => {
 
   return (
     <div className='lg:pl-20 pb-40'>
-      <Button onClick={() => navigate(-1)} type='text'>
+      <Button className='mt-5' onClick={onClickBack} type='text'>
         <p className='underline text-[#46A7ED] text-[14px]'>Back to Project List</p>
       </Button>
       <Form
@@ -110,19 +111,19 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Featured Image'
-          name='featureImage'
+          name='featuredImage'
           rules={[{ required: true, message: 'Feature Image is required!' }]}
         >
           <Upload
-            name='featureImage'
+            name='featuredImage'
             listType='picture-card'
             className='border-solid bg-white'
             showUploadList
             fileList={featureImage}
-            // beforeUpload={() => false}
+            beforeUpload={() => false}
             onChange={handleChangeFeatureImage}
           >
-            {featureImage.length ? null : uploadButton}
+            {featureImage.length ? null : <CarbonxUploadButton loading={loading} />}
           </Upload>
         </Form.Item>
 
@@ -223,10 +224,10 @@ export const ProjectForm = () => {
             className='border-solid bg-white'
             showUploadList
             fileList={projectImage}
-            // beforeUpload={() => false}
+            beforeUpload={() => false}
             onChange={handleChangeProjectMap}
           >
-            {projectImage.length ? null : uploadButton}
+            {projectImage.length ? null : <CarbonxUploadButton loading={loading} />}
           </Upload>
         </Form.Item>
 
@@ -262,16 +263,16 @@ export const ProjectForm = () => {
             beforeUpload={() => false}
             onChange={handleChangeGallery}
           >
-            {uploadButton}
+            <CarbonxUploadButton loading={loading} />
           </Upload>
         </Form.Item>
 
         <Divider />
 
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+        <Form.Item wrapperCol={{ offset: 2, span: 16 }}>
           <Row justify='end' align='middle' gutter={[12, 0]}>
             <Col>
-              <Button className='h-10' type='text' htmlType='submit'>
+              <Button onClick={onClickBack} className='h-10' type='text' htmlType='submit'>
                 <p className='underline text-[#46A7ED] text-[14px]'>Discards</p>
               </Button>
             </Col>

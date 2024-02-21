@@ -124,7 +124,7 @@ export const Projects = () => {
               <img src={Plus} alt='plus' />
             </Col>
             <Col>
-              <p className='text-[14px] underline'>New Article</p>
+              <p className='text-[14px] underline'>New Project</p>
             </Col>
           </Row>
         }
