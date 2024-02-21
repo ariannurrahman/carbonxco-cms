@@ -129,6 +129,7 @@ export const Projects = () => {
           </Row>
         }
       />
+
       <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
     </div>
   );

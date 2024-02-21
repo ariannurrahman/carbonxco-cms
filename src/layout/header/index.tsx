@@ -14,7 +14,12 @@ export const Header = ({ onClickSidebar }: HeaderProps) => {
 
   return (
     <header className='flex justify-between items-center h-full w-full px-5 lg:px-20 pt-10 pb-5 border-b-2'>
-      <img src={CarbonxcoLogo} alt='carbonxco' onClick={() => navigate('/dashboard/projects')} />
+      <img
+        src={CarbonxcoLogo}
+        className='cursor-pointer'
+        alt='carbonxco'
+        onClick={() => navigate('/dashboard/projects')}
+      />
       <Button onClick={logout} type='text'>
         <p className='underline text-[#46A7ED]'>Log Out</p>
       </Button>
