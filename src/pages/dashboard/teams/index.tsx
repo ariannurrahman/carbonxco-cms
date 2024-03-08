@@ -4,7 +4,11 @@ import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
 import Plus from 'assets/plus.svg';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useTeams } from './useTeams';
+import { useMemo } from 'react';
+import { formatDate } from 'utils';
+import { Team } from './types';
 
 interface DataType {
   key: React.Key;
@@ -16,6 +20,7 @@ interface DataType {
 
 export const Teams = () => {
   const navigate = useNavigate();
+  const { isLoadingTeams, onTableChange, teams } = useTeams();
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -61,11 +66,14 @@ export const Teams = () => {
 
     {
       title: <Input placeholder='Search' />,
-      render: () => {
+      dataIndex: 'key',
+      render: (id: string) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              <Link to={`${id}/edit`}>
+                <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              </Link>
             </Button>
             <Button type='text'>
               <img src={Trash} alt='delete' />
@@ -76,22 +84,16 @@ export const Teams = () => {
     },
   ];
 
-  const data = [
-    {
-      key: 1,
-      team: 'Team-1',
-      last_edit: '10-01-24',
-      published: '20-02-24',
-      category: 'News',
-    },
-    {
-      key: 2,
-      team: 'Team-2',
-      last_edit: '15-01-24',
-      published: '25-02-24',
-      category: 'Insight',
-    },
-  ];
+  const dataSource: DataType[] = useMemo(() => {
+    return teams?.data.data.map((eachTeam: Team) => {
+      return {
+        key: eachTeam?.id ?? '-',
+        last_edit: formatDate(eachTeam?.updatedAt),
+        published: formatDate(eachTeam?.createdAt),
+        team: eachTeam?.name ?? '-',
+      };
+    });
+  }, [teams]);
 
   return (
     <div className='h-[1000px]'>
@@ -115,7 +117,23 @@ export const Teams = () => {
         }
       />
 
-      <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
+      <CarbonxTable
+        columns={columns}
+        dataSource={dataSource}
+        footer={() => (
+          <p className='text-[#8D8D8D] text-[12px] font-semibold'>
+            Showing {dataSource?.length} / {teams?.data?.count}
+          </p>
+        )}
+        loading={isLoadingTeams}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 15,
+          pageSize: 15,
+          total: teams?.data.count,
+        }}
+        scroll={{ x: 1024 }}
+      />
     </div>
   );
 };

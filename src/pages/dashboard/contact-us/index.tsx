@@ -4,6 +4,9 @@ import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
 import Plus from 'assets/plus.svg';
+import { useContactUs } from './useContactUs';
+import { useMemo } from 'react';
+import { formatDate } from 'utils';
 
 interface DataType {
   date: string;
@@ -13,6 +16,18 @@ interface DataType {
 }
 
 export const ContactUs = () => {
+  const { contactUs, isLoadingContactUs, onTableChange } = useContactUs();
+
+  const dataSource: DataType[] = useMemo(() => {
+    return contactUs?.data.data.map((eachContactUs: any) => {
+      return {
+        key: eachContactUs?.id ?? '-',
+        last_edit: formatDate(eachContactUs?.updatedAt),
+        published: formatDate(eachContactUs?.createdAt),
+      };
+    });
+  }, [contactUs]);
+
   const columns: TableColumnType<DataType>[] = [
     {
       title: 'Date',
@@ -87,22 +102,6 @@ export const ContactUs = () => {
     },
   ];
 
-  const data = [
-    {
-      date: '01 Jan 2024',
-      subject: 'Collaboration',
-      senderEmail: 'someone@gmail.com',
-      phoneNumber: '0123456789',
-      key: 1,
-    },
-    {
-      date: '01 Jan 2024',
-      subject: 'Collaboration',
-      senderEmail: 'someone@gmail.com',
-      phoneNumber: '0123456789',
-      key: 2,
-    },
-  ];
   return (
     <div className='h-[1000px]'>
       <PageTitle
@@ -119,7 +118,23 @@ export const ContactUs = () => {
         }
       />
 
-      <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
+      <CarbonxTable
+        columns={columns}
+        dataSource={dataSource}
+        footer={() => (
+          <p className='text-[#8D8D8D] text-[12px] font-semibold'>
+            Showing {dataSource?.length} / {contactUs?.data?.count}
+          </p>
+        )}
+        loading={isLoadingContactUs}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 15,
+          pageSize: 15,
+          total: contactUs?.data.count,
+        }}
+        scroll={{ x: 1024 }}
+      />
     </div>
   );
 };

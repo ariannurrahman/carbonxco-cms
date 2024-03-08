@@ -4,7 +4,11 @@ import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
 import Plus from 'assets/plus.svg';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useNews } from './useNews';
+import { useMemo } from 'react';
+import { News } from './types';
+import { formatDate } from 'utils';
 
 interface DataType {
   key: React.Key;
@@ -14,8 +18,10 @@ interface DataType {
   category: string;
 }
 
-export const News = () => {
+export const NewsPage = () => {
   const navigate = useNavigate();
+
+  const { isLoadingNews, news, onTableChange } = useNews();
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -73,11 +79,14 @@ export const News = () => {
     },
     {
       title: <Input placeholder='Search' />,
-      render: () => {
+      dataIndex: 'key',
+      render: (id: string) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              <Link to={`${id}/edit`}>
+                <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              </Link>
             </Button>
             <Button type='text'>
               <img src={Trash} alt='delete' />
@@ -88,22 +97,17 @@ export const News = () => {
     },
   ];
 
-  const data = [
-    {
-      key: 1,
-      article: 'Article-1',
-      last_edit: '10-01-24',
-      published: '20-02-24',
-      category: 'News',
-    },
-    {
-      key: 2,
-      article: 'Article-2',
-      last_edit: '15-01-24',
-      published: '25-02-24',
-      category: 'Insight',
-    },
-  ];
+  const dataSource: DataType[] = useMemo(() => {
+    return news?.data.data.map((eachNews: News) => {
+      return {
+        article: eachNews?.title ?? '-',
+        category: eachNews?.category ?? '-',
+        key: eachNews?.id ?? '-',
+        last_edit: formatDate(eachNews?.updatedAt),
+        published: formatDate(eachNews?.createdAt),
+      };
+    });
+  }, [news]);
 
   return (
     <div className='h-[1000px]'>
@@ -127,7 +131,23 @@ export const News = () => {
         }
       />
 
-      <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
+      <CarbonxTable
+        columns={columns}
+        dataSource={dataSource}
+        footer={() => (
+          <p className='text-[#8D8D8D] text-[12px] font-semibold'>
+            Showing {dataSource?.length} / {news?.data?.count}
+          </p>
+        )}
+        loading={isLoadingNews}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 15,
+          pageSize: 15,
+          total: news?.data.count,
+        }}
+        scroll={{ x: 1024 }}
+      />
     </div>
   );
 };

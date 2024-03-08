@@ -4,7 +4,11 @@ import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
 import Plus from 'assets/plus.svg';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useFaqs } from './useFaqs';
+import { formatDate } from 'utils';
+import { useMemo } from 'react';
+import { Faq } from './types';
 
 interface DataType {
   key: React.Key;
@@ -13,8 +17,20 @@ interface DataType {
   published: string;
 }
 
-export const Faq = () => {
+export const FaqPage = () => {
   const navigate = useNavigate();
+  const { faqs, isLoadingFaqs, onTableChange } = useFaqs();
+
+  const dataSource: DataType[] = useMemo(() => {
+    return faqs?.data.data.map((eachFaq: Faq) => {
+      return {
+        key: eachFaq?.id ?? '-',
+        last_edit: formatDate(eachFaq?.updatedAt),
+        published: formatDate(eachFaq?.createdAt),
+        question: eachFaq.question,
+      };
+    });
+  }, [faqs]);
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -59,11 +75,14 @@ export const Faq = () => {
     },
     {
       title: <Input placeholder='Search' />,
-      render: () => {
+      dataIndex: 'key',
+      render: (id: string) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              <Link to={`${id}/edit`}>
+                <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              </Link>
             </Button>
             <Button type='text'>
               <img src={Trash} alt='delete' />
@@ -71,21 +90,6 @@ export const Faq = () => {
           </Row>
         );
       },
-    },
-  ];
-
-  const data = [
-    {
-      key: 1,
-      question: 'What is carbonx?',
-      last_edit: '10-01-24',
-      published: '20-02-24',
-    },
-    {
-      key: 2,
-      question: 'Why carbonx?',
-      last_edit: '15-01-24',
-      published: '25-02-24',
     },
   ];
 
@@ -111,7 +115,23 @@ export const Faq = () => {
         }
       />
 
-      <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
+      <CarbonxTable
+        columns={columns}
+        dataSource={dataSource}
+        footer={() => (
+          <p className='text-[#8D8D8D] text-[12px] font-semibold'>
+            Showing {dataSource?.length} / {faqs?.data?.count}
+          </p>
+        )}
+        loading={isLoadingFaqs}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 15,
+          pageSize: 15,
+          total: faqs?.data.count,
+        }}
+        scroll={{ x: 1024 }}
+      />
     </div>
   );
 };

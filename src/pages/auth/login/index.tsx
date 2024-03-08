@@ -1,22 +1,15 @@
 import './style.scss';
 
-import { Button, Card, Form, Input, Row, message } from 'antd';
+import { Button, Card, Form, Input, Row } from 'antd';
 import { useAuth } from 'hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { LoginPayload } from 'types/Auth';
 import LoginBg from 'assets/bg-login.png';
 
 export const Login = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const onFinish = (payload: LoginPayload) => {
-    login(payload);
-    if (payload.password === 'admin' && payload.username === 'admin') {
-      navigate('/dashboard/item');
-    } else {
-      return message.error('Wrong password');
-    }
+    login.mutateAsync(payload);
   };
 
   return (
@@ -36,8 +29,8 @@ export const Login = () => {
             <Form.Item<LoginPayload>
               className='form-input w-full'
               label='E-mail Address*'
-              name='username'
-              rules={[{ required: true, message: 'Please input the username!' }]}
+              name='email'
+              rules={[{ required: true, message: 'Please input the email!' }]}
             >
               <Input className='form-input h-16 px-5 text-white' size='large' autoComplete='on' />
             </Form.Item>

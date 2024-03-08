@@ -1,24 +1,34 @@
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { useLocalStorage } from './useLocalStorage';
 import { LoginPayload } from 'types/Auth';
+import { login } from 'api/auth';
 
 export const useAuth = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { setItem } = useLocalStorage();
 
-  // eslint-disable-next-line
-  const login = async (payload: LoginPayload) => {
-    console.log('login payload', payload);
-    const MOCK_RESPONSE = {
-      id: 'id',
-      name: 'my name',
-      authToken: 'MY JWT TOKEN',
-    };
-    setItem('accessToken', MOCK_RESPONSE.authToken);
-  };
-
+  const mutationLogin = useMutation({
+    mutationKey: ['login'],
+    mutationFn: (payload: LoginPayload) => {
+      return login(payload);
+    },
+    onSuccess: (res) => {
+      const accessToken = res.data.access_token
+      setItem('accessToken', accessToken);
+      queryClient.invalidateQueries(['login']);
+      navigate('/dashboard/projects');
+    },
+    onError: (err: any) => {
+      console.log('err', err)
+    }
+  });
   const logout = () => {
     localStorage.clear();
     window.location.reload();
   };
 
-  return { login, logout };
+  return { login: mutationLogin, logout };
 };

@@ -1,8 +1,12 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://6e50-43-218-223-109.ngrok-free.app';
-const VERSIONING = '/api/v1';
+const BASE_URL = 'http://13.229.127.73';
+const VERSIONING = '/v1/c';
 const API_URL = BASE_URL + VERSIONING;
+
+const access_token = localStorage.getItem('accessToken');
+
+axios.defaults.headers.common['Authorization'] = `Bearer ${access_token || ''}`;
 const createAPI = (baseURL = API_URL, config = {}) => {
   const axiosInstance = axios.create({
     baseURL,
@@ -10,7 +14,6 @@ const createAPI = (baseURL = API_URL, config = {}) => {
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': true,
     },
     ...config,
   });
@@ -18,6 +21,6 @@ const createAPI = (baseURL = API_URL, config = {}) => {
   return axiosInstance;
 };
 
-const VIPApi = createAPI();
+const CarbonxApi = createAPI();
 
-export default VIPApi;
+export { CarbonxApi };

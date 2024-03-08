@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Button, Col, Input, Row, TableColumnType } from 'antd';
 
@@ -6,7 +6,10 @@ import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
 import Plus from 'assets/plus.svg';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useProjects } from './useProjects';
+import { Project } from './types';
+import { formatDate } from 'utils';
 
 interface DataType {
   key: React.Key;
@@ -18,6 +21,20 @@ interface DataType {
 
 export const Projects = () => {
   const navigate = useNavigate();
+
+  const { isLoadingProjects, projects, onTableChange } = useProjects();
+
+  const dataSource: DataType[] = useMemo(() => {
+    return projects?.data.data.map((eachProject: Project) => {
+      return {
+        key: eachProject?.id ?? '-',
+        last_edit: formatDate(eachProject?.updatedAt),
+        project_stage: eachProject?.status ?? '-',
+        published: formatDate(eachProject?.createdAt),
+        title: eachProject?.title ?? '-',
+      };
+    });
+  }, [projects]);
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -75,11 +92,14 @@ export const Projects = () => {
     },
     {
       title: <Input placeholder='Search' />,
-      render: () => {
+      dataIndex: 'key',
+      render: (id: string) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              <Link to={`${id}/edit`}>
+                <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
+              </Link>
             </Button>
             <Button type='text'>
               <img src={Trash} alt='delete' />
@@ -87,24 +107,6 @@ export const Projects = () => {
           </Row>
         );
       },
-    },
-  ];
-
-  const data = [
-    {
-      key: 1,
-      title: 'Sanggala Corridor Project',
-      last_edit: '10-01-24',
-      published: '20-02-24',
-      project_stage: 'implementation',
-    },
-    {
-      key: 2,
-      title:
-        'Kalau artikelnya panjang jadi gini aja, Kalau artikelnya panjang jadi gini aja, Kalau artikelnya panjang jadi gini aja',
-      last_edit: '15-01-24',
-      published: '25-02-24',
-      project_stage: 'ideation',
     },
   ];
 
@@ -130,7 +132,23 @@ export const Projects = () => {
         }
       />
 
-      <CarbonxTable scroll={{ x: 1024 }} columns={columns} dataSource={data} />
+      <CarbonxTable
+        columns={columns}
+        dataSource={dataSource}
+        footer={() => (
+          <p className='text-[#8D8D8D] text-[12px] font-semibold'>
+            Showing {dataSource?.length} / {projects?.data?.count}
+          </p>
+        )}
+        loading={isLoadingProjects}
+        onChange={onTableChange}
+        pagination={{
+          defaultPageSize: 15,
+          pageSize: 15,
+          total: projects?.data.count,
+        }}
+        scroll={{ x: 1024 }}
+      />
     </div>
   );
 };
