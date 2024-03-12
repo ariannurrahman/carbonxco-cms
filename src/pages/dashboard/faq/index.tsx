@@ -19,7 +19,7 @@ interface DataType {
 
 export const FaqPage = () => {
   const navigate = useNavigate();
-  const { faqs, isLoadingFaqs, onTableChange } = useFaqs();
+  const { faqs, isLoadingFaqs, onTableChange, deleteFaqMutation } = useFaqs({});
 
   const dataSource: DataType[] = useMemo(() => {
     return faqs?.data.data.map((eachFaq: Faq) => {
@@ -84,7 +84,7 @@ export const FaqPage = () => {
                 <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
               </Link>
             </Button>
-            <Button type='text'>
+            <Button type='text' onClick={() => deleteFaqMutation.mutate(id)}>
               <img src={Trash} alt='delete' />
             </Button>
           </Row>

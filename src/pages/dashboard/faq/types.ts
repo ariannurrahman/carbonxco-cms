@@ -6,3 +6,8 @@ export interface Faq {
   question: string;
   updatedAt: string;
 }
+
+export interface FaqPayload {
+  question: string;
+  answer: string;
+}

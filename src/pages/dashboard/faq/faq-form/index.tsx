@@ -1,6 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Col, Form, Input, Row } from 'antd';
+
+import { useFaqs } from '../useFaqs';
+import { currentAction } from 'utils';
 
 interface FaqDataType {
   question: string;
@@ -9,7 +12,18 @@ interface FaqDataType {
 
 export const FaqForm = () => {
   const navigate = useNavigate();
+  const { id = '' } = useParams();
   const [form] = Form.useForm();
+
+  const action = currentAction(id);
+  console.log('action', action);
+
+  const { createFaqMutation, isLoadingFaqsDetail, faqsDetail, updateFaqMutation } = useFaqs({ id, action });
+
+  useEffect(() => {
+    if (action === 'create' || !id) return;
+    form.setFieldsValue(faqsDetail?.data);
+  }, [action, form, faqsDetail, id]);
 
   const onClickBack = () => {
     navigate(-1);
@@ -17,7 +31,11 @@ export const FaqForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('form', data);
+    if (action === 'edit') {
+      updateFaqMutation.mutate({ id, payload: data });
+    } else {
+      createFaqMutation.mutate(data);
+    }
   };
   return (
     <div className='lg:pl-20 pb-40'>
@@ -42,14 +60,14 @@ export const FaqForm = () => {
           name='question'
           rules={[{ required: true, message: 'Question is required!' }]}
         >
-          <Input />
+          <Input disabled={isLoadingFaqsDetail && action !== 'create'} />
         </Form.Item>
         <Form.Item<FaqDataType>
           label='Answer'
           name='answer'
           rules={[{ required: true, message: 'Answer is required!' }]}
         >
-          <Input.TextArea rows={8} />
+          <Input.TextArea disabled={isLoadingFaqsDetail && action !== 'create'} rows={8} />
         </Form.Item>
 
         <Form.Item wrapperCol={{ span: 16, offset: 2 }}>
@@ -60,7 +78,13 @@ export const FaqForm = () => {
               </Button>
             </Col>
             <Col>
-              <Button type='primary' htmlType='submit' className='bg-[#46A7ED] h-10'>
+              <Button
+                disabled={createFaqMutation.isLoading}
+                loading={createFaqMutation.isLoading}
+                type='primary'
+                htmlType='submit'
+                className='bg-[#46A7ED] h-10'
+              >
                 <p className='text-base text-white'>Save Changes</p>
               </Button>
             </Col>

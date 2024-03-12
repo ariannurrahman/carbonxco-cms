@@ -10,3 +10,5 @@ export interface QueryParams {
   };
   query: SearchQuery;
 }
+
+export type ActionType = 'create' | 'edit';

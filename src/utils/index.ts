@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { ActionType } from 'types/types';
 
 export const numberFormatter = (value: string) => {
   if (!value) return '';
@@ -22,4 +23,11 @@ export const capitalizeFirstLetter = (str: string) => {
 export const formatDate = (dateStr: string | null | undefined) => {
   if (!dateStr) return '-';
   return dayjs(dateStr).format('DD-MM-YYYY');
+};
+
+export const currentAction = (id: string | undefined): ActionType => {
+  if (id) {
+    return 'edit';
+  }
+  return 'create';
 };
