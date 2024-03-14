@@ -16,7 +16,6 @@ export const FaqForm = () => {
   const [form] = Form.useForm();
 
   const action = currentAction(id);
-  console.log('action', action);
 
   const { createFaqMutation, isLoadingFaqsDetail, faqsDetail, updateFaqMutation } = useFaqs({ id, action });
 

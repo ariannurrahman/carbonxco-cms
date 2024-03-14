@@ -1,18 +1,30 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button, Col, Divider, Form, Input, Row } from 'antd';
+import { useJobs } from '../useJobs';
+import { currentAction } from 'utils';
+import { useEffect } from 'react';
 
 interface OpportunityFormData {
   title: string;
   type: string;
   location: string;
-  requirements: string;
-  qualifications: string;
+  requirement: string[];
+  qualification: string[];
 }
 
 export const OpportunityForm = () => {
   const navigate = useNavigate();
+  const { id = '' } = useParams();
+  const action = currentAction(id);
   const [form] = Form.useForm();
+
+  const { createJobMutation, jobDetail, isLoadingJobDetail, updateJobMutation } = useJobs({ id, action });
+
+  useEffect(() => {
+    if (action === 'create' || !id) return;
+    form.setFieldsValue(jobDetail?.data);
+  }, [action, form, jobDetail, id]);
 
   const onClickBack = () => {
     navigate(-1);
@@ -20,7 +32,12 @@ export const OpportunityForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('form', data);
+    console.log('data', data);
+    if (action === 'edit') {
+      updateJobMutation.mutate({ id, payload: data });
+    } else {
+      createJobMutation.mutate(data);
+    }
   };
   return (
     <div className='lg:pl-20 pb-40'>
@@ -39,6 +56,7 @@ export const OpportunityForm = () => {
         onFinish={onFinish}
         autoComplete='off'
         requiredMark={false}
+        disabled={isLoadingJobDetail && action !== 'create'}
       >
         <Form.Item<OpportunityFormData>
           label='Job Title'
@@ -64,21 +82,77 @@ export const OpportunityForm = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item<OpportunityFormData>
-          label='Body'
-          name='requirements'
-          rules={[{ required: true, message: 'Requirements is required!' }]}
-        >
-          <Input.TextArea rows={8} />
-        </Form.Item>
+        <Form.List name='requirement' initialValue={jobDetail?.data.requirement ?? ['']}>
+          {(fields, { add, remove }) => {
+            return (
+              <div>
+                {fields.map((field, index) => {
+                  return (
+                    <div key={field.key}>
+                      <Form.Item
+                        {...field}
+                        label={index === 0 ? 'Requirements' : ' '}
+                        rules={[{ required: true, message: 'Requirements is required!' }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                      <Row className='w-full mb-5' gutter={[12, 0]}>
+                        {index === 0 && (
+                          <Col offset={6}>
+                            <Button onClick={() => add()}>+</Button>
+                          </Col>
+                        )}
+                        {index !== 0 && (
+                          <Col offset={6}>
+                            <Button danger onClick={() => remove(index)}>
+                              -
+                            </Button>
+                          </Col>
+                        )}
+                      </Row>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }}
+        </Form.List>
 
-        <Form.Item<OpportunityFormData>
-          label='Body'
-          name='qualifications'
-          rules={[{ required: true, message: 'Qualifications is required!' }]}
-        >
-          <Input.TextArea rows={8} />
-        </Form.Item>
+        <Form.List name='qualification' initialValue={jobDetail?.data.qualification ?? ['']}>
+          {(fields, { add, remove }) => {
+            return (
+              <div>
+                {fields.map((field, index) => {
+                  return (
+                    <div key={field.key}>
+                      <Form.Item
+                        {...field}
+                        label={index === 0 ? 'Qualifications, Skills & Experiences' : ' '}
+                        rules={[{ required: true, message: 'Qualifications, Skills & Experiences is required!' }]}
+                      >
+                        <Input />
+                      </Form.Item>
+                      <Row className='w-full mb-5' gutter={[12, 0]}>
+                        {index === 0 && (
+                          <Col offset={6}>
+                            <Button onClick={() => add()}>+</Button>
+                          </Col>
+                        )}
+                        {index !== 0 && (
+                          <Col offset={6}>
+                            <Button danger onClick={() => remove(index)}>
+                              -
+                            </Button>
+                          </Col>
+                        )}
+                      </Row>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }}
+        </Form.List>
 
         <Divider />
 

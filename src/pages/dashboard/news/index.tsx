@@ -21,7 +21,7 @@ interface DataType {
 export const NewsPage = () => {
   const navigate = useNavigate();
 
-  const { isLoadingNews, news, onTableChange } = useNews();
+  const { isLoadingNews, news, onTableChange, deleteNewsMutation } = useNews({});
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -88,7 +88,7 @@ export const NewsPage = () => {
                 <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
               </Link>
             </Button>
-            <Button type='text'>
+            <Button type='text' onClick={() => deleteNewsMutation.mutate(id)}>
               <img src={Trash} alt='delete' />
             </Button>
           </Row>

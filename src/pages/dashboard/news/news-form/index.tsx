@@ -1,24 +1,37 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Button, Col, Divider, Form, Input, Row, Upload, UploadFile, UploadProps } from 'antd';
+import { Button, Col, Divider, Form, Input, Row, Select, Upload, UploadFile, UploadProps } from 'antd';
 
 import { CarbonxUploadButton } from 'components/upload-button';
+import { currentAction } from 'utils';
+import { useNews } from '../useNews';
 
 interface NewsFormData {
   title: string;
-  summary: string;
-  category: string[];
+  meta_title: string;
+  meta_description: string;
+  project_summary: string;
+  category: string;
   featuredImage: File;
-  body: string;
+  content: string;
 }
 
 export const NewsForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const { id = '' } = useParams();
+  const action = currentAction(id);
+
+  const { createNewsMutation, isLoadingNewsDetail, newsDetail, updateNewsMutation } = useNews({ id, action });
 
   const [loading, setLoading] = useState(false);
   const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
+
+  useEffect(() => {
+    if (action === 'create' || !id) return;
+    form.setFieldsValue(newsDetail?.data);
+  }, [action, form, newsDetail, id]);
 
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
     setLoading(true);
@@ -36,7 +49,11 @@ export const NewsForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('form', data);
+    if (action === 'edit') {
+      updateNewsMutation.mutate({ id, payload: data });
+    } else {
+      createNewsMutation.mutate(data);
+    }
   };
   return (
     <div className='lg:pl-20 pb-40'>
@@ -52,7 +69,7 @@ export const NewsForm = () => {
         labelWrap
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 12 }}
-        // style={{ maxWidth: 600 }}
+        disabled={isLoadingNewsDetail && action !== 'create'}
         onFinish={onFinish}
         autoComplete='off'
         requiredMark={false}
@@ -64,6 +81,20 @@ export const NewsForm = () => {
         >
           <Input />
         </Form.Item>
+        <Form.Item<NewsFormData>
+          label='Meta Title'
+          name='meta_title'
+          rules={[{ required: true, message: 'Meta title is required!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item<NewsFormData>
+          label='Meta Description'
+          name='meta_description'
+          rules={[{ required: true, message: 'Meta description is required!' }]}
+        >
+          <Input />
+        </Form.Item>
 
         <Form.Item<NewsFormData>
           label={
@@ -72,10 +103,22 @@ export const NewsForm = () => {
               <p className='text-[#8D8D8D]'>Max. 150 char.</p>
             </div>
           }
-          name='summary'
-          rules={[{ required: true, message: 'Summary is required!' }]}
+          name='project_summary'
+          rules={[{ required: true, message: 'Project summary is required!' }]}
         >
           <Input.TextArea rows={4} />
+        </Form.Item>
+
+        <Form.Item<NewsFormData>
+          label='Category'
+          name='category'
+          rules={[{ required: true, message: 'Category is required!' }]}
+        >
+          <Select>
+            <Select.Option value='news'>News</Select.Option>
+            <Select.Option value='insight'>Insight</Select.Option>
+            <Select.Option value='all_about_carbon'>All About Carbon</Select.Option>
+          </Select>
         </Form.Item>
 
         <Form.Item<NewsFormData>
@@ -98,7 +141,7 @@ export const NewsForm = () => {
 
         <Divider />
 
-        <Form.Item<NewsFormData> label='Body' name='body' rules={[{ required: true, message: 'Body is required!' }]}>
+        <Form.Item<NewsFormData> label='Body' name='content' rules={[{ required: true, message: 'Body is required!' }]}>
           <Input.TextArea rows={8} />
         </Form.Item>
 

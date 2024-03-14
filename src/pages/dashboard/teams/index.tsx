@@ -20,7 +20,7 @@ interface DataType {
 
 export const Teams = () => {
   const navigate = useNavigate();
-  const { isLoadingTeams, onTableChange, teams } = useTeams();
+  const { isLoadingTeams, onTableChange, teams, deleteTeamMutation } = useTeams({});
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -75,7 +75,7 @@ export const Teams = () => {
                 <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
               </Link>
             </Button>
-            <Button type='text'>
+            <Button onClick={() => deleteTeamMutation.mutate(id)} type='text'>
               <img src={Trash} alt='delete' />
             </Button>
           </Row>

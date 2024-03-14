@@ -22,7 +22,7 @@ interface DataType {
 export const Projects = () => {
   const navigate = useNavigate();
 
-  const { isLoadingProjects, projects, onTableChange } = useProjects();
+  const { isLoadingProjects, projects, onTableChange, deleteProjectMutation } = useProjects({});
 
   const dataSource: DataType[] = useMemo(() => {
     return projects?.data.data.map((eachProject: Project) => {
@@ -101,7 +101,7 @@ export const Projects = () => {
                 <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
               </Link>
             </Button>
-            <Button type='text'>
+            <Button type='text' onClick={() => deleteProjectMutation.mutate(id)}>
               <img src={Trash} alt='delete' />
             </Button>
           </Row>

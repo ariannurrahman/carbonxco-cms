@@ -1,24 +1,34 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Button, Col, Divider, Form, Input, Row, Upload, UploadFile, UploadProps } from 'antd';
+import { Button, Col, Form, Input, Row, Upload, UploadFile, UploadProps } from 'antd';
 
 import { CarbonxUploadButton } from 'components/upload-button';
+import { useTeams } from '../useTeams';
+import { currentAction } from 'utils';
 
-interface NewsFormData {
-  title: string;
-  summary: string;
-  category: string[];
-  featuredImage: File;
-  body: string;
+interface TeamFormData {
+  image: File;
+  name: string;
+  position: string;
+  description: string;
+  link: File;
 }
 
 export const TeamsForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-
+  const { id = '' } = useParams();
+  const action = currentAction(id);
   const [loading, setLoading] = useState(false);
   const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
+
+  const { createTeamMutation, isLoadingTeamDetail, teamDetail, updateTeamMutation } = useTeams({ id, action });
+
+  useEffect(() => {
+    if (action === 'create' || !id) return;
+    form.setFieldsValue(teamDetail?.data);
+  }, [action, form, teamDetail, id]);
 
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
     setLoading(true);
@@ -36,7 +46,11 @@ export const TeamsForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('form', data);
+    if (action === 'edit') {
+      updateTeamMutation.mutate({ id, payload: data });
+    } else {
+      createTeamMutation.mutate(data);
+    }
   };
   return (
     <div className='lg:pl-20 pb-40'>
@@ -55,35 +69,15 @@ export const TeamsForm = () => {
         onFinish={onFinish}
         autoComplete='off'
         requiredMark={false}
+        disabled={isLoadingTeamDetail && action !== 'create'}
       >
-        <Form.Item<NewsFormData>
-          label='Project Title'
-          name='title'
-          rules={[{ required: true, message: 'Title is required!' }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item<NewsFormData>
-          label={
-            <div className='flex flex-col'>
-              <p>Project Summary</p>
-              <p className='text-[#8D8D8D]'>Max. 150 char.</p>
-            </div>
-          }
-          name='summary'
-          rules={[{ required: true, message: 'Summary is required!' }]}
-        >
-          <Input.TextArea rows={4} />
-        </Form.Item>
-
-        <Form.Item<NewsFormData>
+        <Form.Item<TeamFormData>
           label='Featured Image'
-          name='featuredImage'
-          rules={[{ required: true, message: 'Feature Image is required!' }]}
+          name='image'
+          rules={[{ required: true, message: 'Image is required!' }]}
         >
           <Upload
-            name='featuredImage'
+            name='image'
             listType='picture-card'
             className='border-solid bg-white'
             showUploadList
@@ -95,13 +89,25 @@ export const TeamsForm = () => {
           </Upload>
         </Form.Item>
 
-        <Divider />
-
-        <Form.Item<NewsFormData> label='Body' name='body' rules={[{ required: true, message: 'Body is required!' }]}>
-          <Input.TextArea rows={8} />
+        <Form.Item<TeamFormData> label='Nama' name='name' rules={[{ required: true, message: 'Name is required!' }]}>
+          <Input />
         </Form.Item>
 
-        <Divider />
+        <Form.Item<TeamFormData>
+          label='Jabatan'
+          name='position'
+          rules={[{ required: true, message: 'Jabatan is required!' }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<TeamFormData>
+          label='Deskripsi'
+          name='description'
+          rules={[{ required: true, message: 'Description is required!' }]}
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
 
         <Form.Item wrapperCol={{ span: 16, offset: 2 }}>
           <Row justify='end' align='middle' gutter={[12, 0]}>

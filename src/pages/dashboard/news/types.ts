@@ -1,11 +1,10 @@
 export interface News {
-  author: string;
+  title: string;
+  meta_title: string;
+  meta_description: string;
   category: string;
   content: string;
   createdAt: string;
   id: string;
-  meta_description: string;
-  meta_title: string;
-  title: string;
   updatedAt: string;
 }

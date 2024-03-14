@@ -21,7 +21,7 @@ interface DataType {
 export const Opportunity = () => {
   const navigate = useNavigate();
 
-  const { isLoadingJobs, jobs, onTableChange } = useJobs();
+  const { isLoadingJobs, jobs, onTableChange } = useJobs({});
 
   const columns: TableColumnType<DataType>[] = [
     {

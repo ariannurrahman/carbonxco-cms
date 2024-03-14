@@ -1,21 +1,23 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Upload, UploadFile, UploadProps } from 'antd';
 import { SGD, status } from '../constants';
 import { CarbonxUploadButton } from 'components/upload-button';
+import { useProjects } from '../useProjects';
+import { currentAction } from 'utils';
 
 interface ProjectFormData {
   title: string;
-  summary: string;
+  description: string;
   featuredImage: FileList;
-  sgd: string[];
-  projectStarted: string;
+  start_date: string;
   location: string;
-  projectArea: string;
-  projectAreaDescription: string;
-  ecosystemType: string;
-  mainGoals: string;
-  keyFactors: string;
+  area: string;
+  sgd: string[];
+  area_description: string;
+  ecosystem_type: string;
+  main_goal: string;
+  key_factor: string;
   status: string;
   projectMap: File;
   ctaButtons: string;
@@ -26,10 +28,22 @@ interface ProjectFormData {
 export const ProjectForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const { id = '' } = useParams();
+  const action = currentAction(id);
   const [loading, setLoading] = useState(false);
   const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
   const [projectImage, setProjectImage] = useState<UploadFile<any>[]>([]);
   const [gallery, setGallery] = useState<UploadFile<any>[]>([]);
+
+  const { createProjectMutation, isLoadingProjectDetail, projectDetail, updateProjectMutation } = useProjects({
+    action,
+    id,
+  });
+
+  useEffect(() => {
+    if (action === 'create' || !id) return;
+    form.setFieldsValue(projectDetail?.data?.project);
+  }, [action, form, projectDetail, id]);
 
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
     setLoading(true);
@@ -66,7 +80,11 @@ export const ProjectForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('form', data);
+    if (action === 'edit') {
+      updateProjectMutation.mutate({ id, payload: data });
+    } else {
+      createProjectMutation.mutate(data);
+    }
   };
 
   return (
@@ -83,10 +101,10 @@ export const ProjectForm = () => {
         labelWrap
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 12 }}
-        // style={{ maxWidth: 600 }}
         onFinish={onFinish}
         autoComplete='off'
         requiredMark={false}
+        disabled={isLoadingProjectDetail && action !== 'create'}
       >
         <Form.Item<ProjectFormData>
           label='Project Title'
@@ -103,8 +121,8 @@ export const ProjectForm = () => {
               <p className='text-[#8D8D8D]'>Max. 150 char.</p>
             </div>
           }
-          name='summary'
-          rules={[{ required: true, message: 'Summary is required!' }]}
+          name='description'
+          rules={[{ required: true, message: 'description is required!' }]}
         >
           <Input.TextArea rows={4} />
         </Form.Item>
@@ -141,7 +159,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Project Started'
-          name='projectStarted'
+          name='start_date'
           rules={[{ required: true, message: 'Project Started is required!' }]}
         >
           <Input />
@@ -157,7 +175,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Project Area'
-          name='projectArea'
+          name='area'
           rules={[{ required: true, message: 'Project Area is required!' }]}
         >
           <Input />
@@ -165,7 +183,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Project Area Description'
-          name='projectAreaDescription'
+          name='area_description'
           rules={[{ required: true, message: 'Project Area Description is required!' }]}
         >
           <Input.TextArea rows={4} />
@@ -173,7 +191,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Ecosystem Type'
-          name='ecosystemType'
+          name='ecosystem_type'
           rules={[{ required: true, message: 'Ecosystem Type is required!' }]}
         >
           <Input />
@@ -181,7 +199,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Main Goals'
-          name='mainGoals'
+          name='main_goal'
           rules={[{ required: true, message: 'Main Goals is required!' }]}
         >
           <Input.TextArea rows={4} />
@@ -189,7 +207,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Key Factors'
-          name='keyFactors'
+          name='key_factor'
           rules={[{ required: true, message: 'Key Factors is required!' }]}
         >
           <Input.TextArea rows={4} />
