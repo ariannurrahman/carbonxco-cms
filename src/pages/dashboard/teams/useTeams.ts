@@ -27,6 +27,7 @@ export const useTeams = (props: useTeamsProps) => {
     queryKey: ['teams', params],
     refetchOnWindowFocus: false,
     retry: false,
+    enabled: action === 'view',
   });
 
   const { isLoading: isLoadingTeamDetail, data: teamDetail } = useQuery({

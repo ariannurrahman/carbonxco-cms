@@ -6,13 +6,15 @@ import { Button, Col, Form, Input, Row, Upload, UploadFile, UploadProps } from '
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useTeams } from '../useTeams';
 import { currentAction } from 'utils';
+import { usePostDocument } from 'hooks/usePostDocument';
+import { useGetDocument } from 'hooks/useGetDocument';
 
 interface TeamFormData {
   image: File;
   name: string;
   position: string;
   description: string;
-  link: File;
+  link: string;
 }
 
 export const TeamsForm = () => {
@@ -21,21 +23,44 @@ export const TeamsForm = () => {
   const { id = '' } = useParams();
   const action = currentAction(id);
   const [loading, setLoading] = useState(false);
-  const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
+  const [image, setImage] = useState<UploadFile[]>([]);
 
   const { createTeamMutation, isLoadingTeamDetail, teamDetail, updateTeamMutation } = useTeams({ id, action });
+  const documentLength = teamDetail?.data?.documents.length - 1 || 0;
+  console.log('documentLength', documentLength);
+  const documentId = teamDetail?.data.documents?.[documentLength]?.id ?? '';
+
+  const { documentUrl } = useGetDocument(documentId);
+
+  const { postDocumentMutation } = usePostDocument();
 
   useEffect(() => {
     if (action === 'create' || !id) return;
-    form.setFieldsValue(teamDetail?.data);
-  }, [action, form, teamDetail, id]);
+    form.setFieldsValue({ ...teamDetail?.data, image: documentUrl?.data.url });
+    setImage([
+      {
+        url: documentUrl?.data.url,
+        uid: 'uid',
+        name: 'teams',
+      },
+    ]);
+  }, [action, form, teamDetail, id, documentUrl]);
 
-  const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
+  const handleChangeimage: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
     const fileList = [...info.fileList];
     fileList.slice(-1);
-    setFeatureImage(fileList);
+
+    if (fileList.length) {
+      postDocumentMutation.mutate({
+        document_type: 'team_avatar',
+        file: fileList[0].originFileObj as File,
+        reference_type: 'teams',
+        id: documentId,
+      });
+    }
+    setImage(fileList);
 
     setLoading(false);
   };
@@ -81,11 +106,11 @@ export const TeamsForm = () => {
             listType='picture-card'
             className='border-solid bg-white'
             showUploadList
-            fileList={featureImage}
+            fileList={image}
             beforeUpload={() => false}
-            onChange={handleChangeFeatureImage}
+            onChange={handleChangeimage}
           >
-            {featureImage.length ? null : <CarbonxUploadButton loading={loading} />}
+            {image.length ? null : <CarbonxUploadButton loading={loading} />}
           </Upload>
         </Form.Item>
 
@@ -97,6 +122,14 @@ export const TeamsForm = () => {
           label='Jabatan'
           name='position'
           rules={[{ required: true, message: 'Jabatan is required!' }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<TeamFormData>
+          label='LinkedIn Link'
+          name='link'
+          rules={[{ required: true, message: 'LinkedIn link is required!' }]}
         >
           <Input />
         </Form.Item>
