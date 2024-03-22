@@ -12,7 +12,12 @@ export const getProjectDetail = (id: string) => {
 };
 
 export const postProject = (payload: Project) => {
-  return CarbonxApi.post('/projects', payload);
+  const updatePayload = { ...payload };
+  delete updatePayload.featuredImage;
+  delete updatePayload.gallery;
+  delete updatePayload.projectMap;
+
+  return CarbonxApi.post('/projects', updatePayload);
 };
 
 export const updateProject = (id: string, payload: Project) => {

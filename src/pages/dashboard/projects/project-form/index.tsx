@@ -1,10 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Upload, UploadFile, UploadProps } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  Radio,
+  Row,
+  Upload,
+  UploadFile,
+  UploadProps,
+} from 'antd';
 import { SGD, status } from '../constants';
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useProjects } from '../useProjects';
 import { currentAction } from 'utils';
+import { useMutationDocument } from 'hooks/useMutationDocument';
+import dayjs from 'dayjs';
+import { fromUnixTime, getUnixTime } from 'date-fns';
 
 interface ProjectFormData {
   title: string;
@@ -13,7 +29,7 @@ interface ProjectFormData {
   start_date: string;
   location: string;
   area: string;
-  sgd: string[];
+  sdg: string[];
   area_description: string;
   ecosystem_type: string;
   main_goal: string;
@@ -31,18 +47,61 @@ export const ProjectForm = () => {
   const { id = '' } = useParams();
   const action = currentAction(id);
   const [loading, setLoading] = useState(false);
-  const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
-  const [projectImage, setProjectImage] = useState<UploadFile<any>[]>([]);
-  const [gallery, setGallery] = useState<UploadFile<any>[]>([]);
+  const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
+  const [projectMapImage, setProjectMapImage] = useState<UploadFile[]>([]);
+  const [gallery, setGallery] = useState<UploadFile[]>([]);
 
   const { createProjectMutation, isLoadingProjectDetail, projectDetail, updateProjectMutation } = useProjects({
     action,
     id,
   });
 
+  const { postDocumentMutation, deleteDocumentMutation } = useMutationDocument();
+
+  const documentList = projectDetail?.data?.documents;
+
+  useEffect(() => {
+    if (action !== 'edit') return;
+    const initImage = () => {
+      const featureImageData = documentList?.filter(
+        ({ document_type }: { document_type: string }) => document_type === 'project_thumbnail',
+      );
+      const projectMapImageData = documentList?.filter(
+        ({ document_type }: { document_type: string }) => document_type === 'project_map',
+      );
+      const galleryData = documentList?.filter(
+        ({ document_type }: { document_type: string }) => document_type === 'project_gallery',
+      );
+
+      const featureImageDataLength = featureImageData?.length - 1 || 0;
+      const projectMapImageDataLength = projectMapImageData?.length - 1 || 0;
+
+      if (featureImageData?.length) {
+        form.setFieldValue('featuredImage', [featureImageData?.[featureImageDataLength]]);
+        setFeatureImage([featureImageData?.[featureImageDataLength]]);
+      }
+      if (projectMapImageData?.length) {
+        form.setFieldValue('projectMap', [projectMapImageData?.[projectMapImageDataLength]]);
+        setProjectMapImage([projectMapImageData?.[projectMapImageDataLength]]);
+      }
+      if (galleryData?.length) {
+        form.setFieldValue('gallery', galleryData);
+        setGallery(galleryData);
+      }
+    };
+    initImage();
+  }, [action, documentList, form]);
+
+  const initForm = form.getFieldsValue();
+  console.log('initForm', initForm);
+
   useEffect(() => {
     if (action === 'create' || !id) return;
-    form.setFieldsValue(projectDetail?.data?.project);
+    const projectStarted = projectDetail?.data?.start_date
+      ? dayjs(new Date(fromUnixTime(projectDetail?.data?.start_date)))
+      : '';
+
+    form.setFieldsValue({ ...projectDetail?.data, start_date: projectStarted });
   }, [action, form, projectDetail, id]);
 
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
@@ -50,6 +109,14 @@ export const ProjectForm = () => {
 
     const fileList = [...info.fileList];
     fileList.slice(-1);
+    if (fileList.length) {
+      postDocumentMutation.mutate({
+        document_type: 'project_thumbnail',
+        file: fileList[0].originFileObj as File,
+        reference_type: 'projects',
+        id: '',
+      });
+    }
     setFeatureImage(fileList);
 
     setLoading(false);
@@ -57,21 +124,53 @@ export const ProjectForm = () => {
 
   const handleChangeProjectMap: UploadProps['onChange'] = (info) => {
     setLoading(true);
-
+    console.log('info', info);
     const fileList = [...info.fileList];
     fileList.slice(-1);
-    setProjectImage(fileList);
+    if (fileList.length) {
+      postDocumentMutation.mutate({
+        document_type: 'project_map',
+        file: fileList[0].originFileObj as File,
+        reference_type: 'projects',
+        id: '',
+      });
+    }
+    setProjectMapImage(fileList);
 
     setLoading(false);
   };
 
   const handleChangeGallery: UploadProps['onChange'] = (info) => {
+    if (info.file.status === 'removed') return;
+    console.log('info', info);
     setLoading(true);
 
     const fileList = [...info.fileList];
+    const eachGallery = fileList.slice(-1);
+
+    if (fileList.length) {
+      postDocumentMutation.mutate({
+        document_type: 'project_gallery',
+        file: eachGallery[0].originFileObj as File,
+        reference_type: 'projects',
+        id: '',
+      });
+    }
     setGallery(fileList);
 
     setLoading(false);
+  };
+
+  const handleRemoveGallery: UploadProps['onRemove'] = (e) => {
+    console.log('e', e);
+    if (e.status === 'removed') {
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(e.id);
+      const copy = [...gallery];
+      // @ts-expect-error: The is exist tho
+      const newGallery = copy.filter(({ id }: { id: string }) => id !== e.id);
+      setGallery(newGallery);
+    }
   };
 
   const onClickBack = () => {
@@ -80,10 +179,13 @@ export const ProjectForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
+
+    const startDate = getUnixTime(new Date(data.start_date ?? new Date()));
+
     if (action === 'edit') {
-      updateProjectMutation.mutate({ id, payload: data });
+      updateProjectMutation.mutate({ id, payload: { ...data, start_date: startDate } });
     } else {
-      createProjectMutation.mutate(data);
+      createProjectMutation.mutate({ ...data, start_date: startDate });
     }
   };
 
@@ -136,21 +238,21 @@ export const ProjectForm = () => {
             name='featuredImage'
             listType='picture-card'
             className='border-solid bg-white'
-            showUploadList
+            showUploadList={!postDocumentMutation.isLoading}
             fileList={featureImage}
             beforeUpload={() => false}
             onChange={handleChangeFeatureImage}
           >
-            {featureImage.length ? null : <CarbonxUploadButton loading={loading} />}
+            {featureImage.length ? null : <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />}
           </Upload>
         </Form.Item>
 
-        <Form.Item<ProjectFormData> name='sgd' label='SGD' rules={[{ required: true, message: 'SGD is required!' }]}>
+        <Form.Item<ProjectFormData> name='sdg' label='SDG' rules={[{ required: true, message: 'SDG is required!' }]}>
           <Checkbox.Group>
             {SGD.map((eachSGD) => {
               return (
-                <Checkbox className='mr-5 mt-5' key={eachSGD} value={eachSGD}>
-                  {eachSGD}
+                <Checkbox className='mr-5 mt-5' key={eachSGD.value} value={eachSGD.value}>
+                  {eachSGD.label}
                 </Checkbox>
               );
             })}
@@ -162,7 +264,7 @@ export const ProjectForm = () => {
           name='start_date'
           rules={[{ required: true, message: 'Project Started is required!' }]}
         >
-          <Input />
+          <DatePicker format={'DD MMMM YYYY'} />
         </Form.Item>
 
         <Form.Item<ProjectFormData>
@@ -240,12 +342,14 @@ export const ProjectForm = () => {
             name='featureImage'
             listType='picture-card'
             className='border-solid bg-white'
-            showUploadList
-            fileList={projectImage}
+            showUploadList={!postDocumentMutation.isLoading}
+            fileList={projectMapImage}
             beforeUpload={() => false}
             onChange={handleChangeProjectMap}
           >
-            {projectImage.length ? null : <CarbonxUploadButton loading={loading} />}
+            {projectMapImage.length ? null : (
+              <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />
+            )}
           </Upload>
         </Form.Item>
 
@@ -276,12 +380,13 @@ export const ProjectForm = () => {
             name='gallery'
             listType='picture-card'
             className='border-solid bg-white'
-            showUploadList
+            showUploadList={!postDocumentMutation.isLoading}
             fileList={gallery}
             beforeUpload={() => false}
             onChange={handleChangeGallery}
+            onRemove={handleRemoveGallery}
           >
-            <CarbonxUploadButton loading={loading} />
+            <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />
           </Upload>
         </Form.Item>
 

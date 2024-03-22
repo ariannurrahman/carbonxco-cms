@@ -1,12 +1,16 @@
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
 
 interface UploadButtonProps {
   loading: boolean;
 }
 
 export const CarbonxUploadButton = ({ loading }: UploadButtonProps) => {
-  return (
-    <button className='border-solid bg-white' type='button'>
+  console.log('loading', loading);
+  return loading ? (
+    <Spin />
+  ) : (
+    <button disabled={loading} className='border-solid bg-white' type='button'>
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
     </button>
   );

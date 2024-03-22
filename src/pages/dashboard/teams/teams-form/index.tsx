@@ -6,7 +6,7 @@ import { Button, Col, Form, Input, Row, Upload, UploadFile, UploadProps } from '
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useTeams } from '../useTeams';
 import { currentAction } from 'utils';
-import { usePostDocument } from 'hooks/usePostDocument';
+import { useMutationDocument } from 'hooks/useMutationDocument';
 import { useGetDocument } from 'hooks/useGetDocument';
 
 interface TeamFormData {
@@ -27,12 +27,12 @@ export const TeamsForm = () => {
 
   const { createTeamMutation, isLoadingTeamDetail, teamDetail, updateTeamMutation } = useTeams({ id, action });
   const documentLength = teamDetail?.data?.documents.length - 1 || 0;
-  console.log('documentLength', documentLength);
+
   const documentId = teamDetail?.data.documents?.[documentLength]?.id ?? '';
 
   const { documentUrl } = useGetDocument(documentId);
 
-  const { postDocumentMutation } = usePostDocument();
+  const { postDocumentMutation } = useMutationDocument();
 
   useEffect(() => {
     if (action === 'create' || !id) return;

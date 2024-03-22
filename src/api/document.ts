@@ -1,7 +1,13 @@
 import { CarbonxApi } from 'api';
 
 export type ReferenceType = 'careers' | 'projects' | 'blogs' | 'teams' | 'pages';
-export type DocumentType = 'team_avatar' | 'blog_thumbnail' | 'project_thumbnail' | 'applicants_cv' | 'project_gallery';
+export type DocumentType =
+  | 'team_avatar'
+  | 'blog_thumbnail'
+  | 'project_thumbnail'
+  | 'applicants_cv'
+  | 'project_gallery'
+  | 'project_map';
 
 export interface Document {
   reference_type: ReferenceType;
@@ -31,4 +37,8 @@ export const getDocument = (id: string) => {
       'Content-Type': 'image/*',
     },
   });
+};
+
+export const deleteDocument = (id: string) => {
+  return CarbonxApi.delete(`/documents/${id}`);
 };
