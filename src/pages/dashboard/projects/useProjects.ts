@@ -45,8 +45,8 @@ export const useProjects = (props: useProjectProps) => {
     },
     onSuccess: () => {
       message.success('Create project success!');
-      queryClient.invalidateQueries(['projects']);
-      navigate(-1);
+      // queryClient.invalidateQueries(['projects']);
+      // navigate(-1);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;

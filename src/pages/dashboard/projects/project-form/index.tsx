@@ -18,14 +18,14 @@ import { SGD, status } from '../constants';
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useProjects } from '../useProjects';
 import { currentAction } from 'utils';
-import { useMutationDocument } from 'hooks/useMutationDocument';
+import { PostDocumentResponse, useMutationDocument } from 'hooks/useMutationDocument';
 import dayjs from 'dayjs';
 import { fromUnixTime, getUnixTime } from 'date-fns';
 
 interface ProjectFormData {
   title: string;
   description: string;
-  featuredImage: FileList;
+  featuredImage: FileList[];
   start_date: string;
   location: string;
   area: string;
@@ -35,10 +35,11 @@ interface ProjectFormData {
   main_goal: string;
   key_factor: string;
   status: string;
-  projectMap: File;
-  ctaButtons: string;
-  buttonLinks: string;
+  projectMap: File[];
+  button_text: string;
+  button_link_to: string;
   gallery: FileList;
+  community: string;
 }
 
 export const ProjectForm = () => {
@@ -49,7 +50,7 @@ export const ProjectForm = () => {
   const [loading, setLoading] = useState(false);
   const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
   const [projectMapImage, setProjectMapImage] = useState<UploadFile[]>([]);
-  const [gallery, setGallery] = useState<UploadFile[]>([]);
+  const [gallery, setGallery] = useState<UploadFile<any>[]>([]);
 
   const { createProjectMutation, isLoadingProjectDetail, projectDetail, updateProjectMutation } = useProjects({
     action,
@@ -77,7 +78,9 @@ export const ProjectForm = () => {
       const projectMapImageDataLength = projectMapImageData?.length - 1 || 0;
 
       if (featureImageData?.length) {
+        console.log('triggered?');
         form.setFieldValue('featuredImage', [featureImageData?.[featureImageDataLength]]);
+        form.setFieldValue('oldFeatId', featureImageData?.[featureImageDataLength].id);
         setFeatureImage([featureImageData?.[featureImageDataLength]]);
       }
       if (projectMapImageData?.length) {
@@ -92,9 +95,6 @@ export const ProjectForm = () => {
     initImage();
   }, [action, documentList, form]);
 
-  const initForm = form.getFieldsValue();
-  console.log('initForm', initForm);
-
   useEffect(() => {
     if (action === 'create' || !id) return;
     const projectStarted = projectDetail?.data?.start_date
@@ -107,68 +107,105 @@ export const ProjectForm = () => {
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
-    const fileList = [...info.fileList];
-    fileList.slice(-1);
-    if (fileList.length) {
-      postDocumentMutation.mutate({
-        document_type: 'project_thumbnail',
-        file: fileList[0].originFileObj as File,
-        reference_type: 'projects',
-        id: '',
+    if (info.file.status === 'removed') {
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(featureImage[0].id, {
+        onSuccess: () => {
+          setFeatureImage([]);
+          form.setFieldValue('featuredImage', []);
+        },
       });
+    } else {
+      const fileList = [...info.fileList];
+      fileList.slice(-1);
+      if (fileList.length) {
+        const oldFeatId = form.getFieldValue('oldFeatId');
+
+        postDocumentMutation.mutate(
+          {
+            document_type: 'project_thumbnail',
+            file: fileList[0].originFileObj as File,
+            reference_type: 'projects',
+            id: oldFeatId ?? '',
+          },
+          {
+            onSuccess: (res: PostDocumentResponse) => {
+              form.setFieldValue('featuredImage', [{ ...fileList[0], ...res }]);
+              setFeatureImage([{ ...fileList[0], ...res }]);
+            },
+          },
+        );
+      }
     }
-    setFeatureImage(fileList);
 
     setLoading(false);
   };
 
   const handleChangeProjectMap: UploadProps['onChange'] = (info) => {
     setLoading(true);
-    console.log('info', info);
-    const fileList = [...info.fileList];
-    fileList.slice(-1);
-    if (fileList.length) {
-      postDocumentMutation.mutate({
-        document_type: 'project_map',
-        file: fileList[0].originFileObj as File,
-        reference_type: 'projects',
-        id: '',
-      });
+
+    if (info.file.status === 'removed') {
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(projectMapImage[0].key, { onSuccess: () => setProjectMapImage([]) });
+    } else {
+      const fileList = [...info.fileList];
+      fileList.slice(-1);
+      if (fileList.length) {
+        postDocumentMutation.mutate(
+          {
+            document_type: 'project_map',
+            file: fileList[0].originFileObj as File,
+            reference_type: 'projects',
+            id: '',
+          },
+          {
+            onSuccess: (res: PostDocumentResponse) => {
+              form.setFieldValue('projectMap', [{ ...fileList[0], ...res }]);
+              setProjectMapImage([{ ...fileList[0], ...res }]);
+            },
+          },
+        );
+      }
     }
-    setProjectMapImage(fileList);
 
     setLoading(false);
   };
 
   const handleChangeGallery: UploadProps['onChange'] = (info) => {
     if (info.file.status === 'removed') return;
-    console.log('info', info);
     setLoading(true);
 
     const fileList = [...info.fileList];
     const eachGallery = fileList.slice(-1);
 
     if (fileList.length) {
-      postDocumentMutation.mutate({
-        document_type: 'project_gallery',
-        file: eachGallery[0].originFileObj as File,
-        reference_type: 'projects',
-        id: '',
-      });
+      postDocumentMutation.mutate(
+        {
+          document_type: 'project_gallery',
+          file: eachGallery[0].originFileObj as File,
+          reference_type: 'projects',
+          id: '',
+        },
+        {
+          onSuccess: (res: PostDocumentResponse) => {
+            setGallery((prevState) => {
+              const updated = [...prevState, { ...eachGallery[0], ...res }];
+              form.setFieldValue('gallery', updated);
+              return updated;
+            });
+          },
+        },
+      );
     }
-    setGallery(fileList);
 
     setLoading(false);
   };
 
   const handleRemoveGallery: UploadProps['onRemove'] = (e) => {
-    console.log('e', e);
     if (e.status === 'removed') {
-      // @ts-expect-error: The is exist tho
-      deleteDocumentMutation.mutate(e.id);
       const copy = [...gallery];
       // @ts-expect-error: The is exist tho
-      const newGallery = copy.filter(({ id }: { id: string }) => id !== e.id);
+      const newGallery = copy.filter(({ key }: { key: string }) => key !== e.key);
       setGallery(newGallery);
     }
   };
@@ -181,11 +218,12 @@ export const ProjectForm = () => {
     const data = form.getFieldsValue();
 
     const startDate = getUnixTime(new Date(data.start_date ?? new Date()));
-
+    const payload = { ...data, start_date: startDate };
+    console.log('payload on finish', payload);
     if (action === 'edit') {
-      updateProjectMutation.mutate({ id, payload: { ...data, start_date: startDate } });
+      updateProjectMutation.mutate({ id, payload });
     } else {
-      createProjectMutation.mutate({ ...data, start_date: startDate });
+      createProjectMutation.mutate(payload);
     }
   };
 
@@ -314,6 +352,13 @@ export const ProjectForm = () => {
         >
           <Input.TextArea rows={4} />
         </Form.Item>
+        <Form.Item<ProjectFormData>
+          label='Community'
+          name='community'
+          rules={[{ required: true, message: 'Community is required!' }]}
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
 
         <Divider />
 
@@ -355,7 +400,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='CTA Buttons'
-          name='ctaButtons'
+          name='button_text'
           rules={[{ required: true, message: 'CTA Buttons is required!' }]}
         >
           <Input />
@@ -363,7 +408,7 @@ export const ProjectForm = () => {
 
         <Form.Item<ProjectFormData>
           label='Button Links to'
-          name='buttonLinks'
+          name='button_link_to'
           rules={[{ required: true, message: 'Button Links to is required!' }]}
         >
           <Input />

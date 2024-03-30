@@ -14,7 +14,8 @@ export interface Project {
   status: string;
   title: string;
   updatedAt: string;
-  featuredImage?: File;
-  gallery?: File;
-  projectMap?: File;
+  featuredImage?: File[];
+  gallery?: File[];
+  projectMap?: File[];
+  button_text: string;
 }

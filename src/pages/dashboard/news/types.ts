@@ -7,4 +7,6 @@ export interface News {
   createdAt: string;
   id: string;
   updatedAt: string;
+  documents?: File[];
+  featuredImage?: File[];
 }

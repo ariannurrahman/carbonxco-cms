@@ -117,7 +117,7 @@ export const JobsOpp = () => {
   ];
 
   return (
-    <div className='h-[1000px]'>
+    <div className='pb-52'>
       <PageTitle
         title='Job Opp Form Response'
         // rightNode={

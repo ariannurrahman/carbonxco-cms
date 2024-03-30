@@ -12,11 +12,32 @@ export const getBlogDetail = (id: string) => {
 };
 
 export const postBlog = (payload: News) => {
-  return CarbonxApi.post('/blogs', payload);
+  const updatedPayload = { ...payload };
+  const documents = updatedPayload.featuredImage?.map((eachDoc) => {
+    return {
+      ...eachDoc,
+      document_type: 'project_thumbnail',
+      // @ts-expect-error: id does exist (?)
+      id: eachDoc.id ?? '',
+    };
+  });
+  delete updatedPayload.featuredImage;
+  return CarbonxApi.post('/blogs', { ...updatedPayload, documents });
 };
 
 export const updateBlog = (id: string, payload: News) => {
-  return CarbonxApi.put(`/blogs/${id}`, payload);
+  const updatedPayload = { ...payload };
+  console.log('update payload', payload);
+  const documents = updatedPayload.featuredImage?.map((eachDoc) => {
+    return {
+      ...eachDoc,
+      document_type: 'project_thumbnail',
+      // @ts-expect-error: id does exist (?)
+      id: eachDoc.id ?? '',
+    };
+  });
+  delete updatedPayload.featuredImage;
+  return CarbonxApi.put(`/blogs/${id}`, { ...updatedPayload, documents });
 };
 
 export const deleteBlog = (id: string) => {

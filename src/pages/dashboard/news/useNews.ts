@@ -26,7 +26,7 @@ export const useNews = (props: useNewsProps) => {
 
   const { isLoading: isLoadingNews, data: news } = useQuery({
     queryFn: () => getBlogs(params),
-    queryKey: ['blogs', params],
+    queryKey: ['news', params],
     refetchOnWindowFocus: false,
     retry: false,
     enabled: action === 'view',
@@ -48,7 +48,7 @@ export const useNews = (props: useNewsProps) => {
     onSuccess: () => {
       message.success('Create news success!');
       queryClient.invalidateQueries(['news']);
-      navigate(-1);
+      // navigate(-1);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;

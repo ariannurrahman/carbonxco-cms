@@ -97,7 +97,7 @@ export const Opportunity = () => {
   }, [jobs]);
 
   return (
-    <div className='h-[1000px]'>
+    <div className='pb-52'>
       <PageTitle
         title='Open Positions'
         rightNode={

@@ -12,8 +12,6 @@ export function DashboardLayout() {
   const location = useLocation();
 
   const isShowSidebar = location.pathname.includes('create') || location.pathname.includes('edit');
-  console.log('isShowSidebar', isShowSidebar);
-  console.log('location.', location.pathname);
 
   const { isMobile } = useDetectScreen();
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);

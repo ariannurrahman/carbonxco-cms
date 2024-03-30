@@ -9,4 +9,4 @@ export const SGD = [
   { label: '17 / Partnership for the Growth', value: '17' },
 ];
 
-export const status = ['Origination', 'Due Diligence', 'Development', 'Implementation', 'Issuance'];
+export const status = ['Origination', 'Due dilligence', 'Development', 'Implementation', 'Issuance'];

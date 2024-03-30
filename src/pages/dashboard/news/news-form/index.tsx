@@ -6,6 +6,7 @@ import { Button, Col, Divider, Form, Input, Row, Select, Upload, UploadFile, Upl
 import { CarbonxUploadButton } from 'components/upload-button';
 import { currentAction } from 'utils';
 import { useNews } from '../useNews';
+import { PostDocumentResponse, useMutationDocument } from 'hooks/useMutationDocument';
 
 interface NewsFormData {
   title: string;
@@ -25,20 +26,49 @@ export const NewsForm = () => {
 
   const { createNewsMutation, isLoadingNewsDetail, newsDetail, updateNewsMutation } = useNews({ id, action });
 
-  const [loading, setLoading] = useState(false);
-  const [featureImage, setFeatureImage] = useState<UploadFile<any>[]>([]);
+  const { postDocumentMutation } = useMutationDocument();
 
+  const [loading, setLoading] = useState(false);
+  const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
+
+  const documentLength = newsDetail?.data?.documents?.length === 0 ? 0 : newsDetail?.data?.documents?.length - 1;
+
+  const documentId = newsDetail?.data.documents?.[documentLength]?.id ?? '';
   useEffect(() => {
     if (action === 'create' || !id) return;
     form.setFieldsValue(newsDetail?.data);
-  }, [action, form, newsDetail, id]);
+
+    if (documentLength >= 0) {
+      setFeatureImage([newsDetail?.data?.documents?.[documentLength]]);
+    }
+  }, [action, form, newsDetail, id, documentLength]);
 
   const handleChangeFeatureImage: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
-    const fileList = [...info.fileList];
-    fileList.slice(-1);
-    setFeatureImage(fileList);
+    if (info.file.status === 'removed') {
+      form.setFieldValue('featuredImage', [{ id: documentId }]);
+      setFeatureImage([]);
+    } else {
+      const fileList = [...info.fileList];
+      fileList.slice(-1);
+      if (fileList.length) {
+        postDocumentMutation.mutate(
+          {
+            document_type: 'blog_thumbnail',
+            file: fileList[0].originFileObj as File,
+            reference_type: 'blogs',
+            id: documentId,
+          },
+          {
+            onSuccess: (res: PostDocumentResponse) => {
+              form.setFieldValue('featuredImage', [{ ...fileList[0], ...res }]);
+              setFeatureImage([{ ...fileList[0], ...res }]);
+            },
+          },
+        );
+      }
+    }
 
     setLoading(false);
   };
@@ -130,7 +160,7 @@ export const NewsForm = () => {
             name='featuredImage'
             listType='picture-card'
             className='border-solid bg-white'
-            showUploadList
+            showUploadList={!postDocumentMutation.isLoading}
             fileList={featureImage}
             beforeUpload={() => false}
             onChange={handleChangeFeatureImage}

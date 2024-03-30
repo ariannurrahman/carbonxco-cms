@@ -6,7 +6,6 @@ interface UploadButtonProps {
 }
 
 export const CarbonxUploadButton = ({ loading }: UploadButtonProps) => {
-  console.log('loading', loading);
   return loading ? (
     <Spin />
   ) : (

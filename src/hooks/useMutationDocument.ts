@@ -3,14 +3,23 @@ import { useMutation } from '@tanstack/react-query';
 
 import { deleteDocument, Document, postDocument } from 'api/document';
 
+export interface PostDocumentResponse {
+  file_name: string;
+  file_type: string;
+  key: string;
+  url: string;
+}
+
 export const useMutationDocument = () => {
   const postDocumentMutation = useMutation({
     mutationKey: ['post-document'],
-    mutationFn: (payload: Document) => {
-      return postDocument(payload);
+    mutationFn: async (payload: Document) => {
+      const response = await postDocument(payload);
+      return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       message.success('Upload file success!');
+      return response.data;
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;

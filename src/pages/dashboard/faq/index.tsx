@@ -94,7 +94,7 @@ export const FaqPage = () => {
   ];
 
   return (
-    <div className='h-[1000px]'>
+    <div className='pb-52'>
       <PageTitle
         title='F.A.Q'
         rightNode={

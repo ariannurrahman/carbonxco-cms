@@ -103,7 +103,7 @@ export const ContactUs = () => {
   ];
 
   return (
-    <div className='h-[1000px]'>
+    <div className='pb-52'>
       <PageTitle
         title='Contact Us E-mail List'
         rightNode={

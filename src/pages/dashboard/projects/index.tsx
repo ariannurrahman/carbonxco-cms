@@ -111,7 +111,7 @@ export const Projects = () => {
   ];
 
   return (
-    <div className='h-[1000px]'>
+    <div className='pb-52'>
       <PageTitle
         title='Project List'
         rightNode={

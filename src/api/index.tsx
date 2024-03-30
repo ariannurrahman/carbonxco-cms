@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://13.229.127.73';
+const BASE_URL = 'https://api.carbonxco.com';
 const VERSIONING = '/v1/c';
 const API_URL = BASE_URL + VERSIONING;
 
