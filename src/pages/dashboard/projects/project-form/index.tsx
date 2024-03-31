@@ -146,7 +146,12 @@ export const ProjectForm = () => {
 
     if (info.file.status === 'removed') {
       // @ts-expect-error: The is exist tho
-      deleteDocumentMutation.mutate(projectMapImage[0].key, { onSuccess: () => setProjectMapImage([]) });
+      deleteDocumentMutation.mutate(projectMapImage[0].id, {
+        onSuccess: () => {
+          setProjectMapImage([]);
+          form.setFieldValue('projectMap', []);
+        },
+      });
     } else {
       const fileList = [...info.fileList];
       fileList.slice(-1);
@@ -170,44 +175,50 @@ export const ProjectForm = () => {
 
     setLoading(false);
   };
+  console.log('gallery', gallery);
 
   const handleChangeGallery: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'removed') return;
+    console.log('gallery', info.file.status);
     setLoading(true);
+    if (info.file.status === 'removed') {
+      const copy = [...gallery];
+      console.log('file', info.file);
 
-    const fileList = [...info.fileList];
-    const eachGallery = fileList.slice(-1);
-
-    if (fileList.length) {
-      postDocumentMutation.mutate(
-        {
-          document_type: 'project_gallery',
-          file: eachGallery[0].originFileObj as File,
-          reference_type: 'projects',
-          id: '',
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(info?.file?.id ?? '', {
+        onSuccess: () => {
+          // @ts-expect-error: The is exist tho
+          const newGallery = copy.filter(({ id }: { id: string }) => id !== info.file.id);
+          setGallery(newGallery);
+          form.setFieldValue('gallery', newGallery);
         },
-        {
-          onSuccess: (res: PostDocumentResponse) => {
-            setGallery((prevState) => {
-              const updated = [...prevState, { ...eachGallery[0], ...res }];
-              form.setFieldValue('gallery', updated);
-              return updated;
-            });
+      });
+    } else {
+      const fileList = [...info.fileList];
+      const eachGallery = fileList.slice(-1);
+
+      if (fileList.length) {
+        postDocumentMutation.mutate(
+          {
+            document_type: 'project_gallery',
+            file: eachGallery[0].originFileObj as File,
+            reference_type: 'projects',
+            id: '',
           },
-        },
-      );
+          {
+            onSuccess: (res: PostDocumentResponse) => {
+              setGallery((prevState) => {
+                const updated = [...prevState, { ...eachGallery[0], ...res }];
+                form.setFieldValue('gallery', updated);
+                return updated;
+              });
+            },
+          },
+        );
+      }
     }
 
     setLoading(false);
-  };
-
-  const handleRemoveGallery: UploadProps['onRemove'] = (e) => {
-    if (e.status === 'removed') {
-      const copy = [...gallery];
-      // @ts-expect-error: The is exist tho
-      const newGallery = copy.filter(({ key }: { key: string }) => key !== e.key);
-      setGallery(newGallery);
-    }
   };
 
   const onClickBack = () => {
@@ -429,7 +440,6 @@ export const ProjectForm = () => {
             fileList={gallery}
             beforeUpload={() => false}
             onChange={handleChangeGallery}
-            onRemove={handleRemoveGallery}
           >
             <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />
           </Upload>

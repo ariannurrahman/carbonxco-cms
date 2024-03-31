@@ -32,7 +32,7 @@ export const NewsForm = () => {
   const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
 
   const documentLength = newsDetail?.data?.documents?.length === 0 ? 0 : newsDetail?.data?.documents?.length - 1;
-  console.log('featureImage', featureImage);
+
   const documentId = newsDetail?.data.documents?.[documentLength]?.id ?? '';
   useEffect(() => {
     if (action === 'create' || !id) return;
