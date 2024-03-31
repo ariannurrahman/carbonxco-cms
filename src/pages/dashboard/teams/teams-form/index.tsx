@@ -6,7 +6,7 @@ import { Button, Col, Form, Input, Row, Upload, UploadFile, UploadProps } from '
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useTeams } from '../useTeams';
 import { currentAction } from 'utils';
-import { useMutationDocument } from 'hooks/useMutationDocument';
+import { PostDocumentResponse, useMutationDocument } from 'hooks/useMutationDocument';
 import { useGetDocument } from 'hooks/useGetDocument';
 
 interface TeamFormData {
@@ -30,37 +30,52 @@ export const TeamsForm = () => {
 
   const documentId = teamDetail?.data.documents?.[documentLength]?.id ?? '';
 
-  const { documentUrl } = useGetDocument(documentId);
-
-  const { postDocumentMutation } = useMutationDocument();
+  const { postDocumentMutation, deleteDocumentMutation } = useMutationDocument();
 
   useEffect(() => {
     if (action === 'create' || !id) return;
-    form.setFieldsValue({ ...teamDetail?.data, image: documentUrl?.data.url });
-    setImage([
-      {
-        url: documentUrl?.data.url,
-        uid: 'uid',
-        name: 'teams',
-      },
-    ]);
-  }, [action, form, teamDetail, id, documentUrl]);
+    const documentList = teamDetail?.data.documents ?? [];
+
+    const initImage = documentList.filter(
+      ({ document_type }: { document_type: string }) => document_type === 'team_avatar',
+    );
+    form.setFieldsValue({ ...teamDetail?.data, image: initImage });
+    setImage(initImage);
+  }, [action, form, teamDetail, id]);
 
   const handleChangeimage: UploadProps['onChange'] = (info) => {
     setLoading(true);
 
-    const fileList = [...info.fileList];
-    fileList.slice(-1);
-
-    if (fileList.length) {
-      postDocumentMutation.mutate({
-        document_type: 'team_avatar',
-        file: fileList[0].originFileObj as File,
-        reference_type: 'teams',
-        id: documentId,
+    if (info.file.status === 'removed') {
+      console.log('info.file', info.file);
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(info.file.id, {
+        onSuccess: () => {
+          setImage([]);
+          form.setFieldValue('image', []);
+        },
       });
+    } else {
+      const fileList = [...info.fileList];
+      fileList.slice(-1);
+
+      if (fileList.length) {
+        postDocumentMutation.mutate(
+          {
+            document_type: 'team_avatar',
+            file: fileList[0].originFileObj as File,
+            reference_type: 'teams',
+            id: documentId,
+          },
+          {
+            onSuccess: (res: PostDocumentResponse) => {
+              form.setFieldValue('image', [{ ...fileList[0], ...res }]);
+              setImage([{ ...fileList[0], ...res }]);
+            },
+          },
+        );
+      }
     }
-    setImage(fileList);
 
     setLoading(false);
   };
@@ -71,6 +86,7 @@ export const TeamsForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
+    console.log('data', data);
     if (action === 'edit') {
       updateTeamMutation.mutate({ id, payload: data });
     } else {

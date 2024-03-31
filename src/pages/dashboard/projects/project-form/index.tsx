@@ -14,13 +14,14 @@ import {
   UploadFile,
   UploadProps,
 } from 'antd';
+import dayjs from 'dayjs';
+import { fromUnixTime, getUnixTime } from 'date-fns';
+
 import { SGD, status } from '../constants';
 import { CarbonxUploadButton } from 'components/upload-button';
 import { useProjects } from '../useProjects';
 import { currentAction } from 'utils';
 import { PostDocumentResponse, useMutationDocument } from 'hooks/useMutationDocument';
-import dayjs from 'dayjs';
-import { fromUnixTime, getUnixTime } from 'date-fns';
 
 interface ProjectFormData {
   title: string;
@@ -78,7 +79,6 @@ export const ProjectForm = () => {
       const projectMapImageDataLength = projectMapImageData?.length - 1 || 0;
 
       if (featureImageData?.length) {
-        console.log('triggered?');
         form.setFieldValue('featuredImage', [featureImageData?.[featureImageDataLength]]);
         form.setFieldValue('oldFeatId', featureImageData?.[featureImageDataLength].id);
         setFeatureImage([featureImageData?.[featureImageDataLength]]);

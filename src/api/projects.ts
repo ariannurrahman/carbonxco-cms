@@ -3,7 +3,6 @@ import { Project } from 'pages/dashboard/projects/types';
 import { Pagination } from 'types/Pagination';
 
 const handleImage = (updatePayload: Project) => {
-  console.log('updatePayload', updatePayload);
   const feature = {
     ...updatePayload?.featuredImage?.[0],
     document_type: 'project_thumbnail',
@@ -63,8 +62,6 @@ export const getProjectDetail = (id: string) => {
 
 export const postProject = (payload: Project) => {
   const updatePayload = { ...payload };
-  console.log('payload', payload);
-  console.log('updatePayload', updatePayload);
   const documents = handleImage(updatePayload);
 
   return CarbonxApi.post('/projects', { ...updatePayload, documents });
