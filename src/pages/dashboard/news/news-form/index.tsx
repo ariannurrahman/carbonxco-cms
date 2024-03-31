@@ -32,14 +32,17 @@ export const NewsForm = () => {
   const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
 
   const documentLength = newsDetail?.data?.documents?.length === 0 ? 0 : newsDetail?.data?.documents?.length - 1;
-
+  console.log('featureImage', featureImage);
   const documentId = newsDetail?.data.documents?.[documentLength]?.id ?? '';
   useEffect(() => {
     if (action === 'create' || !id) return;
     form.setFieldsValue(newsDetail?.data);
 
     if (documentLength >= 0) {
-      setFeatureImage([newsDetail?.data?.documents?.[documentLength]]);
+      const initFeature = newsDetail?.data?.documents?.[documentLength]
+        ? [newsDetail?.data?.documents?.[documentLength]]
+        : [];
+      setFeatureImage(initFeature);
     }
   }, [action, form, newsDetail, id, documentLength]);
 
