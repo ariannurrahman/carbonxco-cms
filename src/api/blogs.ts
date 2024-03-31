@@ -36,7 +36,6 @@ export const updateBlog = (id: string, payload: News) => {
     };
   });
   delete updatedPayload.featuredImage;
-  console.log('{ ...updatedPayload, documents }', { ...updatedPayload, documents });
   return CarbonxApi.put(`/blogs/${id}`, { ...updatedPayload, documents });
 };
 

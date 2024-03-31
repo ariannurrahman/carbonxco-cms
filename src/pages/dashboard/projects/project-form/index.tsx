@@ -175,14 +175,11 @@ export const ProjectForm = () => {
 
     setLoading(false);
   };
-  console.log('gallery', gallery);
 
   const handleChangeGallery: UploadProps['onChange'] = (info) => {
-    console.log('gallery', info.file.status);
     setLoading(true);
     if (info.file.status === 'removed') {
       const copy = [...gallery];
-      console.log('file', info.file);
 
       // @ts-expect-error: The is exist tho
       deleteDocumentMutation.mutate(info?.file?.id ?? '', {
@@ -232,7 +229,6 @@ export const ProjectForm = () => {
 
     const startDate = getUnixTime(new Date(data.start_date ?? new Date()));
     const payload = { ...data, start_date: startDate };
-    console.log('payload on finish', payload);
     if (action === 'edit') {
       updateProjectMutation.mutate({ id, payload });
     } else {

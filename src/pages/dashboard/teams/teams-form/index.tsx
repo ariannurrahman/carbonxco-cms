@@ -7,7 +7,6 @@ import { CarbonxUploadButton } from 'components/upload-button';
 import { useTeams } from '../useTeams';
 import { currentAction } from 'utils';
 import { PostDocumentResponse, useMutationDocument } from 'hooks/useMutationDocument';
-import { useGetDocument } from 'hooks/useGetDocument';
 
 interface TeamFormData {
   image: File;
@@ -47,7 +46,6 @@ export const TeamsForm = () => {
     setLoading(true);
 
     if (info.file.status === 'removed') {
-      console.log('info.file', info.file);
       // @ts-expect-error: The is exist tho
       deleteDocumentMutation.mutate(info.file.id, {
         onSuccess: () => {
@@ -86,7 +84,6 @@ export const TeamsForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('data', data);
     if (action === 'edit') {
       updateTeamMutation.mutate({ id, payload: data });
     } else {

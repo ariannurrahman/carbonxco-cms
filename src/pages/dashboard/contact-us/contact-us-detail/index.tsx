@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 export const ContactUsDetail = () => {
   const { id } = useParams();
 
-  const { isLoading: isLoadingContactDetail, data } = useQuery({
+  const { data } = useQuery({
     queryFn: () => getContactDetail(id ?? ''),
     queryKey: ['contact-us', id],
     refetchOnWindowFocus: false,
@@ -16,8 +16,6 @@ export const ContactUsDetail = () => {
   });
 
   const contactDetail = data?.data;
-
-  console.log('contactDetail', contactDetail);
 
   const navigate = useNavigate();
   const onClickBack = () => {

@@ -11,7 +11,6 @@ const handleImage = (updatePayload: Project) => {
   const featureId = feature.id;
   // @ts-expect-error: id does exist (?)
   feature.id = featureId ?? '';
-  console.log('feature', feature);
   const gallery = updatePayload?.gallery?.map((eachGallery) => ({
     ...eachGallery,
     document_type: 'project_gallery',
@@ -20,18 +19,13 @@ const handleImage = (updatePayload: Project) => {
     id: eachGallery.id ?? '',
   })) as [];
 
-  console.log('gallery', gallery);
-
   const map = { ...updatePayload?.projectMap?.[0], document_type: 'project_map' };
   // @ts-expect-error: id does exist (?)
   const mapId = map.id;
   // @ts-expect-error: id does exist (?)
   map.id = mapId ?? '';
 
-  console.log('map', map);
-
   const documents: any = [feature, ...gallery, map];
-  console.log('documents', documents);
   delete updatePayload.featuredImage;
   delete updatePayload.gallery;
   delete updatePayload.projectMap;
@@ -68,7 +62,6 @@ export const postProject = (payload: Project) => {
 };
 
 export const updateProject = (id: string, payload: Project) => {
-  console.log('payload', payload);
   const documents = handleImage(payload);
   return CarbonxApi.put(`/projects/${id}`, { ...payload, documents });
 };

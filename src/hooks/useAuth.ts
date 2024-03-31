@@ -17,14 +17,10 @@ export const useAuth = () => {
     },
     onSuccess: (res) => {
       const accessToken = res.data.access_token;
-      console.log('accessToken', accessToken);
       setItem('accessToken', accessToken);
       queryClient.invalidateQueries(['login']);
       navigate('/dashboard/projects');
       window.location.reload();
-    },
-    onError: (err: any) => {
-      console.log('err', err);
     },
   });
   const logout = () => {

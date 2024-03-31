@@ -6,6 +6,8 @@ import Trash from 'assets/trash.svg';
 // import Plus from 'assets/plus.svg';
 import { useApplicants } from './useApplicants';
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
 
 interface DataType {
   date: string;
@@ -13,18 +15,24 @@ interface DataType {
   email: string;
   phoneNumber: string;
   address: string;
+  document: {
+    url: string;
+  };
 }
 
 export const JobsOpp = () => {
   const { applicants, isLoadingApplicants, onTableChange, deleteApplicantMutation } = useApplicants({});
+
   const dataSource: DataType[] = useMemo(() => {
     return applicants?.data.data.map((eachApplicant: any) => {
       return {
         key: eachApplicant?.id ?? '-',
-        name: eachApplicant?.name,
-        address: eachApplicant?.address,
-        phoneNumber: eachApplicant.phone_number,
-        email: eachApplicant.email,
+        name: eachApplicant?.user?.name ?? '-',
+        address: eachApplicant?.user?.address ?? '-',
+        phoneNumber: eachApplicant?.user?.phone ?? '-',
+        email: eachApplicant.user?.email ?? '-',
+        date: dayjs(eachApplicant.createdAt).format('DD MMM YYYY'),
+        document: eachApplicant?.documents?.[0] ?? {},
       };
     });
   }, [applicants]);
@@ -101,11 +109,13 @@ export const JobsOpp = () => {
     {
       title: <Input placeholder='Search' />,
       dataIndex: 'key',
-      render: (id: string) => {
+      render: (id: string, rest) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>Download Resume</p>
+              <Link target='_blank' to={rest.document.url}>
+                <p className='underline text-[#46A7ED] font-normal text-[14px]'>Download Resume</p>
+              </Link>
             </Button>
             <Button type='text' onClick={() => deleteApplicantMutation.mutate(id)}>
               <img src={Trash} alt='delete' />

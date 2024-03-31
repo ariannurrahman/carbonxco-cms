@@ -32,7 +32,6 @@ export const OpportunityForm = () => {
 
   const onFinish = () => {
     const data = form.getFieldsValue();
-    console.log('data', data);
     if (action === 'edit') {
       updateJobMutation.mutate({ id, payload: data });
     } else {

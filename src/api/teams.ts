@@ -30,8 +30,6 @@ export const deleteTeam = (id: string) => {
 };
 
 const handleImage = (payload: Team) => {
-  console.log('payload', payload);
-
   if (typeof payload.image === 'string') return [];
 
   const documents = payload?.image?.map((eachDoc: any) => {
