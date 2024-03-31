@@ -1,5 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getContactUs } from 'api/contact-us';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { message } from 'antd';
+import { deleteContactUs, getContactUs } from 'api/contact-us';
 import { useState } from 'react';
 import { Pagination } from 'types/Pagination';
 
@@ -17,6 +18,21 @@ export const useContactUs = () => {
     retry: false,
   });
 
+  const deleteNewsMutation = useMutation({
+    mutationKey: ['delete-news'],
+    mutationFn: (id: string) => {
+      return deleteContactUs(id);
+    },
+    onSuccess: () => {
+      message.success('Delete message success!');
+      queryClient.invalidateQueries(['contact-us']);
+    },
+    onError: (e: any) => {
+      const errorBE = e.response.data.error;
+      message.error(`${errorBE}`);
+    },
+  });
+
   const onTableChange = (event: any) => {
     let paginationPayload = { ...params };
     paginationPayload = {
@@ -27,5 +43,5 @@ export const useContactUs = () => {
     queryClient.invalidateQueries();
   };
 
-  return { contactUs, isLoadingContactUs, onTableChange };
+  return { contactUs, isLoadingContactUs, onTableChange, deleteNewsMutation };
 };

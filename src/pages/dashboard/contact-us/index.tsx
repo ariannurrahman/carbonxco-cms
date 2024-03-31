@@ -7,6 +7,7 @@ import Plus from 'assets/plus.svg';
 import { useContactUs } from './useContactUs';
 import { useMemo } from 'react';
 import { formatDate } from 'utils';
+import { Link } from 'react-router-dom';
 
 interface DataType {
   date: string;
@@ -16,7 +17,7 @@ interface DataType {
 }
 
 export const ContactUs = () => {
-  const { contactUs, isLoadingContactUs, onTableChange } = useContactUs();
+  const { contactUs, isLoadingContactUs, onTableChange, deleteNewsMutation } = useContactUs();
 
   const dataSource: DataType[] = useMemo(() => {
     return contactUs?.data.data.map((eachContactUs: any) => {
@@ -24,6 +25,10 @@ export const ContactUs = () => {
         key: eachContactUs?.id ?? '-',
         last_edit: formatDate(eachContactUs?.updatedAt),
         published: formatDate(eachContactUs?.createdAt),
+        subject: eachContactUs?.subject,
+        email: eachContactUs.User.email,
+        phone: eachContactUs.User.phone,
+        body: eachContactUs.body,
       };
     });
   }, [contactUs]);
@@ -31,7 +36,7 @@ export const ContactUs = () => {
   const columns: TableColumnType<DataType>[] = [
     {
       title: 'Date',
-      dataIndex: 'date',
+      dataIndex: 'published',
       ellipsis: true,
       width: 160,
       sorter: (a, b) => {
@@ -60,7 +65,7 @@ export const ContactUs = () => {
     },
     {
       title: 'Sender E-mail',
-      dataIndex: 'senderEmail',
+      dataIndex: 'email',
       sorter: (a, b) => {
         if (a.senderEmail.toUpperCase() < b.senderEmail.toUpperCase()) {
           return -1;
@@ -73,7 +78,7 @@ export const ContactUs = () => {
     },
     {
       title: 'Phone No.',
-      dataIndex: 'phoneNumber',
+      dataIndex: 'phone',
       sorter: (a, b) => {
         if (a.phoneNumber.toUpperCase() < b.phoneNumber.toUpperCase()) {
           return -1;
@@ -86,14 +91,21 @@ export const ContactUs = () => {
     },
 
     {
+      dataIndex: 'key',
       title: <Input placeholder='Search' />,
-      render: () => {
+      render: (id: string) => {
         return (
           <Row>
             <Button type='text'>
-              <p className='underline text-[#46A7ED] font-normal text-[14px]'>See Mesage</p>
+              <Link to={`${id}`} className='underline decoration-[#46A7ED] text-[#46A7ED] font-normal text-[14px]'>
+                <p className='text-[#46A7ED]'>See Mesage</p>
+              </Link>
             </Button>
-            <Button type='text'>
+            <Button
+              type='text'
+              loading={deleteNewsMutation.isLoading}
+              onClick={() => deleteNewsMutation.mutate(id ?? '')}
+            >
               <img src={Trash} alt='delete' />
             </Button>
           </Row>

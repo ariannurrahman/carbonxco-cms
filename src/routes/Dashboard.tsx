@@ -21,6 +21,7 @@ import { OpportunityForm } from 'pages/dashboard/opportunity/opportunity-form';
 import { JobsOpp } from 'pages/dashboard/jobs-opp';
 
 import { ContactUs } from 'pages/dashboard/contact-us';
+import { ContactUsDetail } from 'pages/dashboard/contact-us/contact-us-detail';
 
 export const DashboardRoutes = () => {
   return (
@@ -48,6 +49,7 @@ export const DashboardRoutes = () => {
           <Route path='faq/:id/edit' element={<FaqForm />} />
 
           <Route path='contacts' element={<ContactUs />} />
+          <Route path='contacts/:id' element={<ContactUsDetail />} />
 
           <Route path='jobs-opp' element={<JobsOpp />} />
 
