@@ -210,8 +210,10 @@ export const ProjectForm = () => {
               setGallery((prevState) => {
                 const updated = [...prevState, { ...eachGallery[0], ...res }];
                 form.setFieldValue('gallery', updated);
+
                 return updated;
               });
+              navigate(-1);
             },
           },
         );

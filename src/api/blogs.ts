@@ -16,7 +16,7 @@ export const postBlog = (payload: News) => {
   const documents = updatedPayload.featuredImage?.map((eachDoc) => {
     return {
       ...eachDoc,
-      document_type: 'project_thumbnail',
+      document_type: 'blog_thumbnail',
       // @ts-expect-error: id does exist (?)
       id: eachDoc.id ?? '',
     };
@@ -27,16 +27,16 @@ export const postBlog = (payload: News) => {
 
 export const updateBlog = (id: string, payload: News) => {
   const updatedPayload = { ...payload };
-  console.log('update payload', payload);
   const documents = updatedPayload.featuredImage?.map((eachDoc) => {
     return {
       ...eachDoc,
-      document_type: 'project_thumbnail',
+      document_type: 'blog_thumbnail',
       // @ts-expect-error: id does exist (?)
       id: eachDoc.id ?? '',
     };
   });
   delete updatedPayload.featuredImage;
+  console.log('{ ...updatedPayload, documents }', { ...updatedPayload, documents });
   return CarbonxApi.put(`/blogs/${id}`, { ...updatedPayload, documents });
 };
 

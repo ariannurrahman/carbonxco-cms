@@ -26,7 +26,7 @@ export const NewsForm = () => {
 
   const { createNewsMutation, isLoadingNewsDetail, newsDetail, updateNewsMutation } = useNews({ id, action });
 
-  const { postDocumentMutation } = useMutationDocument();
+  const { postDocumentMutation, deleteDocumentMutation } = useMutationDocument();
 
   const [loading, setLoading] = useState(false);
   const [featureImage, setFeatureImage] = useState<UploadFile[]>([]);
@@ -50,7 +50,13 @@ export const NewsForm = () => {
     setLoading(true);
 
     if (info.file.status === 'removed') {
-      form.setFieldValue('featuredImage', [{ id: documentId }]);
+      // @ts-expect-error: The is exist tho
+      deleteDocumentMutation.mutate(featureImage[0].id, {
+        onSuccess: () => {
+          setFeatureImage([]);
+          form.setFieldValue('featuredImage', []);
+        },
+      });
       setFeatureImage([]);
     } else {
       const fileList = [...info.fileList];

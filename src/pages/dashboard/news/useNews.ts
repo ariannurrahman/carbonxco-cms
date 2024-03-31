@@ -48,7 +48,7 @@ export const useNews = (props: useNewsProps) => {
     onSuccess: () => {
       message.success('Create news success!');
       queryClient.invalidateQueries(['news']);
-      // navigate(-1);
+      navigate(-1);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;
