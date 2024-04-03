@@ -210,7 +210,6 @@ export const ProjectForm = () => {
 
                 return updated;
               });
-              navigate(-1);
             },
           },
         );
