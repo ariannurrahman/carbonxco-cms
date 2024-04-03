@@ -254,11 +254,7 @@ export const ProjectForm = () => {
         requiredMark={false}
         disabled={isLoadingProjectDetail && action !== 'create'}
       >
-        <Form.Item<ProjectFormData>
-          label='Project Title'
-          name='title'
-          rules={[{ required: true, message: 'Title is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Project Title' name='title'>
           <Input />
         </Form.Item>
 
@@ -270,16 +266,11 @@ export const ProjectForm = () => {
             </div>
           }
           name='description'
-          rules={[{ required: true, message: 'description is required!' }]}
         >
           <Input.TextArea rows={4} />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Featured Image'
-          name='featuredImage'
-          rules={[{ required: true, message: 'Feature Image is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Featured Image' name='featuredImage'>
           <Upload
             name='featuredImage'
             listType='picture-card'
@@ -305,76 +296,40 @@ export const ProjectForm = () => {
           </Checkbox.Group>
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Project Started'
-          name='start_date'
-          rules={[{ required: true, message: 'Project Started is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Project Started' name='start_date'>
           <DatePicker format={'DD MMMM YYYY'} />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Location'
-          name='location'
-          rules={[{ required: true, message: 'Location is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Location' name='location'>
           <Input />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Project Area'
-          name='area'
-          rules={[{ required: true, message: 'Project Area is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Project Area' name='area'>
           <Input />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Project Area Description'
-          name='area_description'
-          rules={[{ required: true, message: 'Project Area Description is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Project Area Description' name='area_description'>
           <Input.TextArea rows={4} />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Ecosystem Type'
-          name='ecosystem_type'
-          rules={[{ required: true, message: 'Ecosystem Type is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Ecosystem Type' name='ecosystem_type'>
           <Input />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Main Goals'
-          name='main_goal'
-          rules={[{ required: true, message: 'Main Goals is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Main Goals' name='main_goal'>
           <Input.TextArea rows={4} />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Key Factors'
-          name='key_factor'
-          rules={[{ required: true, message: 'Key Factors is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Key Factors' name='key_factor'>
           <Input.TextArea rows={4} />
         </Form.Item>
-        <Form.Item<ProjectFormData>
-          label='Community'
-          name='community'
-          rules={[{ required: true, message: 'Community is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Community' name='community'>
           <Input.TextArea rows={4} />
         </Form.Item>
 
         <Divider />
 
-        <Form.Item<ProjectFormData>
-          label='Status'
-          name='status'
-          rules={[{ required: true, message: 'Status is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Status' name='status'>
           <Radio.Group>
             {status.map((eachStatus) => {
               return (
@@ -386,11 +341,7 @@ export const ProjectForm = () => {
           </Radio.Group>
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Project Map'
-          name='projectMap'
-          rules={[{ required: true, message: 'Feature Image is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Project Map' name='projectMap'>
           <Upload
             name='featureImage'
             listType='picture-card'
@@ -406,29 +357,17 @@ export const ProjectForm = () => {
           </Upload>
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='CTA Buttons'
-          name='button_text'
-          rules={[{ required: true, message: 'CTA Buttons is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='CTA Buttons' name='button_text'>
           <Input />
         </Form.Item>
 
-        <Form.Item<ProjectFormData>
-          label='Button Links to'
-          name='button_link_to'
-          rules={[{ required: true, message: 'Button Links to is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Button Links to' name='button_link_to'>
           <Input />
         </Form.Item>
 
         <Divider />
 
-        <Form.Item<ProjectFormData>
-          label='Gallery Photo'
-          name='gallery'
-          rules={[{ required: true, message: 'Gallery Photo is required!' }]}
-        >
+        <Form.Item<ProjectFormData> label='Gallery Photo' name='gallery'>
           <Upload
             name='gallery'
             listType='picture-card'
