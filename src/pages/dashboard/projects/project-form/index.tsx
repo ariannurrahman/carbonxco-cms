@@ -279,12 +279,13 @@ export const ProjectForm = () => {
             fileList={featureImage}
             beforeUpload={() => false}
             onChange={handleChangeFeatureImage}
+            accept='image/*'
           >
             {featureImage.length ? null : <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />}
           </Upload>
         </Form.Item>
 
-        <Form.Item<ProjectFormData> name='sdg' label='SDG' rules={[{ required: true, message: 'SDG is required!' }]}>
+        <Form.Item<ProjectFormData> name='sdg' label='SDG'>
           <Checkbox.Group>
             {SGD.map((eachSGD) => {
               return (
@@ -350,6 +351,7 @@ export const ProjectForm = () => {
             fileList={projectMapImage}
             beforeUpload={() => false}
             onChange={handleChangeProjectMap}
+            accept='image/*'
           >
             {projectMapImage.length ? null : (
               <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />
@@ -376,6 +378,7 @@ export const ProjectForm = () => {
             fileList={gallery}
             beforeUpload={() => false}
             onChange={handleChangeGallery}
+            accept='image/*'
           >
             <CarbonxUploadButton loading={postDocumentMutation.isLoading || loading} />
           </Upload>

@@ -3,6 +3,7 @@ import { Project } from 'pages/dashboard/projects/types';
 import { Pagination } from 'types/Pagination';
 
 const handleImage = (updatePayload: Project) => {
+  console.log('updatePayload', updatePayload);
   const feature = {
     ...updatePayload?.featuredImage?.[0],
     document_type: 'project_thumbnail',
@@ -11,6 +12,7 @@ const handleImage = (updatePayload: Project) => {
   const featureId = feature.id;
   // @ts-expect-error: id does exist (?)
   feature.id = featureId ?? '';
+
   const gallery = updatePayload?.gallery?.map((eachGallery) => ({
     ...eachGallery,
     document_type: 'project_gallery',
@@ -25,7 +27,23 @@ const handleImage = (updatePayload: Project) => {
   // @ts-expect-error: id does exist (?)
   map.id = mapId ?? '';
 
-  const documents: any = [feature, ...gallery, map];
+  // const documents: any = [feature, ...gallery, map];
+  const documents = [];
+  // @ts-expect-error: id does exist (?)
+  if (feature.key) {
+    documents.push(feature);
+  }
+
+  // @ts-expect-error: id does exist (?)
+  if (map.key) {
+    documents.push(map);
+  }
+
+  if (gallery?.length) {
+    documents.push(...gallery);
+  }
+  console.log('documents', documents);
+
   delete updatePayload.featuredImage;
   delete updatePayload.gallery;
   delete updatePayload.projectMap;
