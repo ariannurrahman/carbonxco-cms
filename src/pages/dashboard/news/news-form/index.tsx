@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import { Button, Col, Divider, Form, Input, Row, Select, Upload, UploadFile, UploadProps } from 'antd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import { CarbonxUploadButton } from 'components/upload-button';
 import { currentAction } from 'utils';
@@ -19,6 +20,8 @@ interface NewsFormData {
 }
 
 export const NewsForm = () => {
+  const [newsContent, setNewsContent] = useState('');
+
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { id = '' } = useParams();
@@ -37,12 +40,14 @@ export const NewsForm = () => {
   useEffect(() => {
     if (action === 'create' || !id) return;
     form.setFieldsValue(newsDetail?.data);
+    setNewsContent(newsDetail?.data?.content);
 
     if (documentLength >= 0) {
       const initFeature = newsDetail?.data?.documents?.[documentLength]
         ? [newsDetail?.data?.documents?.[documentLength]]
         : [];
       setFeatureImage(initFeature);
+      form.setFieldValue('featuredImage', initFeature);
     }
   }, [action, form, newsDetail, id, documentLength]);
 
@@ -84,6 +89,11 @@ export const NewsForm = () => {
 
   const onClickBack = () => {
     navigate(-1);
+  };
+
+  const onChangeNewsContent = (value: string) => {
+    form.setFieldValue('content', value);
+    setNewsContent(value);
   };
 
   const onFinish = () => {
@@ -181,9 +191,8 @@ export const NewsForm = () => {
         <Divider />
 
         <Form.Item<NewsFormData> label='Body' name='content' rules={[{ required: true, message: 'Body is required!' }]}>
-          <Input.TextArea rows={8} />
+          <ReactQuill theme='snow' value={newsContent} onChange={onChangeNewsContent} />
         </Form.Item>
-
         <Divider />
 
         <Form.Item wrapperCol={{ span: 16, offset: 2 }}>
