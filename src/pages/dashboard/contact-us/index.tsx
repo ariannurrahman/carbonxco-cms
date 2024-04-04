@@ -1,9 +1,9 @@
-import { Button, Col, Input, Row, TableColumnType } from 'antd';
+import { Button, Input, Row, TableColumnType } from 'antd';
 
 import { PageTitle } from 'components/page-title';
 import { CarbonxTable } from 'components/table';
 import Trash from 'assets/trash.svg';
-import Plus from 'assets/plus.svg';
+// import Plus from 'assets/plus.svg';
 import { useContactUs } from './useContactUs';
 import { useMemo } from 'react';
 import { formatDate } from 'utils';
@@ -118,16 +118,16 @@ export const ContactUs = () => {
     <div className='pb-52'>
       <PageTitle
         title='Contact Us E-mail List'
-        rightNode={
-          <Row gutter={[8, 0]} justify='center' align='middle' className='cursor-pointer'>
-            <Col>
-              <img src={Plus} alt='plus' />
-            </Col>
-            <Col>
-              <p className='text-[14px] underline'>Change E-mail Settings</p>
-            </Col>
-          </Row>
-        }
+        // rightNode={
+        //   <Row gutter={[8, 0]} justify='center' align='middle' className='cursor-pointer'>
+        //     <Col>
+        //       <img src={Plus} alt='plus' />
+        //     </Col>
+        //     <Col>
+        //       <p className='text-[14px] underline'>Change E-mail Settings</p>
+        //     </Col>
+        //   </Row>
+        // }
       />
 
       <CarbonxTable
