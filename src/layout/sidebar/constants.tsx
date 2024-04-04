@@ -4,7 +4,7 @@ export const SIDEBAR_NAV = [
   { href: 'teams', label: 'Meet the Team' },
   { href: 'opportunity', label: 'Job Opportunities' },
   { href: 'faq', label: 'F.A.Q' },
-  { href: 'contacts', label: 'Contact Us Forms' },
+  // { href: 'contacts', label: 'Contact Us Forms' },
   { href: 'jobs-opp', label: 'Job Opp Forms' },
 ];
 
