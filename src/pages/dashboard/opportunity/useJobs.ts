@@ -76,7 +76,7 @@ export const useJobs = (props: useJobsProps) => {
     },
     onSuccess: () => {
       message.success('Delete job success!');
-      queryClient.invalidateQueries(['projects']);
+      queryClient.invalidateQueries(['jobs']);
     },
     onError: (e: any) => {
       const errorBE = e.response.data.error;

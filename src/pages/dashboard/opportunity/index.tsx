@@ -21,7 +21,7 @@ interface DataType {
 export const Opportunity = () => {
   const navigate = useNavigate();
 
-  const { isLoadingJobs, jobs, onTableChange } = useJobs({});
+  const { isLoadingJobs, jobs, onTableChange, deleteJobMutation } = useJobs({});
 
   const columns: TableColumnType<DataType>[] = [
     {
@@ -76,7 +76,7 @@ export const Opportunity = () => {
                 <p className='underline text-[#46A7ED] font-normal text-[14px]'>Edit</p>
               </Link>
             </Button>
-            <Button type='text'>
+            <Button type='text' onClick={() => deleteJobMutation.mutate(id)}>
               <img src={Trash} alt='delete' />
             </Button>
           </Row>
